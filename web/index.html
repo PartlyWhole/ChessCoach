@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChessCoach</title>
+  <!-- GitHub Pages cannot send COOP/COEP headers; this service worker adds them so the
+       Python worker can block on SharedArrayBuffer (ADR 0002). First visit reloads once. -->
+  <script src="coi-serviceworker.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>ChessCoach <span class="tag">browser proof of concept</span></h1>
+    <p class="sub">A sparring partner that coaches while you play. Everything runs in your browser:
+      Stockfish (WebAssembly), a human-like Maia-2 bot (ONNX) and the coach's Python code (Pyodide).</p>
+  </header>
+
+  <main>
+    <section class="board-col">
+      <div id="board" class="board" aria-label="Chess board"></div>
+      <div class="board-actions">
+        <button id="hint" disabled>Hint</button>
+        <button id="takeback" disabled>Take back</button>
+        <button id="resume" disabled>Keep my move</button>
+      </div>
+      <p id="status" class="status" role="status">Starting…</p>
+    </section>
+
+    <section class="side-col">
+      <form id="setup" class="card">
+        <h2>New game</h2>
+        <label>Play as
+          <select id="color"><option value="white">White</option><option value="black">Black</option></select>
+        </label>
+        <label>Your rating
+          <input id="rating" type="number" min="400" max="2600" step="50" value="1000">
+        </label>
+        <label>Coaching
+          <select id="mode">
+            <option value="guided">Guided (prompts before sharp moves)</option>
+            <option value="standard" selected>Standard</option>
+            <option value="silent">Silent</option>
+          </select>
+        </label>
+        <label class="check">
+          <input id="drafts" type="checkbox">
+          <span>Developer preview: show <strong>unreviewed draft</strong> coaching text</span>
+        </label>
+        <p class="note">Coaching text ships only after a chess expert approves it. None is approved yet,
+          so without the preview the coach stays silent.</p>
+        <button id="start" type="submit" disabled>Start</button>
+      </form>
+
+      <div class="card">
+        <h2>Coach</h2>
+        <ol id="coach" class="coach"></ol>
+      </div>
+
+      <p class="foot">GPL-3.0 · <a href="https://github.com/PartlyWhole/ChessCoach">source</a> ·
+        <a href="THIRD_PARTY.md">third-party licenses</a></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

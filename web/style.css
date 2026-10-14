@@ -1,0 +1,66 @@
+:root {
+  --bg: #f6f5f1; --fg: #1d1f21; --muted: #5d6166; --card: #ffffff; --line: #dedbd2;
+  --light: #ece6d6; --dark: #b2a184; --accent: #2f6f4f; --accent-fg: #ffffff;
+  --sel: rgba(47, 111, 79, 0.45); --hl: rgba(214, 160, 40, 0.55); --last: rgba(120, 160, 220, 0.35);
+  --dot: rgba(29, 31, 33, 0.28); --warn: #8a4b00;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17191b; --fg: #e8e6e1; --muted: #a3a6aa; --card: #212427; --line: #33373b;
+    --light: #c9bfa8; --dark: #8a7a5d; --accent: #5fae86; --accent-fg: #0f1411;
+    --dot: rgba(0, 0, 0, 0.35); --warn: #f0b060;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17191b; --fg: #e8e6e1; --muted: #a3a6aa; --card: #212427; --line: #33373b;
+  --light: #c9bfa8; --dark: #8a7a5d; --accent: #5fae86; --accent-fg: #0f1411;
+  --dot: rgba(0, 0, 0, 0.35); --warn: #f0b060;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { max-width: 1040px; margin: 0 auto; padding: 20px 16px 8px; }
+h1 { margin: 0; font-size: 1.6rem; }
+h2 { margin: 0 0 10px; font-size: 1.05rem; }
+.tag { font-size: 0.75rem; font-weight: 500; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: 2px 8px; vertical-align: middle; }
+.sub { color: var(--muted); margin: 6px 0 0; max-width: 70ch; }
+main { max-width: 1040px; margin: 0 auto; padding: 12px 16px 32px; display: grid;
+  grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } }
+.board { width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr));
+  border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.18); user-select: none; }
+.sq { position: relative; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(22px, 8.2vw, 54px); line-height: 1; cursor: pointer; }
+@media (min-width: 861px) { .sq { font-size: 54px; } }
+.sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+.sq.last::after, .sq.hl::after, .sq.sel::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.sq.last::after { background: var(--last); }
+.sq.hl::after { background: var(--hl); }
+.sq.sel::after { background: var(--sel); }
+.sq.target::before { content: ""; position: absolute; width: 26%; height: 26%; border-radius: 50%;
+  background: var(--dot); pointer-events: none; }
+.sq .coord { position: absolute; font-size: 10px; left: 3px; bottom: 2px; opacity: .55; color: #222; }
+.pc { position: relative; z-index: 1; }
+.pc.w { color: #fff; text-shadow: 0 0 2px #000, 0 0 1px #000; }
+.pc.b { color: #111; text-shadow: 0 0 1px rgba(255,255,255,.5); }
+.board-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+  border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+button:disabled { opacity: .45; cursor: default; }
+#start { background: var(--accent); color: var(--accent-fg); border-color: transparent; width: 100%; margin-top: 6px; }
+.status { color: var(--muted); min-height: 1.5em; margin: 8px 0 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px; }
+label { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 6px 0; }
+label.check { justify-content: flex-start; align-items: flex-start; }
+select, input[type=number] { font: inherit; padding: 4px 6px; border-radius: 5px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--fg); max-width: 60%; }
+.note { color: var(--muted); font-size: .85rem; margin: 4px 0 8px; }
+.coach { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow-y: auto; }
+.coach li { border-top: 1px solid var(--line); padding: 8px 0; }
+.coach li:first-child { border-top: 0; }
+.coach .k { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.coach .k.interrupt { color: var(--warn); }
+.coach .meta { font-size: .8rem; color: var(--muted); }
+.foot { color: var(--muted); font-size: .85rem; }
+a { color: var(--accent); }

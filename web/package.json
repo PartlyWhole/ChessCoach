@@ -1,0 +1,12 @@
+{
+  "name": "chesscoach-web",
+  "private": true,
+  "description": "Static browser build of ChessCoach (ADR 0002). Runtime assets only; no bundler.",
+  "license": "GPL-3.0-only",
+  "dependencies": {
+    "coi-serviceworker": "0.1.7",
+    "onnxruntime-web": "1.24.3",
+    "pyodide": "0.27.7",
+    "stockfish": "19.0.1"
+  }
+}

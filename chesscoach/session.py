@@ -9,7 +9,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import chess
 
@@ -17,10 +17,12 @@ from chesscoach.analysis.analyzer import Analyzer
 from chesscoach.concepts.matcher import match, views_after_move, views_for_position
 from chesscoach.concepts.registry import Registry
 from chesscoach.learner.mastery import ConceptMastery, Opportunity, game_success
-from chesscoach.learner.store import Store
 from chesscoach.policy.policy import CoachingPolicy, CoachSessionState
 from chesscoach.sparring.bot import SparringBot
 from chesscoach.types import BotMove, CoachingEvent, ConceptHit, EngineResult, MoveAssessment
+
+if TYPE_CHECKING:   # the store needs sqlite3 + fsrs; the browser build runs without it
+    from chesscoach.learner.store import Store
 
 
 @dataclass
@@ -47,7 +49,7 @@ class _Logged:
 class GameSession:
     def __init__(self, analyzer: Analyzer, registry: Registry, bot: SparringBot, policy: CoachingPolicy,
                  player_color: str = "white", band: str = "B1", player_id: str = "local",
-                 store: Optional[Store] = None, start_fen: str = chess.STARTING_FEN,
+                 store: Optional["Store"] = None, start_fen: str = chess.STARTING_FEN,
                  lesson_focus: Optional[str] = None, game_id: Optional[str] = None):
         self.analyzer, self.registry, self.bot, self.policy = analyzer, registry, bot, policy
         self.player_color, self.band, self.player_id, self.store = player_color, band, player_id, store

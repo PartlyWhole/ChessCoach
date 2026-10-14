@@ -28,6 +28,21 @@ Maia-2 downloads its weights (~280 MB) into `models/maia2/` on first use.
 (`review.status: approved` in each YAML) before they ship; without `--dev` the coach stays
 silent until then.
 
+## Browser build (GitHub Pages)
+
+Everything runs in the browser: Pyodide runs this Python package, Stockfish 19 lite runs as
+WebAssembly and Maia-2 runs as an fp16 ONNX model ([ADR 0002](docs/decisions/0002-browser-build.md)).
+
+```bash
+uv pip install --python .venv/bin/python -e '.[webbuild]'
+.venv/bin/python tools/export_maia_onnx.py      # once: models/maia2_rapid.fp16.onnx
+(cd web && npm ci)
+.venv/bin/python tools/build_web.py             # → _site/
+```
+
+Serve `_site/` with any static server. `.github/workflows/pages.yml` builds and deploys it on
+pushes to `main` once GitHub Pages is set to "GitHub Actions" in the repo settings.
+
 ## Tests
 
 ```bash

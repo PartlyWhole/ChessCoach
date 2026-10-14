@@ -5,3 +5,6 @@ __pycache__/
 *.egg-info/
 models/
 chess-coach-docs.zip
+_site/
+web/node_modules/
+.claude/launch.json

@@ -1,0 +1,60 @@
+# Builds the browser proof of concept (ADR 0002) and deploys it to GitHub Pages.
+name: pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["chesscoach/**", "concepts/**", "templates/**", "web/**", "tools/build_web.py",
+            "tools/export_maia_onnx.py", ".github/workflows/pages.yml"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Cache Maia-2 weights and ONNX export
+        uses: actions/cache@v4
+        with:
+          path: models
+          key: maia2-rapid-onnx-fp16-v1
+      - name: Install Python build deps (CPU-only torch)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install -e '.[webbuild]'
+      - name: Export Maia-2 to fp16 ONNX
+        run: test -f models/maia2_rapid.fp16.onnx || python tools/export_maia_onnx.py
+      - run: npm ci
+        working-directory: web
+      - run: python tools/build_web.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
