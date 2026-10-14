@@ -1,0 +1,31 @@
+concept: tactic-trapped-piece
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: b4-traps-rim-knight-available
+    fen: "r2q1rk1/pp2bppp/2pp1n2/n3p3/4P3/2P2N2/PP2BPPP/R1BQ1RK1 w - - 0 1"
+    expect: {role: available, slots: {square: a5, piece: knight}}
+    note: "b4 attacks Na5, whose squares are b7/c6 (own pawns), c4 (Bxc4) and b3 (axb3): the knight is lost. Engine +2.4 vs -0.5 for the next move."
+  - id: b4-traps-rim-knight-missed
+    fen: "r2q1rk1/pp2bppp/2pp1n2/n3p3/4P3/2P2N2/PP2BPPP/R1BQ1RK1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {square: a5, piece: knight}}
+    note: "h3 gives the knight time (...b6 / ...Nb7)."
+  - id: b4-traps-rim-knight-played
+    fen: "r2q1rk1/pp2bppp/2pp1n2/n3p3/4P3/2P2N2/PP2BPPP/R1BQ1RK1 w - - 0 1"
+    move: b2b4
+    expect: {role: played, slots: {square: a5, piece: knight}}
+    note: "After b4 (Black to move) the knight on a5 is attacked and every move loses it."
+  - id: knight-grabs-h2-and-is-trapped-allowed
+    fen: "2bq1rk1/pppp1ppp/8/8/6n1/2N5/PPPQBPPP/4R1K1 b - - 0 1"
+    move: g4h2
+    expect: {role: allowed, slots: {square: h2, piece: knight}}
+    note: "...Nxh2?? (the knight was attacked by Be2): on h2 it is attacked by the king and f1/f3/g4 are all covered; d7 blocks the c8 bishop from guarding g4."
+  - id: knight-on-h2-can-retreat
+    fen: "2bq1rk1/ppp2ppp/3p4/8/6n1/2N5/PPPQBPPP/4R1K1 b - - 0 1"
+    move: g4h2
+    expect: {role: allowed, present: false}
+    note: "Near miss: same grab, but with ...d6 played the c8 bishop guards g4, so the knight is merely hanging, not trapped."
+  - id: rim-knight-has-c6
+    fen: "r2q1rk1/ppp1bppp/3p1n2/n3p3/4P3/2P2N2/PP2BPPP/R1BQ1RK1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: the knight on a5 is on the rim, but c6 is free, so b4 is met by ...Nc6."

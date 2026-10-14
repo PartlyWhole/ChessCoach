@@ -1,0 +1,30 @@
+concept: opening-develop-minors
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Phase opening (fullmove <= 12 and >= 10 non-pawn non-king pieces) and
+# undeveloped_pieces for the player to move (minors on home squares after move 8).
+cases:
+  - id: available-white-knight-b1-bishop-c1-home
+    fen: "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 0 9"
+    expect: {role: available, present: true, slots: {squares: "b1 and c1", pieces: "knight and bishop"}}
+    note: "Move 9: White has castled but Nb1 and Bc1 have not moved."
+  - id: available-black-bishop-c8-home
+    fen: "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 b - - 1 9"
+    expect: {role: available, present: true, slots: {squares: c8, pieces: bishop}}
+    note: "Black to move on move 9: the c8 bishop is still at home."
+  - id: available-move-12-boundary
+    fen: "rnbq1rk1/ppp1bppp/3p1n2/4p3/4P3/3P1N2/PPP1BPPP/RNBQ1RK1 w - - 4 12"
+    band: B1
+    expect: {role: available, present: true, slots: {squares: "b1 and c1"}}
+    note: "Last move of the opening phase (fullmove 12): White's queenside minors are still home."
+  - id: neg-move-8-too-early
+    fen: "r1bq1rk1/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQ1RK1 w - - 0 8"
+    expect: {role: available, present: false}
+    note: "Near miss: same position on move 8; undeveloped_pieces only applies after move 8."
+  - id: neg-move-13-middlegame
+    fen: "rnbq1rk1/ppp1bppp/3p1n2/4p3/4P3/3P1N2/PPP1BPPP/RNBQ1RK1 w - - 4 13"
+    expect: {role: available, present: false}
+    note: "Near miss: same position on move 13 is middlegame by 02 §5."
+  - id: neg-player-developed-opponent-not
+    fen: "r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2NPBN2/PPP2PPP/R2Q1RK1 w - - 0 10"
+    expect: {role: available, present: false}
+    note: "Near miss: White has developed every minor piece; only Black's c8 bishop is still home."

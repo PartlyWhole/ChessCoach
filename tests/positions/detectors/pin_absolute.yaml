@@ -1,0 +1,80 @@
+detector: pin_absolute
+cases:
+- id: nimzo-bb4-pins-nc3
+  fen: rnbqk2r/pppp1ppp/4pn2/8/1bPP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - c3
+  note: 'Nimzo-Indian: Bb4 pins Nc3 to Ke1 (d2 empty). Pinner''s side is not to move; the pin still exists.'
+- id: bb5-pins-c6-pawn
+  fen: rnbqkbnr/pp3ppp/2pp4/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c6
+  note: '1.e4 e5 2.Nf3 d6 3.Bb5+ c6: the c6 pawn is pinned to Ke8 (d7 empty). It may capture the pinner but cannot leave the line otherwise.'
+- id: rook-pins-knight-on-file
+  fen: 4k3/ppp2ppp/8/4n3/8/8/PPP2PPP/4R1K1 b - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e5
+  note: Re1 pins Ne5 to Ke8 along the open e-file.
+- id: bb5-pins-blocking-bishop
+  fen: rn1qkbnr/pppb1ppp/3p4/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 4
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d7
+  note: '3.Bb5+ Bd7: the blocking bishop is absolutely pinned; it can only move along b5-e8.'
+- id: queen-pins-f2-to-castled-king
+  fen: r1b2rk1/ppp2ppp/1q6/8/8/5N2/PPP2PPP/R1BQ1RK1 w - - 0 1
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - f2
+  note: Qb6 pins f2 to Kg1 along the g1-a7 diagonal.
+- id: rook-pins-rook-on-first-rank
+  fen: 6k1/5ppp/8/8/8/8/5PPP/r2R2K1 w - - 0 1
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d1
+  note: Ra1 pins Rd1 to Kg1 on the first rank; a pinned rook may still slide along the rank or capture a1.
+- id: ruy-lopez-pawn-shields
+  fen: r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3
+  expect:
+    present: false
+  note: 'Near miss: Bb5, Nc6 and Ke8 are on one diagonal, but d7 also blocks. Two pieces between: no pin.'
+- id: two-pieces-between
+  fen: 4k3/4r3/4n3/8/8/8/5PPP/4R1K1 w - - 0 1
+  expect:
+    present: false
+  note: 'Re1 x-rays Ne6 and Re7 to Ke8: two blockers, so neither is pinned.'
+- id: own-piece-between
+  fen: 4k3/ppp2ppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1
+  expect:
+    present: false
+  note: 'White''s own Ne4 stands between Re1 and Ke8: that is a discovered-attack setup, not a pin.'
+- id: rook-cannot-pin-diagonally
+  fen: 4k3/3n1ppp/2R5/8/8/8/5PPP/6K1 w - - 0 1
+  expect:
+    present: false
+  note: Rc6, Nd7, Ke8 lie on a diagonal, but rooks do not attack diagonally.
+- id: king-already-castled
+  fen: r1bq1rk1/ppp2ppp/2np1n2/1B2p3/4P3/2NP1N2/PPP2PPP/R1BQK2R w KQ - 0 6
+  expect:
+    present: false
+  note: 'Near miss: Bb5 attacks Nc6 on the b5-e8 diagonal but the king has castled; e8 is empty.'
+- id: pin-to-queen-not-king
+  fen: rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b KQkq - 3 4
+  expect:
+    present: false
+  note: 'Near miss: Bg5 pins Nf6 to Qd8 - a relative pin; Nf6 may legally move, so no absolute pin.'

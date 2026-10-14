@@ -1,0 +1,43 @@
+id: tactic-trapped-piece
+title: Trapped piece
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.7
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: trapped_piece
+  engine:
+    min_gain: 0.1
+slots:
+  square: feature.squares[0]
+  piece: feature.data.piece
+templates:
+  missed:
+    1: You had a way to trap one of your opponent's pieces. Can you find it?
+    2: Look at the {piece} on {square}. Where can it go?
+    3: '{move_san} traps the {piece} on {square}. Every square it can move to loses material.'
+  allowed:
+    1: Does every one of your pieces still have a safe square?
+    2: Your {piece} on {square} is running out of squares.
+    3: After your move, {move_san} traps your {piece} on {square}.
+  played:
+    0: Nice. The {piece} on {square} has no safe square left.
+  available:
+    1: Is one of your opponent's pieces short of squares?
+    2: Look at the {piece} on {square}.
+    3: '{move_san} traps the {piece} on {square}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-trapped-piece.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

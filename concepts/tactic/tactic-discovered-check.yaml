@@ -1,0 +1,47 @@
+id: tactic-discovered-check
+title: Discovered check
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.8
+parent: tactic-discovered-attack
+prerequisites:
+- tactic-discovered-attack
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: discovered_check
+  engine:
+    min_gain: 0.1
+slots:
+  slider: feature.data.slider
+  slider_piece: feature.data.slider_piece
+  moved_piece: feature.data.moved_piece
+templates:
+  missed:
+    1: You had a discovered check. Can you find it?
+    2: Look at your {slider_piece} on {slider} and the piece in front of it.
+    3: '{move_san} is a discovered check from your {slider_piece}, so the moved piece can do damage freely.'
+  allowed:
+    1: Look for a piece that could step aside and give check.
+    2: Watch the line from the {slider_piece} on {slider} to your king.
+    3: After your move, {move_san} gives a discovered check.
+  played:
+    0: Good. Your {moved_piece} moved and uncovered check from your {slider_piece}.
+  available:
+    1: Can you give check by moving a different piece?
+    2: Look at your {slider_piece} on {slider}.
+    3: '{move_san} gives a discovered check.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-discovered-check.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

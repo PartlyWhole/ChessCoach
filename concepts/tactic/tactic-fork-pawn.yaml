@@ -1,0 +1,47 @@
+id: tactic-fork-pawn
+title: Pawn fork
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.8
+parent: tactic-double-attack
+prerequisites:
+- tactic-double-attack
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: fork
+    piece: pawn
+  engine:
+    min_gain: 0.1
+slots:
+  square: feature.squares[0]
+  targets: feature.data.target_names
+templates:
+  missed:
+    1: There was a tactical shot here for your pawn. Want to try again?
+    2: Look at what your pawn could attack from {square}.
+    3: '{move_san} forks the {targets}. A fork attacks two pieces at once, and your opponent can only save one.'
+  allowed:
+    1: Careful. Check which squares your opponent's pawns can reach.
+    2: Your move let a pawn reach {square}.
+    3: After your move, {move_san} forks your {targets}.
+  played:
+    0: Nice fork. Your pawn hits the {targets} at once.
+  available:
+    1: Is there a square where your pawn attacks two things?
+    2: Look at {square}.
+    3: '{move_san} forks the {targets}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-fork-pawn.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

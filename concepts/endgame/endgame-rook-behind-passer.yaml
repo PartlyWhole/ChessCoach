@@ -1,0 +1,22 @@
+id: endgame-rook-behind-passer
+title: Rook behind the passed pawn
+category: endgame
+bands:
+- B2
+- B3
+base_importance: 0.55
+trigger:
+  roles:
+  - played
+  - plan
+  predicate: rook_behind_passer
+templates:
+  played:
+    0: Good. Your rook on {rook_square} stands behind the passed pawn on {pawn_square}.
+  plan:
+    1: Keep your rook behind the passed pawn on {pawn_square}. It gains activity as the pawn advances.
+tests: tests/positions/concepts/endgame-rook-behind-passer.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

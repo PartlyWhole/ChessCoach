@@ -1,0 +1,25 @@
+id: defence-what-is-threatened
+title: What is my opponent threatening?
+category: defence
+bands:
+- B0
+- B1
+- B2
+base_importance: 0.8
+trigger:
+  roles:
+  - available
+  predicate: opponent_threat
+templates:
+  available:
+    1: What is your opponent threatening?
+    2: Look at the square {threat_square}.
+    3: Your opponent threatens {threat_move_san}.
+drill:
+  kind: avoid_mistake
+  max_solution_plies: 1
+tests: tests/positions/concepts/defence-what-is-threatened.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

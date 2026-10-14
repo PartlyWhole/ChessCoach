@@ -1,0 +1,29 @@
+id: structure-open-center
+title: Open centre
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - open_center
+templates:
+  plan:
+    1: The game has an open centre.
+    2: '{plan}'
+plans:
+  owner:
+  - With open central files, piece activity matters most. Get your rooks to the open files.
+  - Keep your king safe; open centres favour quick attacks.
+  opponent:
+  - With open central files, piece activity matters most. Get your rooks to the open files.
+  - Keep your king safe; open centres favour quick attacks.
+  - Develop quickly and contest the open files.
+tests: tests/positions/concepts/structure-open-center.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,23 @@
+id: positional-weak-square
+title: Weak square
+category: positional
+bands:
+- B3
+base_importance: 0.45
+trigger:
+  roles:
+  - plan
+  all:
+  - feature: weak_square
+    side: other
+slots:
+  square: feature.squares[0]
+templates:
+  plan:
+    1: No pawn of your opponent can ever cover {square} again.
+    2: Aim to put a piece on {square}, ideally a knight.
+tests: tests/positions/concepts/positional-weak-square.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

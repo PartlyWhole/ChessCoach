@@ -1,0 +1,27 @@
+id: structure-caro-kann-advance
+title: Caro-Kann Advance
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - caro_kann_advance
+templates:
+  plan:
+    1: The game has an advanced Caro-Kann pawn chain.
+    2: '{plan}'
+plans:
+  owner:
+  - Use your space on the kingside and keep the e5 pawn supported.
+  opponent:
+  - Strike at the chain with ...c5, then develop actively.
+  - Develop the light-squared bishop outside the pawn chain before playing ...e6.
+tests: tests/positions/concepts/structure-caro-kann-advance.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,23 @@
+id: endgame-kq-vs-k
+title: King and queen vs king
+category: endgame
+bands:
+- B0
+- B1
+base_importance: 0.6
+trigger:
+  roles:
+  - plan
+  predicate: kq_vs_k
+templates:
+  plan:
+    1: You have king and queen against a lone king. This is a win.
+    2: Use your queen to push the king on {enemy_king} to the edge, then bring your king up to help mate.
+drill:
+  kind: endgame_technique
+  max_solution_plies: 20
+tests: tests/positions/concepts/endgame-kq-vs-k.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

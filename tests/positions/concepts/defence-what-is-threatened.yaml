@@ -1,0 +1,26 @@
+concept: defence-what-is-threatened
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Predicate opponent_threat: player to move; the null-move search (02 §6.4)
+# finds a move by the opponent gaining >= 0.10 win probability.
+cases:
+  - id: available-back-rank-mate-threat
+    fen: "4r1k1/pp3pp1/7p/8/3B4/2N5/PP3PPP/6K1 w - - 0 1"
+    expect: {role: available, present: true, slots: {threat_square: e1, threat_from: e8, threat_move_san: "Re1#"}}
+    note: "Rook against knight and bishop, roughly level. White has no luft and no piece can cover or block e1 (the bishop is on dark squares): Black threatens Re1#."
+  - id: available-ruy-lopez-a6-attacks-bishop
+    fen: "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4"
+    expect: {role: available, present: true, slots: {threat_square: b5, threat_from: a6, threat_move_san: axb5}}
+    note: "1.e4 e5 2.Nf3 Nc6 3.Bb5 a6: the pawn attacks the bishop; if White ignores it, axb5."
+  - id: available-scholars-mate-threat
+    fen: "r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3"
+    band: B1
+    expect: {role: available, present: true, slots: {threat_square: f7, threat_from: h5, threat_move_san: "Qxf7#"}}
+    note: "Black to move: Qh5 and Bc4 both hit f7; White threatens Qxf7#."
+  - id: neg-defended-pawn-not-a-threat
+    fen: "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 3"
+    expect: {role: available, present: false}
+    note: "Near miss: Nf6 attacks e4, but Nc3 defends it (Nxe4 Nxe4 loses a knight for a pawn), so Black threatens nothing."
+  - id: neg-opponent-can-only-rescue-its-own-piece
+    fen: "6k1/5pp1/b6p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: Black threatens nothing against White. Its knight on d5 is hanging, so the null-move search's best Black move is a retreat (Nf4/Nf6). That rescue is not a threat, and 'Your opponent threatens Nf4' would be false."

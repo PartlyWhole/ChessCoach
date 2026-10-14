@@ -1,0 +1,37 @@
+concept: safety-undefended-after-move
+engine: {name: "Stockfish 19", depth: 16}
+# Role: allowed only. Predicate moved_piece_hanging: after the player's move, the piece that
+# just moved is hanging, and the opponent's engine best move captures it (idea_targets_feature),
+# with win-prob loss >= 0.10.
+cases:
+  - id: allowed-knight-g5-queen-takes
+    fen: "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    move: "f3g5"
+    expect: {role: allowed, present: true, slots: {square: g5, piece: knight, move_san: Qxg5}}
+    note: "1.e4 e5 2.Nf3 Nc6 3.Ng5?? — the d8-g5 diagonal is open and nothing defends g5."
+  - id: allowed-bishop-b5-pawn-takes
+    fen: "6k1/5pp1/p6p/8/8/3B3P/P4PP1/6K1 w - - 0 1"
+    move: "d3b5"
+    expect: {role: allowed, present: true, slots: {square: b5, piece: bishop, move_san: axb5}}
+    note: "Bb5?? walks into the a6 pawn."
+  - id: allowed-rook-a5-knight-takes
+    fen: "6k1/5pp1/2n4p/8/8/7P/5PP1/R5K1 w - - 0 1"
+    move: "a1a5"
+    band: B1
+    expect: {role: allowed, present: true, slots: {square: a5, piece: rook, move_san: Nxa5}}
+    note: "Rook vs knight; Ra5?? lands on a square the c6 knight covers."
+  - id: neg-knight-d5-defended-trade
+    fen: "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2N2N2/PPPP1PPP/R1BQKB1R w KQkq - 4 4"
+    move: "c3d5"
+    expect: {role: allowed, present: false}
+    note: "Near miss: Nd5 is attacked by Nf6 but defended by e4; Nxd5 exd5 is an even trade, so the knight is not en prise."
+  - id: neg-other-piece-left-hanging
+    fen: "4r1k1/5pp1/2n4p/8/4B3/7P/5PP1/4R1K1 w - - 0 1"
+    move: "e1d1"
+    expect: {role: allowed, present: false}
+    note: "Near miss: the move does hang a piece (Be4), but the moved rook on d1 is safe. That is safety-hanging-piece/allowed, not this concept."
+  - id: neg-bishop-b5-pawn-cannot-take
+    fen: "6k1/5pp1/7p/p7/8/3B3P/P4PP1/6K1 w - - 0 1"
+    move: "d3b5"
+    expect: {role: allowed, present: false}
+    note: "Near miss: same idea but Black's pawn is on a5, which does not attack b5."

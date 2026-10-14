@@ -1,0 +1,32 @@
+concept: tactic-double-attack
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: rook-hits-two-loose-minors-available
+    fen: "6k1/5pp1/7p/b6n/8/8/5PPP/3R2K1 w - - 0 1"
+    expect: {role: available, slots: {square: d5, piece: rook}}
+    note: "Rd5 attacks the loose Ba5 and Nh5 along the 5th rank; neither can save the other. (No rook-fork concept exists, so the parent concept is the one claimed.)"
+  - id: rook-hits-two-loose-minors-missed
+    fen: "6k1/5pp1/7p/b6n/8/8/5PPP/3R2K1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {square: d5}}
+    note: "h3 gives Black time to tidy up the loose pieces."
+  - id: rook-hits-two-loose-minors-played
+    fen: "6k1/5pp1/7p/b6n/8/8/5PPP/3R2K1 w - - 0 1"
+    move: d1d5
+    expect: {role: played, slots: {square: d5, piece: rook}}
+    note: "Rd5 is the only winning move (engine +3.8 vs -0.2)."
+  - id: bishop-steps-onto-fifth-rank-allowed
+    fen: "6k1/2b2pp1/7p/7n/8/8/5PPP/3R2K1 b - - 0 1"
+    move: c7a5
+    expect: {role: allowed, slots: {square: d5}}
+    note: "...Ba5?? puts a second loose piece on the 5th rank next to Nh5: Rd5."
+  - id: double-attack-played-not-missed
+    fen: "6k1/5pp1/7p/b6n/8/8/5PPP/3R2K1 w - - 0 1"
+    move: d1d5
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Rd5."
+  - id: pawn-double-attack-refuted
+    fen: "r2q1rk1/ppp2ppp/3n1b2/8/4P3/8/PPP2PPP/R2Q1RK1 w - - 0 1"
+    move: e4e5
+    expect: {role: played, present: false}
+    note: "Near miss: e5 attacks Nd6 and Bf6 (a real double attack) but the pawn is loose and ...Bxe5 refutes it; no praise."

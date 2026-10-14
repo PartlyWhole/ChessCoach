@@ -1,0 +1,47 @@
+concept: safety-hanging-piece
+engine: {name: "Stockfish 19", depth: 16}
+# Roles: missed (before the move, player's opportunity the move ignored), allowed (after the
+# move, opponent can win a piece), available (player to move can win a piece).
+# Trigger: hanging_piece + engine best move lands on the hanging piece (idea_targets_feature)
+# + win-prob gain >= 0.10. Both kings have luft (h3/h6) so back-rank mates do not interfere.
+cases:
+  - id: available-rook-takes-loose-knight
+    fen: "6k1/5pp1/b6p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    expect: {role: available, present: true, slots: {square: d5, piece: knight, move_san: Rxd5}}
+    note: "Rook vs knight+bishop. Black's knight on d5 is attacked by Rd1 and defended by nothing; Rxd5 is the only way to win it."
+  - id: available-black-rook-takes-loose-bishop
+    fen: "2r3k1/5pp1/7p/8/2B5/7P/1B3PP1/6K1 b - - 0 1"
+    expect: {role: available, present: true, slots: {square: c4, piece: bishop, move_san: Rxc4}}
+    note: "Black to move, rook vs two bishops: the bishop on c4 is undefended and attacked along the c-file."
+  - id: missed-quiet-pawn-move-instead-of-rxd5
+    fen: "6k1/5pp1/b6p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    move: "g2g3"
+    expect: {role: missed, present: true, slots: {square: d5, piece: knight, move_san: Rxd5}}
+    note: "White plays g3 and leaves the free knight on the board; Black will rescue it next move."
+  - id: allowed-rook-stops-guarding-bishop
+    fen: "4r1k1/5pp1/2n4p/8/4B3/7P/5PP1/4R1K1 w - - 0 1"
+    move: "e1d1"
+    expect: {role: allowed, present: true, slots: {square: e4, piece: bishop, move_san: Rxe4}}
+    note: "Be4 is attacked by Re8 and held only by Re1. Re1-d1 removes the guard, so Black wins the bishop. The moved rook itself is safe (this is not 'piece left en prise')."
+  - id: neg-available-knight-defended-by-pawn
+    fen: "6k1/5pp1/b3p2p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: same as the first case but e6 defends the knight. Rxd5 exd5 trades a rook for a knight."
+  - id: neg-available-capture-allows-back-rank-mate
+    fen: "4r1k1/5pp1/7p/3n4/8/8/5PPP/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: the knight on d5 is undefended (hanging_piece fires), but Rxd5?? Re1# — the engine's best move does not take it, so the coach must not suggest it."
+  - id: neg-missed-player-took-the-knight
+    fen: "6k1/5pp1/b6p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    move: "d1d5"
+    expect: {role: missed, present: false}
+    note: "The player took the piece, so nothing was missed."
+  - id: neg-allowed-pawn-move-keeps-bishop-defended
+    fen: "4r1k1/5pp1/2n4p/8/4B3/7P/5PP1/4R1K1 w - - 0 1"
+    move: "g2g3"
+    expect: {role: allowed, present: false}
+    note: "Near miss: same position, but g3 keeps Re1 guarding the bishop, so Rxe4 still loses the exchange."
+  - id: available-two-loose-pieces-best-takes-knight
+    fen: "n5k1/5p2/b6p/3n4/8/7P/5PP1/2BR2K1 w - - 0 1"
+    expect: {role: available, present: true, slots: {square: d5, piece: knight, move_san: Rxd5}}
+    note: "Two black pieces hang: the h6 pawn (to Bc1) and the d5 knight (to Rd1). Rxd5 is the engine's move and wins the knight. Guards against matching only the first hanging_piece feature (h6) and then rejecting the hit because the best move does not land on it."

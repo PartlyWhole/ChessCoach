@@ -1,0 +1,88 @@
+# Sub-id of discovered_attack: the uncovered target is the king. side = the mover.
+detector: discovered_check
+cases:
+  - id: bishop-leaves-file
+    fen: "4k3/pp3ppp/8/8/4B3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4b7"
+    expect:
+      present: true
+      side: white
+    note: "Bxb7+ uncovers Re1 onto the king."
+  - id: knight-double-check
+    fen: "4k3/ppp2ppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4f6"
+    expect:
+      present: true
+      side: white
+    note: "Nf6+ checks with the knight and uncovers Re1: a double check also counts as discovered check."
+  - id: knight-uncovers-long-diagonal
+    fen: "7k/p6p/8/4N3/8/8/1B3PPP/6K1 w - - 0 1"
+    move: "e5c4"
+    expect:
+      present: true
+      side: white
+    note: "Nc4 uncovers Bb2 onto the king on h8."
+  - id: pawn-capture-uncovers-queen
+    fen: "3k4/pp4pp/8/4p3/3P4/8/PP3PPP/3Q2K1 w - - 0 1"
+    move: "d4e5"
+    expect:
+      present: true
+      side: white
+    note: "dxe5+ uncovers Qd1 onto the king on d8."
+  - id: king-move-uncovers-rook
+    fen: "8/5ppp/8/8/R2K3k/8/5PPP/8 w - - 0 1"
+    move: "d4c3"
+    expect:
+      present: true
+      side: white
+    note: "The king itself steps off the 4th rank and uncovers Ra4 onto the black king on h4."
+  - id: rook-leaves-diagonal
+    fen: "6r1/p5pk/8/8/8/3R4/PP3PPP/1B4K1 w - - 0 1"
+    move: "d3d7"
+    expect:
+      present: true
+      side: white
+    note: "Rd7 uncovers Bb1 onto the king on h7."
+  - id: black-knight-uncovers-rook
+    fen: "4r1k1/5ppp/8/8/4n3/8/PP3PPP/4K3 b - - 0 1"
+    move: "e4c3"
+    expect:
+      present: true
+      side: black
+    note: "Black to move: ...Nc3+ uncovers Re8 onto the white king on e1."
+  - id: direct-check-only
+    fen: "4k3/pp3ppp/8/8/8/3B4/PPP2PPP/6K1 w - - 0 1"
+    move: "d3b5"
+    expect:
+      present: false
+    note: "Bb5+ is a direct check; no line was uncovered."
+  - id: discovery-onto-queen-not-king
+    fen: "6k1/pp2qppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4c5"
+    expect:
+      present: false
+    note: "Near miss: a discovered attack, but the target is the queen, not the king."
+  - id: second-blocker-still-on-line
+    fen: "4k3/pp3ppp/8/8/4N3/8/PP2NPPP/4R1K1 w - - 0 1"
+    move: "e4c5"
+    expect:
+      present: false
+    note: "Near miss: the e4 knight leaves the file but the e2 knight still blocks Re1 from the king."
+  - id: pawn-push-stays-on-line
+    fen: "4k3/pp3ppp/8/8/4P3/8/PP3PPP/4R1K1 w - - 0 1"
+    move: "e4e5"
+    expect:
+      present: false
+    note: "The pawn advances along the e-file and keeps blocking Re1."
+  - id: uncovered-line-ends-next-to-king
+    fen: "6k1/p4p1p/8/4N3/8/8/1B3PPP/6K1 w - - 0 1"
+    move: "e5c4"
+    expect:
+      present: false
+    note: "Near miss: Bb2's diagonal opens to h8, but the king is on g8."
+  - id: direct-knight-check-uncovers-bishop-not-king
+    fen: "4k3/ppp2ppp/4b3/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4d6"
+    expect:
+      present: false
+    note: "Near miss: Nd6+ is a direct check and the uncovered Re1 line stops at the bishop on e6, not at the king."

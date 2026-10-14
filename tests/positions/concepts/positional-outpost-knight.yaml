@@ -1,0 +1,32 @@
+concept: positional-outpost-knight
+engine: {name: "Stockfish 19", depth: 16}
+# Role: played only. The moved piece is a knight and the move creates an outpost feature with
+# occupant knight on the destination (02 §6.2: ranks 4-6, pawn-supported, no enemy pawn can
+# ever attack it).
+cases:
+  - id: played-white-knight-d5-sicilian-hole
+    fen: "2r3k1/1p1b1ppp/p2p4/4p3/4P3/2N5/PP3PPP/3R2K1 w - - 0 20"
+    move: "c3d5"
+    expect: {role: played, present: true, slots: {square: d5}}
+    note: "Najdorf-type structure: no black c-pawn, e5 is level with d5, e4 supports the knight."
+  - id: played-black-knight-d4
+    fen: "r4rk1/pp3ppp/2n5/4p3/4P3/3P4/PP3PPP/R4RK1 b - - 0 18"
+    move: "c6d4"
+    expect: {role: played, present: true, slots: {square: d4}}
+    note: "e5 supports d4; White has no c-pawn and e4 is level with d4."
+  - id: played-white-knight-sixth-rank
+    fen: "r1b2rk1/pp3ppp/4p3/4P3/2N5/8/PP3PPP/R4RK1 w - - 0 16"
+    move: "c4d6"
+    band: B3
+    expect: {role: played, present: true, slots: {square: d6}}
+    note: "Rank-6 outpost: e5 supports d6; Black has no c-pawn and e6 is level with d6."
+  - id: neg-c7-pawn-can-still-kick
+    fen: "r5k1/1ppb1ppp/p2p4/4p3/4P3/2N5/PP3PPP/3R2K1 w - - 0 20"
+    move: "c3d5"
+    expect: {role: played, present: false}
+    note: "Near miss: Nd5 is supported by e4, but Black's c7 pawn can play ...c6 and chase it."
+  - id: neg-bishop-not-knight
+    fen: "2r3k1/1p1b1ppp/p2p4/4p3/4P3/1B6/PP3PPP/3R2K1 w - - 0 20"
+    move: "b3d5"
+    expect: {role: played, present: false}
+    note: "Near miss: d5 is a real outpost, but the piece that went there is a bishop."

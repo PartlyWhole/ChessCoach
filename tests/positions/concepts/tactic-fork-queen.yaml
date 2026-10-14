@@ -1,0 +1,32 @@
+concept: tactic-fork-queen
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: qd5-forks-king-and-rook-available
+    fen: "r5k1/6pp/p4p2/1p6/7q/8/PP3PPP/3Q1RK1 w - - 0 1"
+    expect: {role: available, slots: {square: d5}}
+    note: "Qd5+ checks Kg8 on the a2-g8 diagonal and hits the loose Ra8 on the long diagonal; nothing can interpose."
+  - id: qd5-forks-king-and-rook-missed
+    fen: "r5k1/6pp/p4p2/1p6/7q/8/PP3PPP/3Q1RK1 w - - 0 1"
+    move: a2a3
+    expect: {role: missed, slots: {square: d5}}
+    note: "a3 lets Black cover the diagonal (...Qc4)."
+  - id: qd5-forks-king-and-rook-played
+    fen: "r5k1/6pp/p4p2/1p6/7q/8/PP3PPP/3Q1RK1 w - - 0 1"
+    move: d1d5
+    expect: {role: played, slots: {square: d5}}
+    note: "Qd5+ wins the rook (engine +8.8 vs +0.2)."
+  - id: f6-opens-diagonal-allowed
+    fen: "r5k1/5ppp/p7/1p6/7q/8/PP3PPP/3Q1RK1 b - - 0 1"
+    move: f7f6
+    expect: {role: allowed, slots: {square: d5}}
+    note: "...f6?? opens the a2-g8 diagonal to the king: Qd5+."
+  - id: fork-played-not-missed
+    fen: "r5k1/6pp/p4p2/1p6/7q/8/PP3PPP/3Q1RK1 w - - 0 1"
+    move: d1d5
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Qd5+."
+  - id: fork-square-covered-by-knight
+    fen: "r5k1/6pp/pn3p2/1p6/7q/8/PP3PPP/3Q1RK1 w - - 0 1"
+    move: d1d5
+    expect: {role: played, present: false}
+    note: "Near miss: Qd5+ would hit Kg8 and Ra8, but Nb6 covers d5 and takes the queen."

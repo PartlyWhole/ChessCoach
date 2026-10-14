@@ -1,0 +1,95 @@
+# Move-based (docs/02 §6.1): move m by piece A uncovers a line from our slider B
+# to an enemy king or to an enemy piece on which our SEE > 0. side = the mover.
+detector: discovered_attack
+cases:
+  - id: rook-uncovers-queen-knight-move
+    fen: "6k1/pp2qppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4c5"
+    expect:
+      present: true
+      side: white
+    note: "Knight leaves the e-file; Re1 now attacks the black queen on e7 (RxQ wins even if recaptured)."
+  - id: bishop-leaves-file-discovered-check
+    fen: "4k3/pp3ppp/8/8/4B3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4b7"
+    expect:
+      present: true
+      side: white
+    note: "Bxb7 uncovers Re1 onto the black king: a discovered check is also a discovered attack."
+  - id: long-diagonal-onto-undefended-rook
+    fen: "4k2r/p4p1p/8/8/3N4/8/PB3PPP/6K1 w - - 0 1"
+    move: "d4b5"
+    expect:
+      present: true
+      side: white
+    note: "Nb5 uncovers Bb2 onto the undefended rook on h8."
+  - id: pawn-capture-uncovers-rook-onto-queen
+    fen: "4k3/pp1q1ppp/8/4p3/3P4/8/PP3PPP/3R2K1 w - - 0 1"
+    move: "d4e5"
+    expect:
+      present: true
+      side: white
+    note: "dxe5 (the moving piece is a pawn) uncovers Rd1 onto Qd7; RxQ gains even though the queen is defended by the king."
+  - id: rank-discovery-onto-hanging-knight
+    fen: "6k1/5ppp/8/R1B4n/8/8/5PPP/6K1 w - - 0 1"
+    move: "c5e3"
+    expect:
+      present: true
+      side: white
+    note: "Bishop steps off the 5th rank; Ra5 now attacks the undefended knight on h5."
+  - id: knight-double-check-is-discovery
+    fen: "4k3/ppp2ppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    move: "e4f6"
+    expect:
+      present: true
+      side: white
+    note: "Nf6+ is a double check; the Re1 line to the king is uncovered."
+  - id: black-knight-uncovers-rook-onto-queen
+    fen: "3r2k1/5ppp/8/3n4/8/8/3Q1PPP/6K1 b - - 0 1"
+    move: "d5b4"
+    expect:
+      present: true
+      side: black
+    note: "Black to move: ...Nb4 uncovers Rd8 onto the white queen on d2."
+  - id: uncovers-bishop-onto-pawn-defended-knight
+    fen: "6k1/p4ppp/5n2/8/3N4/8/PB3PPP/6K1 w - - 0 1"
+    move: "d4b5"
+    expect:
+      present: false
+    note: "Near miss: Bb2's line to Nf6 opens, but BxN gxB is an even trade (SEE = 0), so no discovered attack."
+  - id: uncovers-rook-onto-defended-pawn
+    fen: "6k1/p4p1p/4p1p1/8/4N3/8/P4PPP/4R1K1 w - - 0 1"
+    move: "e4c3"
+    expect:
+      present: false
+    note: "Near miss: Re1 now hits e6, but the pawn is defended by f7 (RxP loses the exchange)."
+  - id: uncovers-rook-onto-defended-rook
+    fen: "4rk2/p4p1p/6p1/8/4N3/8/P4PPP/4R1K1 w - - 0 1"
+    move: "e4c5"
+    expect:
+      present: false
+    note: "Near miss: Re1 now faces Re8, defended by the king: RxR KxR is an even trade (SEE = 0)."
+  - id: second-blocker-still-on-line
+    fen: "4k3/pp3ppp/8/8/4N3/8/PP2NPPP/4R1K1 w - - 0 1"
+    move: "e4c5"
+    expect:
+      present: false
+    note: "Near miss: the knight on e4 leaves the e-file but the knight on e2 still blocks Re1."
+  - id: pawn-push-stays-on-line
+    fen: "4k3/pp2qppp/8/8/4P3/8/PP3PPP/4R1K1 w - - 0 1"
+    move: "e4e5"
+    expect:
+      present: false
+    note: "The e-pawn advances along the file it blocks, so the Re1-e7 line stays closed."
+  - id: direct-attack-by-moving-slider
+    fen: "6k1/pp2qppp/8/8/8/8/PP3PPP/3R2K1 w - - 0 1"
+    move: "d1e1"
+    expect:
+      present: false
+    note: "Re1 attacks the queen directly; nothing was uncovered (the moved piece is the attacker)."
+  - id: uncovers-line-to-empty-square-next-to-king
+    fen: "6k1/5p1p/6p1/8/3N4/8/PB3PPP/6K1 w - - 0 1"
+    move: "d4b5"
+    expect:
+      present: false
+    note: "Bb2's diagonal opens up to h8 but no enemy piece stands on it."

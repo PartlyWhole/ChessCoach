@@ -1,0 +1,29 @@
+id: structure-closed-center
+title: Closed centre
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - closed_center
+templates:
+  plan:
+    1: The game has a closed, locked centre.
+    2: '{plan}'
+plans:
+  owner:
+  - With the centre locked, play on the wing where your pawns point.
+  - Knights are often better than bishops in closed positions.
+  opponent:
+  - With the centre locked, play on the wing where your pawns point.
+  - Knights are often better than bishops in closed positions.
+  - Prepare a pawn break on the wing, and don't rush to open lines that help your opponent.
+tests: tests/positions/concepts/structure-closed-center.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

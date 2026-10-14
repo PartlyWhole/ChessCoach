@@ -1,0 +1,78 @@
+# Null-move threat search (docs/02 §6.4): pass the turn, Stockfish depth 12,
+# MultiPV 2; present when it finds mate for the side NOT to move (side = that
+# side). Not computed when the side to move is in check, or in endgames with
+# <= 6 pawn units of material. Header depth 16 is the base analysis depth.
+detector: mate_threat
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: rook-back-rank
+    fen: "6k1/5ppp/8/8/8/8/1r3PP1/3R2K1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black to move; if White moved again, Rd8# (no luft, nothing covers the 8th rank)."
+  - id: queen-bishop-battery-h7
+    fen: "r4rk1/pp3ppp/2n5/q7/8/2PQ4/PPB2PPP/R4RK1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black to move; White threatens Qxh7# (Bc2 supports, Rf8 blocks f8)."
+  - id: smothered-mate-threat
+    fen: "3r2rk/pp4pp/8/6N1/8/7P/PP3PP1/4R1K1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black to move; White threatens Nf7# (king hemmed in by Rg8, g7, h7)."
+  - id: queen-bishop-long-diagonal-g7
+    fen: "r4rk1/pp3ppp/2n5/8/8/6Q1/PB3PPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black to move; White threatens Qxg7# supported by Bb2."
+  - id: black-threatens-back-rank
+    fen: "3r2k1/pp3pp1/7p/8/8/2R5/PP3PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "White to move; Black threatens ...Rd1# against the luft-less white king."
+  - id: longer-mate-threat
+    fen: "3r2k1/pp3ppp/8/8/1q6/3R4/PP3PPP/3Q2K1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black to move; with an extra move White has a forced mate starting Rxd8+ (the null-move search scores it as mate in 3)."
+  - id: luft-already-made
+    fen: "6k1/5pp1/7p/8/8/8/1r3PP1/3R2K1 b - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: same back-rank setup as rook-back-rank, but ...h6 already gave the king h7."
+  - id: in-check-not-computed
+    fen: "6k1/4Nppp/8/8/8/8/1r3PP1/3R2K1 b - - 0 1"
+    expect:
+      present: false
+    note: "Black is in check from Ne7, so the null move is illegal and no threat is computed (even though Rd8# would otherwise be threatened)."
+  - id: bare-endgame-skipped
+    fen: "6k1/8/6K1/8/8/8/8/R7 b - - 0 1"
+    expect:
+      present: false
+    note: "K+R vs K (5 pawn units, endgame): threat detection is skipped, although Ra8# would follow a null move."
+  - id: threat-wins-material-not-mate
+    fen: "r5k1/5pp1/7p/8/8/2n5/5PPP/2R1R1K1 b - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: White threatens Rxc3 winning the knight, but there is no mate threat."
+  - id: side-to-move-has-the-mate
+    fen: "6k1/5ppp/8/8/8/8/1r3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: White (to move) has Rd8#; the threat search asks what Black would do with an extra move, and Black has no mate."
+  - id: back-rank-covered
+    fen: "r5k1/5ppp/8/8/8/8/5PP1/3R2K1 b - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: no luft, but Ra8 covers the back rank, so Rd8+ is met by Rxd8."
+  - id: starting-position
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    expect:
+      present: false
+    note: "No threats at all."

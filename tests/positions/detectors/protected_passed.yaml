@@ -1,0 +1,93 @@
+detector: protected_passed
+cases:
+- id: white-d5-by-c4
+  fen: 3r2k1/pp3ppp/5n2/3P4/2P5/5N2/P5PP/3R2K1 w - - 0 26
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: d5 passed and defended by c4.
+- id: black-e3-by-d4
+  fen: 4r1k1/pp4pp/8/8/3p4/4p3/PPP3PP/4R1K1 b - - 0 30
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - e3
+  note: Black e3 passed, defended by d4.
+- id: white-b6-by-a5
+  fen: 1r4k1/5ppp/1P6/P7/8/8/5PPP/1R4K1 w - - 0 36
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - b6
+  note: b6 defended by a5.
+- id: connected-c5-d6
+  fen: 3r2k1/5ppp/3P4/2P5/8/8/6PP/3R2K1 w - - 0 36
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d6
+  note: d6 defended by c5.
+- id: black-g4-by-h5
+  fen: 2kr4/pp6/8/7p/6p1/2P5/PP6/2KR4 b - - 0 40
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - g4
+  note: Black g4 defended by h5; no White pawns on f-h.
+- id: white-e6-by-f5
+  fen: 4r1k1/6p1/p3P2p/1p3P2/8/8/PP6/4R1K1 w - - 0 34
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e6
+  note: e6 defended by f5; Black pawns only on a/b/g/h.
+- id: passed-but-alone
+  fen: 3r2k1/pp3ppp/5n2/3P4/8/2N5/PP3PPP/3R2K1 w - - 0 24
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d5
+  note: 'Near miss: passed but no pawn defends it.'
+- id: protected-but-not-passed
+  fen: 3r2k1/p4ppp/2p2n2/3P4/4P3/5N2/P5PP/3R2K1 w - - 0 26
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d5
+  note: 'Near miss: e4 defends d5 but Black c6 stops it being passed.'
+- id: connected-level
+  fen: 1r4k1/5ppp/8/2PP4/8/8/6PP/1R4K1 w - - 0 40
+  expect:
+    present: false
+    side: white
+  note: 'Near miss: connected passers side by side; neither defends the other yet.'
+- id: rook-defends-not-pawn
+  fen: 4r1k1/p5pp/3P4/8/8/8/P5PP/3R2K1 w - - 0 34
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d6
+  note: 'Near miss: d6 is passed and defended by a rook only.'
+- id: connected-c5-unprotected
+  fen: 3r2k1/5ppp/3P4/2P5/8/8/6PP/3R2K1 w - - 0 36
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - c5
+  note: 'Near miss: c5 is the base of the pair; nothing defends it.'
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Initial position.

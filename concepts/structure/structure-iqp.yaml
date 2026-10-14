@@ -1,0 +1,30 @@
+id: structure-iqp
+title: Isolated queen's pawn
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - iqp
+templates:
+  plan:
+    1: The game has an isolated queen's pawn.
+    2: '{plan}'
+plans:
+  owner:
+  - Keep pieces on. Your pieces are more active, and the d-pawn supports outposts on e5 and c5.
+  - Prepare the d4-d5 break once your pieces are ready.
+  - Aim your pieces at the opponent's king; the open lines around the pawn help an attack.
+  opponent:
+  - Blockade the square in front of the pawn, ideally with a knight.
+  - Trade pieces. The isolated pawn gets weaker as the endgame approaches.
+  - Pile up on the pawn with rooks and minor pieces.
+tests: tests/positions/concepts/structure-iqp.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

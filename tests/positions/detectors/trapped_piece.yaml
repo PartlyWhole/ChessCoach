@@ -1,0 +1,71 @@
+# Static: an enemy N/B/R/Q we win where it stands (our SEE > 0) and every legal
+# move of which loses material (SEE of the move < 0 for its owner).
+# side = the side that wins the piece.
+detector: trapped_piece
+cases:
+  - id: bishop-a2-shut-in-by-b3
+    fen: "4r1k1/5ppp/8/8/8/1P6/b1P2PPP/R5K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "The bishop on a2 is attacked by Ra1 and undefended; b1 is covered by the rook and Bxb3 loses to cxb3."
+  - id: knight-a8-in-corner
+    fen: "Nk6/pp3ppp/8/8/8/8/5PPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "The white knight on a8 is attacked by Kb8; Nb6 runs into axb6 and Nc7 into Kxc7."
+  - id: bishop-h7-after-g6
+    fen: "r4r2/ppp2pkB/6p1/8/8/8/PPP2PPP/R5K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "Bh7 is attacked by Kg7; Bg8 is covered by the king and Rf8, Bxg6 loses to fxg6."
+  - id: rook-h7-no-retreat
+    fen: "6k1/5ppR/7p/8/8/8/5PPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "Rh7 is attacked by Kg8; Rh8+, Rxg7+ and Rxh6 all lose the rook (h6 is defended by g7)."
+  - id: knight-a1-cornered
+    fen: "6k1/5ppp/8/8/8/8/P1PK1PPP/nR6 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "The black knight on a1 is attacked by Rb1; Nb3 is covered by the a2/c2 pawns and Nxc2 loses to Kxc2."
+  - id: bishop-a7-shut-in-by-b6
+    fen: "r5k1/B1p2ppp/1p6/8/8/8/5PPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "The white bishop on a7 is attacked by Ra8; Bb8 is covered by the rook and Bxb6 loses to cxb6."
+  - id: attacked-bishop-has-safe-retreat
+    fen: "4r1k1/5ppp/8/8/8/8/bPP2PPP/R5K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Ba2 is attacked by Ra1, but with b3 empty it can escape along the a2-g8 diagonal (e.g. Bc4)."
+  - id: boxed-in-but-adequately-defended
+    fen: "r5k1/5ppp/8/8/8/1P6/b1P2PPP/R5K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: same box as bishop-a2-shut-in-by-b3, but Ra8 defends a2, so RxB RxR is not a gain (SEE = 0)."
+  - id: cornered-knight-can-capture-rook
+    fen: "Nk6/ppr2ppp/8/8/8/8/5PPP/6K1 b - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: the a8 knight is attacked and its quiet squares are covered, but Nxc7 wins the exchange (rook for knight), so not every move loses material."
+  - id: bishop-h7-defended-by-rook
+    fen: "r4r2/ppp2pkB/6p1/8/8/8/PPP2PP1/6KR b - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Bh7 has no safe square, but Rh1 defends it, so Kxh7 is illegal and the bishop is not won where it stands."
+  - id: pawns-are-excluded
+    fen: "6k1/5ppp/8/3p4/3P4/2N5/5PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "The d5 pawn is attacked, undefended and immobile, but pawns are never trapped pieces."
+  - id: knight-attacked-by-pawn-can-retreat
+    fen: "6k1/5ppp/8/8/1n6/P7/1P3PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "The b4 knight is attacked by a3 but has safe squares (c6, d5, a6, ...)."

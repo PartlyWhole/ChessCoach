@@ -1,0 +1,24 @@
+id: safety-check-captures-threats
+title: Checks, captures, threats
+category: safety
+bands:
+- B0
+- B1
+- B2
+base_importance: 0.6
+trigger:
+  roles:
+  - available
+  predicate: sharp_position
+templates:
+  available:
+    1: Something important is happening here. Look at every check, capture and threat before you move.
+    3: The engine's move here is {best_san}. Every other move is clearly worse.
+drill:
+  kind: find_move
+  max_solution_plies: 1
+tests: tests/positions/concepts/safety-check-captures-threats.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

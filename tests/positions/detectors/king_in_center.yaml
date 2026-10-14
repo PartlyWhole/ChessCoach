@@ -1,0 +1,58 @@
+detector: king_in_center
+# 02 §6.2: in the opening/middlegame (02 §5, no book in tests), king on the d or
+# e file, and either it has lost castling rights or it is move 10+ without
+# castling, and the d- or e-file has no pawn of the king's side. side = owner.
+# Cases avoid the "lost only one castling right" ambiguity.
+cases:
+  - id: open-game-move-10-uncastled
+    fen: "r1bqk2r/ppp2ppp/2np1n2/2b5/2B5/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 10"
+    expect: {present: true, side: white, squares_include: ["e1"]}
+    note: "Move 10, still has castling rights but has not castled; White has no d- or e-pawn."
+  - id: king-walked-to-e2
+    fen: "rnb1kb1r/ppp2ppp/3p1n2/8/8/5N2/PPPPKPPP/RNB2B1R w kq - 0 6"
+    expect: {present: true, side: white, squares_include: ["e2"]}
+    note: "Lost castling rights at move 6 (king on e2) with the e-file free of White pawns."
+  - id: berlin-king-d8
+    fen: "r1bk1b1r/ppp2ppp/2p5/4Pn2/8/5N2/PPP2PPP/RNB2RK1 w - - 0 9"
+    expect: {present: true, side: black, squares_include: ["d8"]}
+    note: "Berlin: Black's king on d8 has lost castling rights; no Black d- or e-pawn. Phase is still opening (10 pieces, move 9)."
+  - id: qgd-black-uncastled-move-11
+    fen: "r2qk2r/pp2bppp/2n1bn2/3p4/3P4/2NB1N2/PP3PPP/R1BQK2R b KQkq - 4 11"
+    expect: {present: true, side: black, squares_include: ["e8"]}
+    note: "Move 11 without castling; the d5 pawn is there but the e-file has no Black pawn ('d- or e-file')."
+  - id: early-queen-trade-king-d1
+    fen: "rnb1kbnr/ppp2ppp/8/4p3/4P3/8/PPP2PPP/RNBK1BNR w kq - 0 5"
+    expect: {present: true, side: white, squares_include: ["d1"]}
+    note: "After an early queen trade the king recaptured on d1: rights lost, no White d-pawn."
+  - id: middlegame-move-20-e1
+    fen: "2r2rk1/pp3ppp/2n1b3/q7/3P4/P3BN2/1P1QBPPP/2R1K2R w - - 0 20"
+    expect: {present: true, side: white, squares_include: ["e1"]}
+    note: "Middlegame phase, king never castled (no rights), e-file has no White pawn."
+  - id: move-9-with-rights
+    fen: "r1bqk2r/ppp2ppp/2np1n2/2b5/2B5/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 9"
+    expect: {present: false, side: white}
+    note: "Near miss: same as the move-10 case but at move 9 with castling rights intact."
+  - id: move-9-with-rights-black
+    fen: "r1bqk2r/ppp2ppp/2np1n2/2b5/2B5/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 9"
+    expect: {present: false, side: black}
+    note: "Near miss: Black's e-file is pawnless, but it is move 9 and Black can still castle."
+  - id: early-queen-trade-black-can-castle
+    fen: "rnb1kbnr/ppp2ppp/8/4p3/4P3/8/PPP2PPP/RNBK1BNR w kq - 0 5"
+    expect: {present: false, side: black}
+    note: "Near miss: Black has no d-pawn, but it is move 5 and Black keeps castling rights."
+  - id: kings-gambit-ke2-centre-closed
+    fen: "rnb1kbnr/pppp1ppp/8/8/4Pp1q/8/PPPPK1PP/RNBQ1BNR w kq - 2 4"
+    expect: {present: false, side: white}
+    note: "Near miss: king on e2 lost castling rights, but White still has both d2 and e4 pawns."
+  - id: middlegame-closed-centre-no-rights
+    fen: "r2q1rk1/pp1bbppp/2n1pn2/3p4/3P4/2NBPN2/PPQ2PPP/R1B1K2R w - - 0 15"
+    expect: {present: false, side: white}
+    note: "Near miss: king on e1 with no rights at move 15, but d4 and e3 shield the centre."
+  - id: endgame-phase-excluded
+    fen: "3r2k1/pp3ppp/2n5/8/8/2N5/PP2KPPP/4R3 w - - 0 25"
+    expect: {present: false, side: white}
+    note: "Near miss: king on e2 with no d/e pawns, but in the endgame a central king is fine."
+  - id: king-on-f7-not-centre
+    fen: "r1bq3r/pppp1kpp/2n2n2/2b1p3/4P3/3P1N2/PPP2PPP/RNBQK2R w KQ - 0 6"
+    expect: {present: false, side: black}
+    note: "Near miss: Black's king lost castling rights after ...Kxf7, but it stands on the f-file."

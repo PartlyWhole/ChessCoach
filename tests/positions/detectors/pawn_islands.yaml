@@ -1,0 +1,106 @@
+detector: pawn_islands
+cases:
+- id: iqp-white-three
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    side: white
+    data:
+      count: 3
+  note: a2-b2 | d4 | f2-g2-h2.
+- id: iqp-black-two
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    side: black
+    data:
+      count: 2
+  note: a7-b7 | e6-f7-g7-h7.
+- id: nimzo-doubled-two
+  fen: r1bq1rk1/pp3ppp/2n1pn2/2pp4/3P4/2PBP3/P1P1NPPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: true
+    side: white
+    data:
+      count: 2
+  note: 'a2 | c2-c3-d4-e3-f2-g2-h2: doubled pawns do not add islands.'
+- id: file-adjacency-not-rank
+  fen: 3r2k1/pp3ppp/8/2P5/8/8/PP4PP/3R2K1 w - - 0 30
+  expect:
+    present: true
+    side: white
+    data:
+      count: 2
+  note: c5 joins a2-b2 by file even though ranks differ.
+- id: four-islands
+  fen: 3r2k1/pp3ppp/8/8/4P3/2P5/P5PP/3R2K1 w - - 0 30
+  expect:
+    present: true
+    side: white
+    data:
+      count: 4
+  note: a | c | e | g-h.
+- id: black-three
+  fen: 3r2k1/5p1p/p1p3p1/3p4/8/8/PPP2PPP/3R2K1 b - - 0 30
+  expect:
+    present: true
+    side: black
+    data:
+      count: 3
+  note: a6 | c6-d5 | f7-g6-h7.
+- id: black-two-wings
+  fen: 3r2k1/8/7p/p7/8/8/PP4PP/3R2K1 b - - 0 40
+  expect:
+    present: true
+    side: black
+    data:
+      count: 2
+  note: a5 | h6.
+- id: iqp-white-not-two
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: false
+    side: white
+    data:
+      count: 2
+  note: 'Wrong count: actual 3.'
+- id: nimzo-doubled-not-three
+  fen: r1bq1rk1/pp3ppp/2n1pn2/2pp4/3P4/2PBP3/P1P1NPPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: false
+    side: white
+    data:
+      count: 3
+  note: 'Near miss: counting doubled pawns as extra islands would give 3.'
+- id: file-adjacency-not-three
+  fen: 3r2k1/pp3ppp/8/2P5/8/8/PP4PP/3R2K1 w - - 0 30
+  expect:
+    present: false
+    side: white
+    data:
+      count: 3
+  note: 'Near miss: islands are by file, not by touching squares.'
+- id: start-not-two
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+    side: white
+    data:
+      count: 2
+  note: Initial position has 1 island.
+- id: black-three-not-two
+  fen: 3r2k1/5p1p/p1p3p1/3p4/8/8/PPP2PPP/3R2K1 b - - 0 30
+  expect:
+    present: false
+    side: black
+    data:
+      count: 2
+  note: 'Wrong count: actual 3.'
+- id: b-file-gap-not-one
+  fen: r1bq1rk1/pp1nbppp/2p1pn2/3p4/3P4/3BPN2/P1PN1PPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: false
+    side: white
+    data:
+      count: 1
+  note: 'Near miss: missing b-pawn splits a2 off: 2 islands, not 1.'

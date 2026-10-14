@@ -1,0 +1,26 @@
+id: positional-open-file-rook
+title: Rook on the open file
+category: positional
+bands:
+- B2
+- B3
+base_importance: 0.5
+trigger:
+  roles:
+  - played
+  moved_piece:
+  - rook
+  all:
+  - feature: open_file
+    data.occupants:
+      len_gte: 1
+slots:
+  file: feature.data.file
+templates:
+  played:
+    0: Good. Your rook takes the open {file}-file.
+tests: tests/positions/concepts/positional-open-file-rook.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

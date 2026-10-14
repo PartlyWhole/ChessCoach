@@ -1,0 +1,26 @@
+concept: opening-castle-early
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Predicate can_castle_now: opening phase, fullmove >= 7, player to move,
+# castling is legal right now.
+cases:
+  - id: available-white-kingside-move-7
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 1 7"
+    expect: {role: available, present: true, slots: {king_square: e1}}
+    note: "Italian, move 7: f1 and g1 are free and nothing attacks them."
+  - id: available-black-kingside-move-8
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQ1RK1 b kq - 2 7"
+    expect: {role: available, present: true, slots: {king_square: e8}}
+    note: "Black to move after White castled; ...O-O is legal."
+  - id: available-white-queenside-only
+    fen: "r2qk2r/ppp2ppp/2npbn2/2b1p3/4P3/2NPBN2/PPPQ1PPP/R3KB1R w KQkq - 4 8"
+    band: B1
+    expect: {role: available, present: true, slots: {king_square: e1}}
+    note: "Kingside is blocked by Bf1, but O-O-O is legal."
+  - id: neg-move-6-too-early
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2NP1N2/PPP2PPP/R1BQK2R w KQkq - 1 6"
+    expect: {role: available, present: false}
+    note: "Near miss: castling is legal, but before move 7 the coach does not nag."
+  - id: neg-castling-through-attacked-square
+    fen: "r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/2NP1N1b/PPP2P1P/R1BQK2R w KQkq - 0 7"
+    expect: {role: available, present: false}
+    note: "Near miss: castling rights intact and f1/g1 empty, but the h3 bishop covers f1, so O-O is illegal right now."

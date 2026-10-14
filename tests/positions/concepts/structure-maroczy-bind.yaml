@@ -1,0 +1,34 @@
+# Plan-role tests for structure-maroczy-bind (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-maroczy-bind
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: maroczy-accelerated-dragon
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP1QBPPP/R4RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Accelerated Dragon: White c4 e4 (no d) vs Black d6, no c-pawn."
+  - id: maroczy-d7
+    fen: "r1bq1rk1/pp1pppbp/2n2np1/8/2PNP3/2N1B3/PP2BPPP/R2QK2R w KQ - 5 8"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Black d-pawn still on d7."
+  - id: maroczy-b7-a6
+    fen: "r1b2rk1/1pqnbppp/p2ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Black a6 d6 e6 with b7: plain Maroczy, not Hedgehog."
+  - id: maroczy-black-to-move
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP1QBPPP/R4RK1 b - - 1 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Same bind, Black to move."
+  - id: maroczy-near-miss-white-c2
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1B3/PPPQBPPP/R4RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Dragon skeleton, White c-pawn on c2 (no bind)."
+  - id: maroczy-near-miss-hedgehog-wins
+    fen: "r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Black also has b6 and e6, so the more specific Hedgehog wins."

@@ -1,0 +1,45 @@
+id: tactic-double-check
+title: Double check
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.75
+parent: tactic-discovered-check
+prerequisites:
+- tactic-discovered-check
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: double_check
+  engine:
+    min_gain: 0.1
+slots:
+  king: feature.squares[0]
+templates:
+  missed:
+    1: You had a check from two pieces at once. Can you find it?
+    2: Look at the king on {king} and the lines that lead to it.
+    3: '{move_san} is a double check. The king must move, because nothing can block or capture two checkers.'
+  allowed:
+    1: Look at the lines toward your king. Could two pieces check it at once?
+    2: Watch your king on {king}.
+    3: After your move, {move_san} is a double check, and your king has to move.
+  played:
+    0: Double check. Only a king move can answer it.
+  available:
+    1: Can two of your pieces give check at once?
+    2: Look at the king on {king}.
+    3: '{move_san} is a double check.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-double-check.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

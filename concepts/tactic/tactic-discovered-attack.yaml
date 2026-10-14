@@ -1,0 +1,46 @@
+id: tactic-discovered-attack
+title: Discovered attack
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.75
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: discovered_attack
+  engine:
+    min_gain: 0.1
+slots:
+  slider: feature.data.slider
+  slider_piece: feature.data.slider_piece
+  target: feature.data.target
+  target_piece: feature.data.target_piece
+  moved_piece: feature.data.moved_piece
+templates:
+  missed:
+    1: One of your pieces was hiding another one. Can you use that?
+    2: Look at your {slider_piece} on {slider} and what stands in front of it.
+    3: '{move_san} opens the line of your {slider_piece} to the {target_piece} on {target}.'
+  allowed:
+    1: Look for a piece that could step out of the way of another one.
+    2: Watch the line from the {slider_piece} on {slider} to your {target_piece} on {target}.
+    3: After your move, {move_san} uncovers an attack on your {target_piece} on {target}.
+  played:
+    0: Good. Moving your {moved_piece} uncovered your {slider_piece}'s attack on the {target_piece}.
+  available:
+    1: Can one piece move and uncover an attack by another?
+    2: Look at your {slider_piece} on {slider}.
+    3: '{move_san} uncovers an attack on the {target_piece} on {target}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-discovered-attack.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

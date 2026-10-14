@@ -1,0 +1,46 @@
+id: tactic-double-attack
+title: Double attack
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.7
+prerequisites:
+- safety-hanging-piece
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: double_attack
+  engine:
+    min_gain: 0.1
+slots:
+  square: feature.squares[0]
+  piece: feature.data.piece
+  targets: feature.data.target_names
+templates:
+  missed:
+    1: There was a move that attacked two things at once. Can you find it?
+    2: Look at what your {piece} could attack from {square}.
+    3: '{move_san} attacks the {targets} at the same time.'
+  allowed:
+    1: Check what your opponent can attack with a single move.
+    2: Watch the square {square}.
+    3: After your move, {move_san} attacks your {targets} at the same time.
+  played:
+    0: Good. Your {piece} attacks two targets at once.
+  available:
+    1: Can one of your pieces attack two things at once?
+    2: Look at {square}.
+    3: '{move_san} attacks the {targets} at the same time.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-double-attack.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

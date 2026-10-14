@@ -1,0 +1,26 @@
+id: structure-maroczy-bind
+title: Maroczy Bind
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - maroczy_bind
+templates:
+  plan:
+    1: The game has a Maroczy Bind with pawns on c4 and e4.
+    2: '{plan}'
+plans:
+  owner:
+  - Keep the bind. Your c4 and e4 pawns stop the ...b5 and ...d5 breaks.
+  opponent:
+  - Trade pieces to ease the cramp, and prepare ...b5 or ...d5 when you can.
+tests: tests/positions/concepts/structure-maroczy-bind.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

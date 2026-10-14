@@ -1,0 +1,24 @@
+id: endgame-square-of-pawn
+title: The square of the pawn
+category: endgame
+bands:
+- B1
+- B2
+base_importance: 0.7
+trigger:
+  roles:
+  - available
+  predicate: king_inside_square
+templates:
+  available:
+    1: Can your king catch the pawn on {pawn_square}?
+    2: Draw the square from the pawn on {pawn_square} to {queening_square}. Your king is inside it, so it can catch
+      the pawn.
+drill:
+  kind: endgame_technique
+  max_solution_plies: 6
+tests: tests/positions/concepts/endgame-square-of-pawn.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,26 @@
+id: opening-develop-minors
+title: Develop your knights and bishops
+category: opening
+bands:
+- B0
+- B1
+base_importance: 0.5
+trigger:
+  roles:
+  - available
+  phase:
+  - opening
+  all:
+  - feature: undeveloped_pieces
+slots:
+  pieces: feature.data.pieces
+  squares: feature.squares
+templates:
+  available:
+    1: Are all your knights and bishops in the game yet?
+    2: 'Still on their starting squares: your {pieces} ({squares}).'
+tests: tests/positions/concepts/opening-develop-minors.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

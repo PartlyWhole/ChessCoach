@@ -1,0 +1,71 @@
+# Static: an enemy piece is the sole defender of >= 2 pieces we attack, each
+# safe now (our SEE <= 0) but lost without that defender (our SEE > 0).
+# side = the side that can exploit the overload.
+detector: overloaded_defender
+cases:
+  - id: queen-guards-two-minors
+    fen: "6k1/pp2qppp/8/2n3b1/8/1N3N2/PPP2PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Qe7 is the only defender of Nc5 (hit by Nb3) and Bg5 (hit by Nf3). Each trade is even now; without the queen both pieces hang."
+  - id: rook-guards-two-along-rank
+    fen: "7k/1p4p1/1n1r2b1/8/N6N/8/5PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Rd6 alone guards Nb6 (hit by Na4) and Bg6 (hit by Nh4) along the 6th rank."
+  - id: knight-guards-two-bishops
+    fen: "6k1/3n1ppp/8/2b1b3/N7/5N2/5PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Nd7 alone guards Bc5 (hit by Na4) and Be5 (hit by Nf3)."
+  - id: pawn-guards-two-knights
+    fen: "6k1/6pp/4p3/3n1n2/8/2NB4/5PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "The e6 pawn alone guards Nd5 (hit by Nc3) and Nf5 (hit by Bd3)."
+  - id: queen-guards-two-pawns
+    fen: "6k1/3q1ppp/8/3p4/p7/2N5/5PPP/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Qd7 alone guards the a4 and d5 pawns, both attacked by Nc3 (NxP QxN would lose the knight, so each is safe only because of the queen)."
+  - id: white-queen-overloaded
+    fen: "6k1/5ppp/1n3n2/8/2N3B1/8/PP2QPPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "Black to move: Qe2 alone guards Nc4 (hit by Nb6) and Bg4 (hit by Nf6)."
+  - id: one-target-has-second-defender
+    fen: "6k1/p3qppp/1p6/2n3b1/8/1N3N2/PPP2PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: as in queen-guards-two-minors, but b6 also defends c5, so the queen is the sole defender of only one attacked piece."
+  - id: only-one-target-attacked
+    fen: "6k1/pp2qppp/8/2n3b1/8/5N2/PPP2PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Qe7 guards c5 and g5, but White attacks only g5."
+  - id: one-target-already-hanging
+    fen: "6k1/pp2qppp/8/2n3b1/1P6/5N2/P1P2PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Nc5 is attacked by the b4 pawn, so it is already lost (SEE > 0) with or without the queen; only g5 qualifies."
+  - id: two-different-defenders
+    fen: "3q2k1/p4ppp/1p6/2n3b1/8/1N3N2/PPP2PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Each attacked piece has its own single defender (b6 pawn for c5, Qd8 for g5); no piece guards two."
+  - id: attacker-is-pinned
+    fen: "6k1/pp2qppp/8/2nb2b1/8/1N3N2/PPP2P1P/7K w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Nf3 is pinned to the king by Bd5, so even without the queen White cannot legally take on g5 (SEE uses legal captures only)."
+  - id: target-attacked-twice-already-lost
+    fen: "6k1/pp2qppp/8/2n3b1/8/BN3N2/P1P2PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: c5 is attacked twice (Ba3, Nb3) and defended once, so it is already lost (SEE > 0); only g5 is a safe-but-dependent target."

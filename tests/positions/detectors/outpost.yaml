@@ -1,0 +1,53 @@
+detector: outpost
+# 02 §6.2: square on ranks 4-6 from our side, no enemy pawn on an adjacent file
+# ahead of it (so none can ever attack it), defended by our pawn.
+# Feature.side = the side that can use the outpost; data.occupant names our piece on it.
+cases:
+  - id: najdorf-d5-knight
+    fen: "r2q1rk1/1p1bbppp/p2p1n2/3Np3/4P3/1N6/PPP1BPPP/R2Q1RK1 b - - 3 12"
+    expect: {present: true, side: white, squares_include: ["d5"], data: {occupant: knight}}
+    note: "Najdorf ...e5 structure: Black's c-pawn is gone and e-pawn is on e5 (level, not ahead); e4 supports Nd5."
+  - id: botvinnik-black-knight-d4
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: true, side: black, squares_include: ["d4"], data: {occupant: knight}}
+    note: "Botvinnik setup: c5/e5 support Nd4; White's c- and e-pawns are on rank 4, level with d4, so they can never hit it."
+  - id: botvinnik-white-d5-unoccupied
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: true, side: white, squares_include: ["d5"]}
+    note: "Near miss for 'enemy pawn adjacent': Black pawns c5/e5 are level with d5, not ahead, so d5 is still an outpost (empty, no occupant needed)."
+  - id: rank6-knight-d6
+    fen: "r1b2rk1/pp3ppp/1qnNp3/4P3/8/8/PP3PPP/R2QKB1R b KQ - 0 12"
+    expect: {present: true, side: white, squares_include: ["d6"], data: {occupant: knight}}
+    note: "Rank-6 outpost: e5 defends d6; Black has no c-pawn and the e-pawn on e6 is level with d6."
+  - id: bishop-on-d5-outpost
+    fen: "2r3k1/pp3pp1/3p3p/3Bp3/4P3/8/PP3PPP/2R3K1 w - - 0 25"
+    expect: {present: true, side: white, squares_include: ["d5"], data: {occupant: bishop}}
+    note: "Occupant can be any piece: bishop on d5 backed by e4, Black has no c-pawn and e5 is level."
+  - id: black-knight-d3-rank6
+    fen: "4rrk1/pp3ppp/8/3p4/3Pp3/3n4/PP3PPP/R1B2RK1 w - - 0 20"
+    expect: {present: true, side: black, squares_include: ["d3"], data: {occupant: knight}}
+    note: "Black outpost on its 6th rank: e4 supports Nd3, White has no c- or e-pawns behind it."
+  - id: stonewall-e5-f7-can-kick
+    fen: "rn1q1rk1/pb2bppp/1p2p3/2ppN3/3P1P2/2PBP3/PP4PP/RNBQ1RK1 w - - 0 9"
+    expect: {present: false, side: white, squares_include: ["e5"]}
+    note: "Near miss: Ne5 is pawn-supported, but Black's f7 pawn is ahead on an adjacent file and can play ...f6."
+  - id: d5-knight-without-pawn-support
+    fen: "r2q1rk1/1p1bbppp/p2p4/3Np3/8/1N6/PPP1BPPP/R2Q1RK1 b - - 0 13"
+    expect: {present: false, side: white, squares_include: ["d5"]}
+    note: "Near miss: no enemy pawn can attack d5, but no white pawn defends it (e-pawn gone, c-pawn on c2)."
+  - id: philidor-d5-c7-can-kick
+    fen: "r1bq1rk1/ppp1bppp/2np1n2/3Np3/4P3/5N2/PPP1BPPP/R1BQ1RK1 b - - 5 7"
+    expect: {present: false, side: white, squares_include: ["d5"]}
+    note: "Near miss: Nd5 is backed by e4 but Black's c7 pawn can still play ...c6."
+  - id: rank7-square-excluded
+    fen: "2r3k1/p2N1p1p/4P1p1/8/8/8/PP3PPP/6K1 w - - 0 30"
+    expect: {present: false, side: white, squares_include: ["d7"]}
+    note: "Near miss: d7 is pawn-defended (e6) and unattackable, but it is on rank 7, outside ranks 4-6."
+  - id: rank3-square-excluded
+    fen: "6k1/pp4pp/8/8/8/5P2/PP2P1PP/6K1 w - - 0 30"
+    expect: {present: false, side: white, squares_include: ["d3"]}
+    note: "Near miss: d3 is defended by e2 and Black has no c/e pawns, but rank 3 is below the outpost band."
+  - id: najdorf-d5-is-not-blacks
+    fen: "r2q1rk1/1p1bbppp/p2p1n2/3Np3/4P3/1N6/PPP1BPPP/R2Q1RK1 b - - 3 12"
+    expect: {present: false, side: black, squares_include: ["d5"]}
+    note: "Side convention: the d5 outpost belongs to the side that can use it (White), not Black."

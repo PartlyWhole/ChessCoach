@@ -1,0 +1,55 @@
+detector: space_advantage
+# 02 §6.2: per side, count squares on files c-f in the opponent's half that the
+# side attacks and no enemy pawn attacks; reported for the side ahead only when
+# the difference is >= 4. Feature.side = the side with more space.
+# Counts below are (White, Black); every case keeps the same verdict whether or
+# not squares occupied by the counting side's own pieces are included.
+cases:
+  - id: dominant-pieces-c-to-f
+    fen: "rnb2r1k/pp4pp/8/8/2B1N3/8/PP3PPP/2RR2K1 w - - 0 18"
+    expect: {present: true, side: white}
+    note: "Bc4, Ne4 and Rd1 control c5,d5,d6,e6,d7,f7,d8 (7) vs Black's f2,f4 (2): difference 5."
+  - id: difference-exactly-4
+    fen: "rnb2r1k/pp4pp/8/8/2B5/2N5/PP3PPP/2RR2K1 w - - 0 18"
+    expect: {present: true, side: white}
+    note: "Boundary: White 6 (d5,d6,e6,d7,f7,d8) vs Black 2 (f2,f4) -- difference exactly 4 is reported."
+  - id: bishop-knight-rooks-invade
+    fen: "r1b2rk1/pp3ppp/8/2B1N3/8/8/PP3PPP/3RR1K1 w - - 0 20"
+    expect: {present: true, side: white}
+    note: "White controls 8 squares (7 excluding e5 where the knight stands); Black's pieces reach nothing in White's half."
+  - id: rook-on-fifth-rank
+    fen: "rn3rk1/pp3ppp/8/3R4/2B5/8/PP3PPP/4R1K1 w - - 0 20"
+    expect: {present: true, side: white}
+    note: "Rd5 sweeps the 5th rank and d-file; White 9 vs Black 0."
+  - id: black-dominant-mirror
+    fen: "2rr2k1/pp3ppp/8/2b1n3/8/8/PP4PP/RNB2R1K b - - 0 18"
+    expect: {present: true, side: black}
+    note: "Colour-mirror of dominant-pieces-c-to-f: Black 7 vs White 2."
+  - id: black-difference-exactly-4
+    fen: "2rr2k1/pp3ppp/2n5/2b5/8/8/PP4PP/RNB2R1K b - - 0 18"
+    expect: {present: true, side: black}
+    note: "Colour-mirror of the boundary case: Black 6 vs White 2."
+  - id: difference-exactly-3
+    fen: "rnb2r1k/pp4pp/8/8/2B1N3/8/PP3PPP/2R2RK1 w - - 0 18"
+    expect: {present: false}
+    note: "Near miss: with the rook on f1 instead of d1, White controls 5 (c5,d5,d6,e6,f7) vs Black's 2 -- difference 3."
+  - id: black-difference-exactly-3
+    fen: "2r2rk1/pp3ppp/8/2b1n3/8/8/PP4PP/RNB2R1K b - - 0 18"
+    expect: {present: false}
+    note: "Near miss, colour-mirrored: Black 5 vs White 2."
+  - id: difference-2
+    fen: "rnb2r1k/pp4pp/8/8/4N3/3B4/PP3PPP/2RR2K1 w - - 0 18"
+    expect: {present: false}
+    note: "White 4 (c5,d6,c7,c8) vs Black 2."
+  - id: french-advance
+    fen: "rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/2P5/PP3PPP/RNBQKBNR b KQkq - 0 4"
+    expect: {present: false}
+    note: "Near miss: the e5 wedge looks spacious, but most squares it controls are covered by Black pawns; counts are within 1."
+  - id: starting-position
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    expect: {present: false}
+    note: "Nobody attacks the opponent's half."
+  - id: dominant-pieces-not-black
+    fen: "rnb2r1k/pp4pp/8/8/2B1N3/8/PP3PPP/2RR2K1 w - - 0 18"
+    expect: {present: false, side: black}
+    note: "Side convention: the side ahead (White) gets the feature, never the side behind."

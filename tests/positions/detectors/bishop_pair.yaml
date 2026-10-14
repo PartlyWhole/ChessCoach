@@ -1,0 +1,52 @@
+detector: bishop_pair
+# 02 §6.2: side has both bishops (a light- and a dark-squared one) and the
+# opponent does not. Feature.side = owner of the pair.
+cases:
+  - id: ruy-exchange-black-pair
+    fen: "r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 5"
+    expect: {present: true, side: black}
+    note: "Ruy Lopez Exchange: Bxc6 gave Black the bishop pair."
+  - id: nimzo-saemisch-white-pair
+    fen: "r1bq1rk1/pppp1ppp/2n1pn2/8/2PP4/P1P5/4PPPP/R1BQKBNR w KQ - 1 7"
+    expect: {present: true, side: white}
+    note: "Nimzo-Indian ...Bxc3: White keeps both bishops, Black only has the c8 bishop."
+  - id: najdorf-black-pair
+    fen: "r2q1rk1/1p1bbppp/p2p1n2/3Np3/4P3/1N6/PPP1BPPP/R2Q1RK1 b - - 3 12"
+    expect: {present: true, side: black}
+    note: "Black has Bd7 (light) and Be7 (dark); White has only the light-squared Be2."
+  - id: french-white-pair-after-bad-bishop-trade
+    fen: "rn1qk2r/pp1nbppp/4p3/2ppP3/3P4/2PB1N2/PP1N1PPP/R1BQK2R w KQkq - 3 7"
+    expect: {present: true, side: white}
+    note: "Black traded the c8 bishop; White keeps Bc1 + Bd3."
+  - id: endgame-two-bishops-vs-knight
+    fen: "8/5pk1/4pnp1/3p4/3P4/4PB2/3B1PPP/6K1 w - - 0 32"
+    expect: {present: true, side: white}
+    note: "Bf3 (light) + Bd2 (dark) against a lone knight."
+  - id: endgame-black-pair-vs-rook-knight
+    fen: "8/5pk1/3bp1p1/3p1b2/3P4/2N1P3/5PPP/2R3K1 b - - 0 32"
+    expect: {present: true, side: black}
+    note: "Bd6 (dark) + Bf5 (light) against rook and knight; White has no bishops."
+  - id: starting-position
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    expect: {present: false}
+    note: "Near miss: both sides have the pair, so neither has the advantage."
+  - id: kid-both-sides-have-pair
+    fen: "r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w - - 1 9"
+    expect: {present: false}
+    note: "Middlegame with all four bishops: opponent also has the pair."
+  - id: same-coloured-bishops
+    fen: "8/5pk1/3bpbp1/3p4/3P4/2N1P3/5PPP/2R3K1 w - - 0 32"
+    expect: {present: false, side: black}
+    note: "Near miss: Black has two bishops (d6, f6) but both are dark-squared (underpromotion)."
+  - id: nimzo-black-has-one-bishop
+    fen: "r1bq1rk1/pppp1ppp/2n1pn2/8/2PP4/P1P5/4PPPP/R1BQKBNR w KQ - 1 7"
+    expect: {present: false, side: black}
+    note: "Side check: Black gave up the dark-squared bishop; the pair is White's."
+  - id: opposite-coloured-bishops
+    fen: "8/5pk1/4pbp1/3p4/3P4/2N1PB2/5PPP/6K1 w - - 0 32"
+    expect: {present: false}
+    note: "One bishop each: no pair for anyone."
+  - id: pair-vs-pair-endgame
+    fen: "8/3b1pk1/4pbp1/3p4/3P4/4PB2/3B1PPP/6K1 w - - 0 32"
+    expect: {present: false}
+    note: "Near miss in an endgame: both sides keep a light and a dark bishop, so neither side has the pair advantage."

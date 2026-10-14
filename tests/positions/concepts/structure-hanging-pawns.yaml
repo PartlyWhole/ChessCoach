@@ -1,0 +1,34 @@
+# Plan-role tests for structure-hanging-pawns (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-hanging-pawns
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: hanging-white-owner-to-move
+    fen: "2rq1rk1/pb2bppp/1p2pn2/8/2PP4/3B1N2/PB3PPP/2RQ1RK1 w - - 0 16"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Keep the pawns side by side. Together they control key central squares."}}
+    note: "White c4+d4, no b/e pawns; White to move: owner plan."
+  - id: hanging-white-opponent-to-move
+    fen: "2rq1rk1/pb2bppp/1p2pn2/8/2PP4/3B1N2/PB3PPP/2RQ1RK1 b - - 0 16"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Provoke one of the pawns to advance, then blockade the square in front of it."}}
+    note: "White hanging pawns, Black to move: opponent plan."
+  - id: hanging-black-opponent-to-move
+    fen: "2rq1rk1/pb2bppp/5n2/2pp4/8/1P1BPN2/PB2QPPP/2RR2K1 w - - 0 16"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Provoke one of the pawns to advance, then blockade the square in front of it."}}
+    note: "Black c5+d5 (Tartakower type), White to move: opponent plan."
+  - id: hanging-black-owner-to-move
+    fen: "2rq1rk1/pb2bppp/5n2/2pp4/8/1P1BPN2/PB2QPPP/2RR2K1 b - - 0 16"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Keep the pawns side by side. Together they control key central squares."}}
+    note: "Black hanging pawns, Black to move: owner plan."
+  - id: hanging-near-miss-b-pawn
+    fen: "2rq1rk1/pb2bppp/1p2pn2/8/2PP4/3BBN2/PP3PPP/2RQ1RK1 w - - 0 16"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: White b2 still supports the c4-d4 duo."
+  - id: hanging-near-miss-d-pawn-advanced
+    fen: "2rq1rk1/pb2bppp/1p2pn2/3P4/2P5/3B1N2/PB3PPP/2RQ1RK1 b - - 0 16"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: the duo has split; d-pawn already on d5 (c4+d5)."

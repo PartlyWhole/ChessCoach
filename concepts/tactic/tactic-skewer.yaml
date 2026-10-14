@@ -1,0 +1,46 @@
+id: tactic-skewer
+title: Skewer
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.7
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: skewer
+  engine:
+    min_gain: 0.1
+slots:
+  front: feature.data.front
+  front_piece: feature.data.front_piece
+  behind: feature.data.behind
+  behind_piece: feature.data.behind_piece
+  attacker_piece: feature.data.attacker_piece
+templates:
+  missed:
+    1: Two of your opponent's pieces stood on one line. Can you use that?
+    2: Look at the {front_piece} on {front} and the {behind_piece} behind it.
+    3: '{move_san} skewers the {front_piece}. When it moves, the {behind_piece} on {behind} falls.'
+  allowed:
+    1: Check the lines your valuable pieces stand on.
+    2: Your {front_piece} on {front} and {behind_piece} on {behind} share a line.
+    3: After your move, {move_san} skewers your {front_piece}, and the {behind_piece} on {behind} falls.
+  played:
+    0: Nice skewer. Your {attacker_piece} attacks the {front_piece}, and the {behind_piece} behind it is next.
+  available:
+    1: Are two of your opponent's pieces lined up?
+    2: Look at the {front_piece} on {front}.
+    3: '{move_san} skewers the {front_piece}, winning the {behind_piece} on {behind}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-skewer.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

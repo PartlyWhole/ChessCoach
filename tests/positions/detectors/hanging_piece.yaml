@@ -1,0 +1,85 @@
+detector: hanging_piece
+cases:
+- id: queen-attacked-by-knight
+  fen: rnb1kbnr/pppp1ppp/8/4p1q1/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - g5
+  note: 1.e4 e5 2.Nf3 Qg5?? - the queen is attacked by Nf3 and undefended.
+- id: defender-is-pinned
+  fen: 3k4/ppp2ppp/3p4/4n3/8/5N2/PPP2PPP/3R2K1 w - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e5
+  note: 'Ne5 looks defended by d6, but d6 is pinned to Kd8 by Rd1, so ...dxe5 is illegal. SEE uses legal captures only: hanging.'
+- id: pawn-attacks-defended-knight
+  fen: 8/8/8/3nk3/4P3/4K3/8/8 w - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: 'Nd5 is defended by the king, but attacked by a lower-value piece (e4 pawn): exd5 Kxd5 nets +2.'
+- id: black-to-move-pawn-hits-bishop
+  fen: rnbqkb1r/ppppppp1/5n1p/6B1/3P4/5N2/PPP1PPPP/RN1QKB1R b KQkq - 1 3
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - g5
+  note: 'Bg5 is defended by Nf3 but attacked by the h6 pawn: hxg5 Nxg5 nets +2 for black. side = black (the exploiter).'
+- id: attacked-twice-defended-once
+  fen: r1bqkb1r/pppp1ppp/2n5/8/3nP3/4BN2/PPP2PPP/RN1QKB1R w KQkq - 0 5
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+  note: 'Nd4 is attacked by Nf3 and Be3 and defended only by Nc6: Nxd4 Nxd4 Bxd4 wins a knight.'
+- id: king-attacks-loose-knight
+  fen: 8/5pk1/6p1/3n4/4K3/8/5P2/8 w - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: Kxd5 is legal (no black piece covers d5), so the knight hangs to the king.
+- id: f7-attacked-defended-by-king
+  fen: r1bqkb1r/pppp1ppp/2n5/4p3/2B1P1n1/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Bc4 attacks f7, which is defended by the king (Bxf7+ Kxf7 loses a piece for a pawn). Nothing hangs.'
+- id: knight-defended-by-pawn
+  fen: r1bqkb1r/ppp2ppp/3p1n2/4n3/4P3/2N2N2/PPPP1PPP/R1B1RBK1 w kq - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Ne5 is attacked by Nf3 and defended by d6: Nxe5 dxe5 is an even trade (SEE 0).'
+- id: attacker-is-pinned
+  fen: 4k3/pp3ppp/8/3r4/1b6/2N5/PP3PPP/4K3 w - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Nc3 attacks the loose Rd5, but Nc3 is pinned to Ke1 by Bb4, so Nxd5 is illegal. Bxc3 bxc3 is an even trade.'
+- id: rook-attacks-pawn-defended-knight
+  fen: 6k1/5ppp/4n3/3p4/8/8/5PPP/4R1K1 w - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Re1 attacks Ne6, which is defended by f7; the attacker is worth more (Rxe6 fxe6 loses 2).'
+- id: starting-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Nothing is attacked at all.
+- id: bishop-takes-defended-knight-even
+  fen: rnbqkb1r/ppp2ppp/4pn2/3p2B1/3P4/2N5/PPP1PPPP/R2QKBNR b KQkq - 3 4
+  expect:
+    present: false
+  note: 'Near miss: Bg5 attacks Nf6 (defended by g7 and Qd8): Bxf6 Qxf6 is an even trade. Nf6 is also pinned to Qd8 but that does not make it hang.'
+- id: king-attacks-defended-knight
+  fen: 8/5pk1/4p1p1/3n4/4K3/8/5P2/8 w - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Ke4 attacks Nd5, but e6 defends it, so Kxd5 is illegal.'

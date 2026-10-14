@@ -1,0 +1,32 @@
+concept: tactic-pin-relative
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: bishop-pins-rook-to-queen-available
+    fen: "4q1k1/p2r1ppp/1p4n1/2p5/8/2P5/PPQ2PPP/R4BK1 w - - 0 1"
+    expect: {role: available, slots: {pinned: d7, pinner: b5, behind_piece: queen}}
+    note: "Bb5 pins Rd7 to Qe8; no black piece can interpose on c6, so White wins the exchange."
+  - id: bishop-pins-rook-to-queen-missed
+    fen: "4q1k1/p2r1ppp/1p4n1/2p5/8/2P5/PPQ2PPP/R4BK1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {pinned: d7, pinner: b5}}
+    note: "h3 lets Black step out of the line (...Qe6/...Qe7)."
+  - id: bishop-pins-rook-to-queen-played
+    fen: "4q1k1/p2r1ppp/1p4n1/2p5/8/2P5/PPQ2PPP/R4BK1 w - - 0 1"
+    move: f1b5
+    expect: {role: played, slots: {pinned: d7, pinner: b5}}
+    note: "Bb5 is the only winning move (engine: +5.7 vs +0.1 for the next line)."
+  - id: queen-steps-behind-rook-allowed
+    fen: "3q2k1/p2r1ppp/1p4n1/2p5/8/2P5/PPQ2PPP/R4BK1 b - - 0 1"
+    move: d8e8
+    expect: {role: allowed, slots: {pinned: d7, pinner: b5}}
+    note: "...Qe8?? puts the queen behind the rook on the b5-e8 diagonal; Bb5 pins and wins the exchange."
+  - id: pin-already-played-not-missed
+    fen: "4q1k1/p2r1ppp/1p4n1/2p5/8/2P5/PPQ2PPP/R4BK1 w - - 0 1"
+    move: f1b5
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Bb5."
+  - id: qgd-bg5-pin-wins-nothing
+    fen: "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4"
+    move: c1g5
+    expect: {role: played, present: false}
+    note: "Near miss: Bg5 pins Nf6 to Qd8 (a real relative pin) but it is a normal developing move that wins nothing."

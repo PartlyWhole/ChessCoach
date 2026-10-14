@@ -1,0 +1,93 @@
+detector: backward_pawn
+cases:
+- id: sveshnikov-d6
+  fen: r1bq1rk1/p3bppp/3p1n2/1p2p3/4P3/3B1N2/PPP2PPP/R1BQ1RK1 w - - 0 12
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d6
+  note: 'd6: only neighbour e5 is ahead; d5 is hit by White e4.'
+- id: white-d3-vs-c5
+  fen: 4r1k1/pp3ppp/3p1n2/2p5/2P1P3/3P1N2/PP3PPP/4R1K1 w - - 0 14
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d3
+  note: d3 behind c4/e4; stop square d4 attacked by Black c5.
+- id: black-e6-stonewall
+  fen: r2q1rk1/pp1n2pp/2pbp3/3p1p2/3P1P2/3BP3/PPPN2PP/R2Q1RK1 w - - 0 12
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - e6
+  note: 'Stonewall: e6 behind d5/f5; e5 is controlled by White d4 and f4.'
+- id: white-c3-vs-b5-d5
+  fen: 2r3k1/p4ppp/4pn2/1p1p4/1P1P4/2P2N2/P4PPP/2R3K1 w - - 0 20
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c3
+  note: c3 lags behind b4/d4; c4 attacked by Black b5 and d5.
+- id: black-b7-queenside
+  fen: 3r2k1/1p3ppp/p1p5/P7/8/8/2P2PPP/3R2K1 w - - 0 30
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - b7
+  note: b7 behind a6/c6; b6 attacked by White a5.
+- id: white-f3-vs-e5
+  fen: 5rk1/pp1n2p1/3p3p/4p3/4P1P1/5P2/PP1N1R1P/6K1 w - - 0 25
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - f3
+  note: f3 behind e4/g4; f4 attacked by Black e5.
+- id: isolated-not-backward
+  fen: 3r2k1/pp4pp/3p1n2/8/4P3/2N5/PP3PPP/3R2K1 w - - 0 20
+  expect:
+    present: false
+    side: black
+    squares_include:
+    - d6
+  note: 'Near miss: d6 has no neighbours at all, so it is isolated, not backward.'
+- id: neighbour-level
+  fen: 4r1k1/pp3ppp/3p1n2/2p5/4P3/2PP1N2/PP3PPP/4R1K1 w - - 0 14
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d3
+  note: 'Near miss: c3 is level with d3, so d3 can be supported.'
+- id: stop-square-hit-by-piece-only
+  fen: r1bq1rk1/p3bppp/3p1n2/1p2p3/8/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 12
+  expect:
+    present: false
+    side: black
+    squares_include:
+    - d6
+  note: 'Near miss: Sveshnikov-like d6/e5 but White has no c4/e4 pawn; d5 is hit by Nc3 only.'
+- id: neighbour-behind
+  fen: r1bq1rk1/ppp1bppp/3p1n2/4p3/4P3/3B1N2/PPP2PPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: false
+    side: black
+    squares_include:
+    - d6
+  note: 'Near miss: c7 is behind d6 and can still support it.'
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Initial position.
+- id: sveshnikov-white-has-none
+  fen: r1bq1rk1/p3bppp/3p1n2/1p2p3/4P3/3B1N2/PPP2PPP/R1BQ1RK1 w - - 0 12
+  expect:
+    present: false
+    side: white
+  note: 'Side check: White e4 has f2 behind it; no White pawn is backward.'

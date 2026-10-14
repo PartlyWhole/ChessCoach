@@ -1,0 +1,24 @@
+id: safety-king-in-center
+title: King stuck in the centre
+category: safety
+bands:
+- B0
+- B1
+base_importance: 0.5
+trigger:
+  roles:
+  - available
+  all:
+  - feature: king_in_center
+slots:
+  square: feature.squares[0]
+  files: feature.data.files
+templates:
+  available:
+    1: Is your king safe in the middle of the board?
+    2: Your king is still on {square}, and you have no pawn left on the {files}-file.
+tests: tests/positions/concepts/safety-king-in-center.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

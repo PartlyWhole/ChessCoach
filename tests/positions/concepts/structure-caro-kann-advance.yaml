@@ -1,0 +1,29 @@
+# Plan-role tests for structure-caro-kann-advance (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-caro-kann-advance
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: caro-advance
+    fen: "r2q1rk1/pp1nbppp/2p1p1bn/3pP3/3P4/5N2/PPPNBPPP/R1BQ1RK1 w - - 0 9"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "White d4 e5 vs Black c6 d5 e6, bishop outside the chain."
+  - id: caro-advance-black-to-move
+    fen: "r2q1rk1/pp1nbppp/2p1p1bn/3pP3/3P4/5N2/PPPNBPPP/R1BQ1RK1 b - - 0 9"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Same structure, Black to move."
+  - id: caro-advance-bf5
+    fen: "rn1qkbnr/pp3ppp/2p1p3/3pPb2/3P4/5N2/PPP1BPPP/RNBQK2R b KQkq - 1 5"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Main line ...Bf5 e6 setup."
+  - id: caro-near-miss-c5-is-french
+    fen: "r1b2rk1/pp1nbppp/1qn1p3/2ppP3/3P4/2P2N2/PP1NBPPP/R1BQ1RK1 w - - 0 9"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Black c-pawn on c5, so French Advance."
+  - id: caro-near-miss-e4-not-advanced
+    fen: "r2qkb1r/pp1n1ppp/2p1pn2/3p1b2/3PP3/2N2N2/PPP1BPPP/R1BQK2R w KQkq - 0 7"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: White e-pawn still on e4 (tension, no advance)."

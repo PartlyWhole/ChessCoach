@@ -1,0 +1,53 @@
+detector: weak_square
+# 02 §6.2: square on ranks 3-4 of the owner's camp, not occupied by the owner's pawn,
+# with no owner pawn on an adjacent file behind it, attacked now by an enemy N/B/R/Q.
+# Feature.side = owner of the weakness.
+cases:
+  - id: maroczy-d4-hole-hit-by-nc6
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2P1P3/2N1B3/PP2BPPP/R2QK2R w KQ - 2 9"
+    expect: {present: true, side: white, squares_include: ["d4"]}
+    note: "Maroczy bind: c- and e-pawns are on rank 4, nothing left behind them; Nc6 hits d4."
+  - id: dragon-h6-hit-by-be3
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2P1P3/2N1B3/PP2BPPP/R2QK2R w KQ - 2 9"
+    expect: {present: true, side: black, squares_include: ["h6"]}
+    note: "Edge file: after ...g6 Black's only adjacent pawn is level with h6; Be3 attacks it."
+  - id: botvinnik-d5-hole-black
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: true, side: black, squares_include: ["d5"]}
+    note: "Black's c- and e-pawns are on rank 5 (level with d5), none behind; Nc3 attacks d5."
+  - id: botvinnik-f3-hole-white
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: true, side: white, squares_include: ["f3"]}
+    note: "e-pawn on e4 and g-pawn on g3 are not behind f3; Nd4 attacks f3."
+  - id: najdorf-b6-hole
+    fen: "r2q1rk1/1p1bbppp/p2p1n2/3Np3/4P3/1N6/PPP1BPPP/R2Q1RK1 b - - 3 12"
+    expect: {present: true, side: black, squares_include: ["b6"]}
+    note: "After ...a6 and with no c-pawn, b6 can never be pawn-defended; Nd5 attacks it."
+  - id: slav-d3-hit-by-bf5
+    fen: "r2qkb1r/pp2pppp/2n2n2/3p1b2/3P1B2/2N1P3/PP3PPP/R2QKBNR w KQkq - 2 7"
+    expect: {present: true, side: white, squares_include: ["d3"]}
+    note: "Exchange Slav: White's c-pawn is gone and e3 is level with d3; Bf5 attacks d3."
+  - id: knight-on-d4-attacked-only-by-pawns
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: false, side: white, squares_include: ["d4"]}
+    note: "Near miss: d4 is undefendable by White pawns, but only Black pawns attack it (Nd4 does not attack its own square)."
+  - id: open-game-d4-c2-can-defend
+    fen: "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    expect: {present: false, side: white, squares_include: ["d4"]}
+    note: "Near miss: Nc6 attacks d4, but White's c2 pawn (adjacent file, behind) can still defend it."
+  - id: botvinnik-f3-not-attacked
+    fen: "r1bq1rk1/pp3pbp/2np1np1/2p1p3/2P1P3/2NP2P1/PP2NPBP/R1BQ1RK1 w - - 2 9"
+    expect: {present: false, side: white, squares_include: ["f3"]}
+    note: "Near miss: f3 is a permanent hole but no Black piece attacks it yet (knight still on c6)."
+  - id: own-pawn-on-square
+    fen: "r1bqkb1r/pp1p1ppp/2n1pn2/8/3NPP2/2N5/PPP3PP/R1BQKB1R b KQkq - 0 6"
+    expect: {present: false, side: white, squares_include: ["e4"]}
+    note: "Near miss: Nf6 attacks e4 and no d/f pawn stands behind it, but e4 is occupied by White's own pawn."
+  - id: rank2-square-excluded
+    fen: "rnbqk2r/ppp2ppp/3p1n2/4p3/2b1P3/2N5/PPPP1PPP/R1BQK1NR w KQkq - 0 5"
+    expect: {present: false, side: white, squares_include: ["e2"]}
+    note: "Near miss: Bc4 attacks the empty e2 square, but ranks 1-2 are excluded by definition."
+  - id: maroczy-d5-e7-can-defend
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2P1P3/2N1B3/PP2BPPP/R2QK2R w KQ - 2 9"
+    expect: {present: false, side: black, squares_include: ["d5"]}
+    note: "Near miss: Nc3 attacks d5, but Black's e7 pawn is behind on an adjacent file and can still play ...e6."

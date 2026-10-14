@@ -1,0 +1,32 @@
+concept: tactic-double-check
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: knight-and-rook-double-check-mate-available
+    fen: "r2qkb1r/pp1p1ppp/3P4/8/4N3/8/5PPP/4R1K1 w - - 0 1"
+    expect: {role: available, slots: {king: e8}}
+    note: "Nf6++ checks with the knight and uncovers Re1; e7 is covered by Re1 and d6, every other square is blocked: mate. Nd6 is impossible (own pawn), so it is the only double check."
+  - id: knight-and-rook-double-check-mate-missed
+    fen: "r2qkb1r/pp1p1ppp/3P4/8/4N3/8/5PPP/4R1K1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {king: e8}}
+    note: "h3 throws away mate in one; White is otherwise lost on material."
+  - id: knight-and-rook-double-check-mate-played
+    fen: "r2qkb1r/pp1p1ppp/3P4/8/4N3/8/5PPP/4R1K1 w - - 0 1"
+    move: e4f6
+    expect: {role: played, slots: {king: e8}}
+    note: "Nf6# is a double check; the static double_check feature is new after the move and includes f6."
+  - id: bishop-unblocks-e-file-allowed
+    fen: "r2qk2r/pp1pbppp/3P4/8/4N3/8/5PPP/4R1K1 b - - 0 1"
+    move: e7f8
+    expect: {role: allowed, slots: {king: e8}}
+    note: "...Bf8?? (the bishop was attacked by d6) opens the e-file and blocks f8: Nf6# double check."
+  - id: double-check-already-played-not-missed
+    fen: "r2qkb1r/pp1p1ppp/3P4/8/4N3/8/5PPP/4R1K1 w - - 0 1"
+    move: e4f6
+    expect: {role: missed, present: false}
+    note: "Near miss: the player gave the mate."
+  - id: harmless-double-check-allowed
+    fen: "r2qk2r/pp1pbppp/3P4/8/4N3/8/5PPP/4R1K1 b - - 0 1"
+    move: e7h4
+    expect: {role: allowed, present: false}
+    note: "Near miss: after ...Bh4 White can still play Nf6++ (a double check), but Kf8 escapes and Black stays winning; the move is not a mistake, so nothing was allowed."

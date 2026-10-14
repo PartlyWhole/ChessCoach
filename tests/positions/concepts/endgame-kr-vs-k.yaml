@@ -1,0 +1,27 @@
+concept: endgame-kr-vs-k
+engine: {name: "Stockfish 19", depth: 16}
+# Role: plan only. Predicate kr_vs_k: the player to move has exactly K+R, the opponent a lone K.
+cases:
+  - id: plan-white-rook-centre-king
+    fen: "8/8/8/4k3/8/8/8/R3K3 w - - 0 1"
+    expect: {role: plan, present: true, slots: {enemy_king: e5}}
+  - id: plan-black-has-the-rook
+    fen: "r3k3/8/8/8/8/8/8/4K3 b - - 0 1"
+    expect: {role: plan, present: true, slots: {enemy_king: e1}}
+    note: "Colour-reversed: Black to move with K+R."
+  - id: plan-enemy-king-in-corner
+    fen: "k7/8/8/8/8/8/8/4K2R w - - 0 1"
+    band: B1
+    expect: {role: plan, present: true, slots: {enemy_king: a8}}
+  - id: neg-lone-king-to-move
+    fen: "8/8/8/4k3/8/8/8/R3K3 b - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: same material, but the side to move has the bare king."
+  - id: neg-defender-has-a-pawn
+    fen: "8/8/8/4k3/4p3/8/8/R3K3 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: K+R vs K+P is a different (and sometimes drawn) ending."
+  - id: neg-queen-not-rook
+    fen: "8/8/8/4k3/8/8/8/1Q2K3 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: K+Q vs K belongs to endgame-kq-vs-k."

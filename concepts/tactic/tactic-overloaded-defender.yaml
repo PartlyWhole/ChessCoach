@@ -1,0 +1,37 @@
+id: tactic-overloaded-defender
+title: Overloaded defender
+category: tactic
+bands:
+- B2
+base_importance: 0.7
+prerequisites:
+- tactic-remove-defender
+trigger:
+  roles:
+  - missed
+  - available
+  all:
+  - feature: overloaded_defender
+  engine:
+    min_gain: 0.1
+slots:
+  defender: feature.data.defender
+  defender_piece: feature.data.defender_piece
+  targets: feature.data.targets
+templates:
+  missed:
+    1: One enemy piece had two jobs at once. Can you use that?
+    2: The {defender_piece} on {defender} is the only guard of {targets}.
+    3: '{move_san} uses it. The {defender_piece} on {defender} cannot guard {targets} at the same time.'
+  available:
+    1: Is one enemy piece guarding two things at once?
+    2: Look at the {defender_piece} on {defender}. It is the only guard of {targets}.
+    3: '{move_san} exploits the overloaded {defender_piece} on {defender}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-overloaded-defender.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

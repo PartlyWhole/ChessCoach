@@ -1,0 +1,54 @@
+detector: undeveloped_pieces
+# 02 §6.2: in the opening phase only, minor pieces still on their starting squares
+# after move 8 (fullmove > 8). No book in tests, so opening = fullmove <= 12 and
+# >= 10 non-pawn, non-king pieces (02 §5). side = owner; squares assumed to list
+# the undeveloped pieces' squares.
+cases:
+  - id: qgd-move-9-white-queenside
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/5N2/PP2BPPP/RNBQ1RK1 w - - 0 9"
+    expect: {present: true, side: white, squares_include: ["b1", "c1"]}
+    note: "Move 9: White's Nb1 and Bc1 are still home."
+  - id: qgd-move-9-black-c8
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/5N2/PP2BPPP/RNBQ1RK1 w - - 0 9"
+    expect: {present: true, side: black, squares_include: ["c8"]}
+    note: "Typical QGD problem piece: the c8 bishop has not moved."
+  - id: semi-slav-black-three-home
+    fen: "rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 9"
+    expect: {present: true, side: black, squares_include: ["b8", "c8", "f8"]}
+    note: "Black has only developed the g8 knight by move 9."
+  - id: semi-slav-white-bishops-home
+    fen: "rnbqkb1r/pp3ppp/2p1pn2/3p4/2PP4/2N1PN2/PP3PPP/R1BQKB1R w KQkq - 0 9"
+    expect: {present: true, side: white, squares_include: ["c1", "f1"]}
+    note: "Both White bishops still on c1/f1."
+  - id: move-10-black-c8
+    fen: "r1bq1rk1/pp1nbppp/2p1pn2/3p4/2PP4/2NBPN2/PP3PPP/R1BQ1RK1 b - - 3 10"
+    expect: {present: true, side: black, squares_include: ["c8"]}
+    note: "Move 10, Black to move, the c8 bishop is still undeveloped."
+  - id: move-12-boundary
+    fen: "r1bq1rk1/pp1nbppp/2p1pn2/3p4/2PP4/2NBPN2/PP3PPP/R1BQ1RK1 w - - 4 12"
+    expect: {present: true, side: white, squares_include: ["c1"]}
+    note: "Fullmove 12 with 14 pieces is still the opening phase; Bc1 is home."
+  - id: move-8-too-early
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/5N2/PP2BPPP/RNBQ1RK1 w - - 0 8"
+    expect: {present: false}
+    note: "Near miss: same pieces at home but only move 8 ('after move 8' means fullmove > 8)."
+  - id: move-13-middlegame
+    fen: "r1bq1rk1/pp1nbppp/2p1pn2/3p4/2PP4/2NBPN2/PP3PPP/R1BQ1RK1 w - - 4 13"
+    expect: {present: false}
+    note: "Near miss: Bc1/Bc8 still home, but fullmove 13 is past the opening phase (no book)."
+  - id: heavy-trades-not-opening
+    fen: "r1b2rk1/pp3ppp/4p3/8/8/4P3/PP3PPP/R1B2RK1 w - - 0 10"
+    expect: {present: false}
+    note: "Near miss: move 10 with both c-bishops home, but only 6 pieces remain, so the phase is not opening."
+  - id: all-minors-developed-white
+    fen: "r2q1rk1/pp1bbppp/2n1pn2/3p4/2PP4/2N1PN2/PPQBBPPP/R4RK1 b - - 5 10"
+    expect: {present: false, side: white}
+    note: "All four White minor pieces have moved."
+  - id: rooks-and-queen-home-dont-count
+    fen: "r2q1rk1/pp1bbppp/2n1pn2/3p4/2PP4/2N1PN2/PPQBBPPP/R4RK1 b - - 5 10"
+    expect: {present: false, side: black}
+    note: "Near miss: Black's queen and a8 rook are on their starting squares, but only minor pieces count."
+  - id: developed-knight-not-listed
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/5N2/PP2BPPP/RNBQ1RK1 w - - 0 9"
+    expect: {present: false, side: black, squares_include: ["b8"]}
+    note: "Black's b8 knight is on c6; only c8 is undeveloped."

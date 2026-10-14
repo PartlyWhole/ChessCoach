@@ -1,0 +1,83 @@
+# Move-based, engine-confirmed (docs/02 §6.1). Engine line = Stockfish 19,
+# depth 16, Threads=1, on the position after the move. side = the mover.
+detector: removing_defender
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: bishop-takes-knight-then-pawn
+    fen: "6k1/pp3ppp/5n2/3p2B1/8/2N5/PPP2PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: true
+      side: white
+    note: "Nf6 is the only defender of d5 (attacked by Nc3, safe before: NxP NxN). Bxf6 gxf6 Nxd5 wins a pawn."
+  - id: capture-defender-with-check
+    fen: "7k/pp3p1p/5np1/3b2B1/8/2N5/PPP2PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: true
+      side: white
+    note: "Nf6 alone guards Bd5 (attacked by Nc3, an even trade before). Bxf6+ forces a king move, then Nxd5."
+  - id: black-bishop-takes-knight-then-pawn
+    fen: "6k1/ppp2ppp/2n5/8/3P2b1/5N2/PP3PPP/6K1 b - - 0 1"
+    move: "g4f3"
+    expect:
+      present: true
+      side: black
+    note: "Black version: Nf3 alone guards d4 (attacked by Nc6). ...Bxf3 gxf3 Nxd4 wins a pawn."
+  - id: pawn-takes-defender-of-pinned-knight
+    fen: "4k3/pp4pp/8/3p4/2P1n3/8/PP3PPP/4R1K1 w - - 0 1"
+    move: "c4d5"
+    expect:
+      present: true
+      side: white
+    note: "The d5 pawn is the only defender of the pinned Ne4 (attacked by Re1; RxN would lose the exchange). cxd5 then Rxe4."
+  - id: knight-takes-defender-of-pinned-knight
+    fen: "4k3/pp3ppp/2n5/1BN5/8/8/PPP2PPP/6K1 w - - 0 1"
+    move: "c5b7"
+    expect:
+      present: true
+      side: white
+    note: "b7 is the only defender of the pinned Nc6 (attacked by Bb5). Nxb7 then Bxc6+ nets at least a pawn."
+  - id: rook-trade-removes-guard
+    fen: "4k3/pb1r1ppp/8/8/8/5B2/PP3PPP/3R2K1 w - - 0 1"
+    move: "d1d7"
+    expect:
+      present: true
+      side: white
+    note: "Rd7 alone guards Bb7 (attacked by Bf3, even trade before). Rxd7 Kxd7 Bxb7 wins a bishop."
+  - id: target-has-second-defender
+    fen: "6k1/pp3ppp/2p2n2/3p2B1/8/2N5/PP3PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: false
+    note: "Near miss: Bxf6 removes one defender of d5, but c6 still defends it."
+  - id: target-already-hanging
+    fen: "6k1/pp3ppp/5n2/3p2B1/8/1BN5/PP3PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: false
+    note: "Near miss: d5 is attacked twice (Nc3, Bb3) and defended once, so it was not safe before the capture."
+  - id: deflection-by-non-capture
+    fen: "6k1/pp3ppp/5n2/3p4/6P1/2N5/PPP2P1P/6K1 w - - 0 1"
+    move: "g4g5"
+    expect:
+      present: false
+    note: "g5 chases the only defender of d5 away, but v1 covers capturing the defender only (no deflection by a non-capture)."
+  - id: capture-costs-too-much
+    fen: "6k1/pp3ppp/5n2/3p4/8/2N2R2/PPP2PPP/6K1 w - - 0 1"
+    move: "f3f6"
+    expect:
+      present: false
+    note: "Near miss: Rxf6 gxf6 Nxd5 removes the defender and takes d5, but the sequence loses material (R for N+P)."
+  - id: defended-piece-not-attacked
+    fen: "6k1/pp3ppp/5n2/3p2B1/8/8/PPP2PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: false
+    note: "Nf6 is the only defender of d5, but White does not attack d5: a plain trade."
+  - id: capture-allows-back-rank-mate
+    fen: "4r1k1/pp3ppp/5n2/3p2B1/8/2N5/PPP2PPP/6K1 w - - 0 1"
+    move: "g5f6"
+    expect:
+      present: false
+    note: "Near miss: Bxf6 removes d5's only defender, but ...Re1# follows; the engine line never captures on d5."

@@ -1,0 +1,28 @@
+id: structure-carlsbad
+title: Carlsbad
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - carlsbad
+templates:
+  plan:
+    1: The game has a Carlsbad structure.
+    2: '{plan}'
+plans:
+  owner:
+  - 'Play the minority attack: advance your b-pawn to b5 to create a weak pawn on c6.'
+  - Use the half-open c-file for your rooks.
+  opponent:
+  - Look for play on the kingside or in the centre, for example with ...f5 or a knight on e4.
+  - Meet b4-b5 by keeping your queenside pawns compact.
+tests: tests/positions/concepts/structure-carlsbad.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

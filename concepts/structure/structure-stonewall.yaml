@@ -1,0 +1,27 @@
+id: structure-stonewall
+title: Stonewall
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - stonewall
+templates:
+  plan:
+    1: The game has a Stonewall pawn formation.
+    2: '{plan}'
+plans:
+  owner:
+  - Put a knight on e5 (or e4 for Black) and attack on the kingside.
+  - Watch the dark squares behind your pawns. Keep your dark-squared bishop if you can.
+  opponent:
+  - Trade the opponent's good bishop and aim a knight at the hole on e4 (or e5).
+tests: tests/positions/concepts/structure-stonewall.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

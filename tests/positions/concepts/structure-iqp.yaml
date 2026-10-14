@@ -1,0 +1,39 @@
+# Plan-role tests for structure-iqp (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-iqp
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: iqp-white-owner-to-move
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Keep pieces on. Your pieces are more active, and the d-pawn supports outposts on e5 and c5."}}
+    note: "White d4 isolani (QGA/Panov type), White to move: owner plan."
+  - id: iqp-white-opponent-to-move
+    fen: "r2q1rk1/pb2bppp/1pn1pn2/8/3P4/P1NB1N2/1P2QPPP/R1BR2K1 b - - 2 13"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Blockade the square in front of the pawn, ideally with a knight."}}
+    note: "White d4 isolani, Black (the blockading side) to move: opponent plan."
+  - id: iqp-black-owner-to-move
+    fen: "r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b - - 0 11"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Keep pieces on. Your pieces are more active, and the d-pawn supports outposts on e5 and c5."}}
+    note: "Colour-reversed: Black d5 isolani (Tarrasch type), Black to move: owner plan."
+  - id: iqp-black-opponent-to-move
+    fen: "r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 w - - 0 11"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Blockade the square in front of the pawn, ideally with a knight."}}
+    note: "Black d5 isolani, White to move: opponent plan."
+  - id: iqp-near-miss-supported-by-e3
+    fen: "r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: White d4 is supported by e3 (Carlsbad), not isolated."
+  - id: iqp-near-miss-symmetrical
+    fen: "r1bqr1k1/pp3ppp/2nb1n2/3p4/3P4/2NB1N2/PP3PPP/R1BQR1K1 w - - 0 11"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: symmetrical isolated d-pawns (Exchange French type); Black has a d-pawn."
+  - id: iqp-near-miss-c3-support
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2PB1N2/P4PPP/R1BQ1RK1 w - - 0 11"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: no White e-pawn, but c3 still protects d4."

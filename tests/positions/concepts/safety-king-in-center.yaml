@@ -1,0 +1,31 @@
+concept: safety-king-in-center
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Feature king_in_center (02 §6.2) owned by the player to move:
+# opening/middlegame, king on d/e file, (castling rights lost or fullmove >= 10), and the
+# d- or e-file has no pawn of the king's side.
+cases:
+  - id: available-white-lost-castling-open-centre
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b5/2B5/5N2/PPP2PPP/RNBQK2R w kq - 2 8"
+    expect: {role: available, present: true, slots: {square: e1, files: "d and e"}}
+    note: "White's king has moved (no castling rights) and White has no d- or e-pawn."
+  - id: available-black-move-10-uncastled
+    fen: "r1bqk2r/ppp2ppp/2n2n2/2bp4/8/1BN2N2/PPPP1PPP/R1BQ1RK1 b kq - 0 10"
+    expect: {role: available, present: true, slots: {square: e8, files: e}}
+    note: "Black still has castling rights, but it is move 10 and the e-file has no black pawn."
+  - id: available-middlegame-both-kings-centre
+    fen: "r3k2r/ppp1qppp/2n1bn2/2b5/8/2N2N2/PPP1QPPP/R1B1KB1R w KQkq - 6 15"
+    band: B1
+    expect: {role: available, present: true, slots: {square: e1, files: "d and e"}}
+    note: "Middlegame, move 15, queens on, White's d- and e-pawns are gone and the king is still on e1."
+  - id: neg-closed-centre-no-castling-rights
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w kq - 0 8"
+    expect: {role: available, present: false}
+    note: "Near miss: White lost castling rights, but d3 and e4 still shield the king."
+  - id: neg-move-9-can-still-castle
+    fen: "r1bqk2r/pppp1ppp/2n2n2/2b5/2B5/5N2/PPP2PPP/RNBQK2R w KQkq - 2 9"
+    expect: {role: available, present: false}
+    note: "Near miss: open centre, but castling rights intact and it is only move 9."
+  - id: neg-only-opponent-king-in-centre
+    fen: "r1bqk2r/ppp2ppp/2n2n2/2bp4/8/1BN2N2/PPPP1PPP/R1BQ1RK1 w kq - 0 10"
+    expect: {role: available, present: false}
+    note: "Near miss: Black's king is stuck in the centre, but White (to move) has castled."

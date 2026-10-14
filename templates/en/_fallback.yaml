@@ -1,0 +1,21 @@
+# Generic texts used when no concept explains a move (docs/04 "Fallback").
+# Every claim is checked by code before use: `loss` levels only when the move lost >= 0.10
+# win probability; `threat` only with the engine's best reply; `engine` only with a PV.
+review:
+  status: draft
+  drafted_by: "AI-assisted draft; needs chess-expert approval (AGENTS rule 2)"
+  date: "2026-10-13"
+templates:
+  # Engine-line fallback as a hint ladder (level 3 is the 04 wording).
+  engine:
+    1: "That move gives away a lot. Take another look before you continue."
+    2: "A better move starts with your piece on {best_from}."
+    3: "The engine prefers {best_san}. Main line: {pv_san}."
+  # Threat-based fallback (04 fallback step 1): the opponent's best reply.
+  threat:
+    1: "That move gives away a lot. What can your opponent do now?"
+    2: "Watch your opponent's piece on {reply_from}."
+    3: "This allowed {reply_san}."
+  # Pre-move prompt in guided mode (04 "Before the player moves").
+  pre_move:
+    1: "Something important is happening here. Check your opponent's threats first."

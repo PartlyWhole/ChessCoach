@@ -1,0 +1,29 @@
+# Plan-role tests for structure-sicilian-scheveningen (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-sicilian-scheveningen
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: scheveningen-classical
+    fen: "r1b2rk1/1pq1bppp/p1nppn2/8/3NP3/2N1B3/PPP1BPPP/R2Q1RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Open Sicilian: White c2 e4 vs Black d6 e6, no Black c-pawn."
+  - id: scheveningen-black-to-move
+    fen: "r1b2rk1/1pq1bppp/p1nppn2/8/3NP3/2N1B3/PPP1BPPP/R2Q1RK1 b - - 1 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Same structure, Black to move."
+  - id: scheveningen-english-attack
+    fen: "r1b2rk1/1pq1bppp/p1nppn2/8/3NP1P1/2N1BP2/PPPQ3P/R3KB1R b KQ - 0 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "English Attack with f3 g4."
+  - id: scheveningen-near-miss-white-c4
+    fen: "r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: White c-pawn on c4 (Hedgehog), not c2."
+  - id: scheveningen-near-miss-najdorf-e5
+    fen: "r1bqk2r/1p2bppp/p2p1n2/4p3/4P3/1NN1B3/PPP1BPPP/R2QK2R w KQkq - 0 9"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Najdorf with ...e5 (d6 e5), not the d6-e6 small centre."

@@ -1,0 +1,302 @@
+# Pawn-structure classifier (02 §6.3). owner is asserted only where the template has an
+# unambiguous owning side (iqp, hanging_pawns, stonewall) and is null for the fallbacks.
+detector: structure
+cases:
+- id: iqp-white
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    data:
+      structure_id: iqp
+      owner: white
+  note: White d4, no White c/e pawns, no Black d-pawn.
+- id: iqp-black
+  fen: r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b - - 0 11
+  expect:
+    present: true
+    data:
+      structure_id: iqp
+      owner: black
+  note: Colour-reversed IQP.
+- id: hanging-white
+  fen: 2rq1rk1/pb2bppp/1p2pn2/8/2PP4/3B1N2/PB3PPP/2RQ1RK1 w - - 0 16
+  expect:
+    present: true
+    data:
+      structure_id: hanging_pawns
+      owner: white
+  note: White c4+d4, no b/e pawns; Black has no c/d pawns.
+- id: hanging-black
+  fen: 2rq1rk1/pb2bppp/5n2/2pp4/8/1P1BPN2/PB2QPPP/2RR2K1 w - - 0 16
+  expect:
+    present: true
+    data:
+      structure_id: hanging_pawns
+      owner: black
+  note: Black hanging pawns c5+d5 (QGD Tartakower-type).
+- id: carlsbad-white
+  fen: r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: carlsbad
+  note: 'QGD Exchange skeleton: White d4 e3 vs Black c6 d5.'
+- id: carlsbad-reversed
+  fen: r1b2rk1/ppq1bppp/2n1pn2/3p4/3P4/2PB1N2/PP1N1PPP/R1BQR1K1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: carlsbad
+  note: 'Colour-reversed Carlsbad: Black d5 e6 (no c) vs White c3 d4 (no e).'
+- id: slav-triangle
+  fen: r1bq1rk1/pp1nbppp/2p1pn2/3p4/2PP4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: slav_triangle
+  note: Black c6 d5 e6 vs White c4 d4 (Semi-Slav).
+- id: slav-triangle-reversed
+  fen: r1bq1rk1/pp2bppp/2n2n2/2pp4/3P4/2P1PN2/PP1NBPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: slav_triangle
+  note: 'Colour-reversed: White c3 d4 e3 vs Black c5 d5.'
+- id: french-advance
+  fen: r1b2rk1/pp1nbppp/1qn1p3/2ppP3/3P4/2P2N2/PP1NBPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: french_advance
+  note: White d4 e5; Black d5 e6 with c-pawn on c5.
+- id: french-advance-reversed
+  fen: r1bq1rk1/pp1nbppp/n1p5/3p4/2PPp3/2N1PN2/PP2BPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: french_advance
+  note: 'Colour-reversed: Black d5 e4 vs White d4 e3, White c-pawn not on c3.'
+- id: caro-kann-advance
+  fen: r2q1rk1/pp1nbppp/2p1p1bn/3pP3/3P4/5N2/PPPNBPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: caro_kann_advance
+  note: White d4 e5; Black c6 d5 e6 (light bishop outside).
+- id: kings-indian-closed
+  fen: r1bqnrk1/pppn1pbp/3p2p1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: kings_indian_closed
+  note: 'Mar del Plata skeleton: White c4 d5 e4 vs Black d6 e5.'
+- id: maroczy-bind
+  fen: r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP1QBPPP/R4RK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: maroczy_bind
+  note: 'Accelerated Dragon: White c4 e4 (no d) vs Black d6, no c-pawn.'
+- id: hedgehog
+  fen: r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14
+  expect:
+    present: true
+    data:
+      structure_id: hedgehog
+  note: Black a6 b6 d6 e6 vs Maroczy pawns; more specific than maroczy_bind, so hedgehog wins.
+- id: scheveningen
+  fen: r1b2rk1/1pq1bppp/p1nppn2/8/3NP3/2N1B3/PPP1BPPP/R2Q1RK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: sicilian_scheveningen
+  note: 'Open Sicilian: White c2 e4 vs Black d6 e6, no c-pawn.'
+- id: stonewall-white
+  fen: r1bq1rk1/ppp1bppp/2n1pn2/3p4/3P1P2/2PBPN2/PP1N2PP/R1B1QRK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: stonewall
+      owner: white
+  note: White c3 d4 e3 f4 (Stonewall Attack).
+- id: stonewall-black
+  fen: r1b1qrk1/pp1n2pp/2pbpn2/3p1p2/3P4/3BPN2/PPPN1PPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: stonewall
+      owner: black
+  note: Black c6 d5 e6 f5 (Dutch Stonewall) vs a White c2 (no c4, so no Slav triangle).
+- id: open-center
+  fen: r1bq1rk1/ppp2ppp/2n2n2/2b5/2B1P3/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 8
+  expect:
+    present: true
+    data:
+      structure_id: open_center
+      owner: null
+  note: Only e4 on the d/e files; no named structure applies.
+- id: open-center-empty
+  fen: r1bqr1k1/ppp2ppp/2n2n2/2b5/2B5/2N2N2/PPP2PPP/R1BQR1K1 w - - 0 10
+  expect:
+    present: true
+    data:
+      structure_id: open_center
+      owner: null
+  note: No d/e pawns at all.
+- id: closed-center
+  fen: r1bq1rk1/pppnbppp/3p1n2/3Pp3/4P3/2N2N2/PPP1BPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: true
+    data:
+      structure_id: closed_center
+      owner: null
+  note: d5/e4 vs d6/e5 blocked, but White c-pawn on c2 so not King's Indian.
+- id: closed-center-c3
+  fen: r1bq1rk1/pp1nbppp/3p1n2/2pPp3/4P3/2P2N2/PP1NBPPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    data:
+      structure_id: closed_center
+      owner: null
+  note: Blocked d/e pawns with White c3 (not c4).
+- id: start-none
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+    data:
+      structure_id: open_center
+  note: 'Initial position: 4 d/e pawns, none blocked.'
+- id: start-not-closed
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+    data:
+      structure_id: closed_center
+  note: 'Initial position: d/e pawns not blocked.'
+- id: iqp-supported-not-iqp
+  fen: r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+    data:
+      structure_id: iqp
+  note: 'Near miss: d4 supported by e3.'
+- id: iqp-black-has-d-pawn
+  fen: r1bqr1k1/pp3ppp/2nb1n2/3p4/3P4/2NB1N2/PP3PPP/R1BQR1K1 w - - 0 11
+  expect:
+    present: false
+    data:
+      structure_id: iqp
+  note: 'Near miss: symmetrical isolated d-pawns (Exchange French type) - Black has a d-pawn.'
+- id: hanging-with-b-pawn
+  fen: 2rq1rk1/pb2bppp/1p2pn2/8/2PP4/3BBN2/PP3PPP/2RQ1RK1 w - - 0 16
+  expect:
+    present: false
+    data:
+      structure_id: hanging_pawns
+  note: 'Near miss: White b2 still supports the c4-d4 duo.'
+- id: carlsbad-black-keeps-e6
+  fen: r1bq1rk1/pp1nbppp/2p1pn2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+    data:
+      structure_id: carlsbad
+  note: 'Near miss: Black still has e6 (no exchange on d5 happened).'
+- id: slav-white-c2
+  fen: r1bq1rk1/pp1nbppp/2p1pn2/3p4/3P4/3BPN2/PPPN1PPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: false
+    data:
+      structure_id: slav_triangle
+  note: 'Near miss: Black triangle, but White c-pawn still on c2.'
+- id: french-with-c6-is-caro
+  fen: r2q1rk1/pp1nbppp/2p1p1bn/3pP3/3P4/5N2/PPPNBPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: false
+    data:
+      structure_id: french_advance
+  note: 'Near miss: Black c-pawn on c6 makes it Caro-Kann Advance.'
+- id: caro-needs-c6
+  fen: r1b2rk1/pp1nbppp/1qn1p3/2ppP3/3P4/2P2N2/PP1NBPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: false
+    data:
+      structure_id: caro_kann_advance
+  note: 'Near miss: Black c-pawn on c5, so French Advance.'
+- id: kid-without-c4
+  fen: r1bq1rk1/pppnbppp/3p1n2/3Pp3/4P3/2N2N2/PPP1BPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: false
+    data:
+      structure_id: kings_indian_closed
+  note: 'Near miss: White c-pawn on c2.'
+- id: maroczy-white-c2-dragon
+  fen: r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1B3/PPPQBPPP/R4RK1 w - - 0 10
+  expect:
+    present: false
+    data:
+      structure_id: maroczy_bind
+  note: 'Near miss: Dragon skeleton, White c-pawn on c2 (no bind).'
+- id: hedgehog-without-b6
+  fen: r1b2rk1/1pqnbppp/p2ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14
+  expect:
+    present: false
+    data:
+      structure_id: hedgehog
+  note: 'Near miss: Black b-pawn on b7, so plain Maroczy Bind.'
+- id: hedgehog-without-b6-is-maroczy
+  fen: r1b2rk1/1pqnbppp/p2ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14
+  expect:
+    present: true
+    data:
+      structure_id: maroczy_bind
+  note: 'Same position: Black d6 e6, no c-pawn vs White c4 e4 = Maroczy Bind.'
+- id: scheveningen-white-c4
+  fen: r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14
+  expect:
+    present: false
+    data:
+      structure_id: sicilian_scheveningen
+  note: 'Near miss: White c-pawn on c4 (Maroczy/Hedgehog), not c2.'
+- id: stonewall-no-f4
+  fen: r1bq1rk1/ppp1bppp/2n1pn2/3p4/3P4/2PBPN2/PP1NQPPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+    data:
+      structure_id: stonewall
+  note: 'Near miss: Colle setup c3 d4 e3 with f2 not f4.'
+- id: open-center-iqp-wins
+  fen: r1bqr1k1/pp3ppp/2nb1n2/8/3P4/2NB1N2/PP3PPP/R1BQR1K1 w - - 0 14
+  expect:
+    present: false
+    data:
+      structure_id: open_center
+  note: Only one d/e pawn, but the named IQP structure matches first.
+- id: open-center-iqp-wins-id
+  fen: r1bqr1k1/pp3ppp/2nb1n2/8/3P4/2NB1N2/PP3PPP/R1BQR1K1 w - - 0 14
+  expect:
+    present: true
+    data:
+      structure_id: iqp
+      owner: white
+  note: 'Same position: named iqp takes precedence over the open_center fallback.'
+- id: closed-only-one-blocked
+  fen: r1bq1rk1/pppnppbp/3p1np1/3P4/4P3/2N2N2/PPP1BPPP/R1BQ1RK1 w - - 0 9
+  expect:
+    present: false
+    data:
+      structure_id: closed_center
+  note: 'Near miss: d5 is blocked by d6 but e4 is free (Black e-pawn on e7).'
+- id: closed-kid-wins
+  fen: r1bqnrk1/pppn1pbp/3p2p1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 w - - 0 10
+  expect:
+    present: false
+    data:
+      structure_id: closed_center
+  note: Blocked centre but the named King's Indian structure applies.
+- id: open-center-two-pawns
+  fen: r1bq1rk1/ppp1bppp/2np1n2/8/2B1P3/2N2N2/PPP2PPP/R1BQ1RK1 w - - 0 8
+  expect:
+    present: false
+    data:
+      structure_id: open_center
+  note: 'Near miss: two pawns on d/e files (e4, d6).'

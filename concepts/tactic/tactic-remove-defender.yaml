@@ -1,0 +1,47 @@
+id: tactic-remove-defender
+title: Removing the defender
+category: tactic
+bands:
+- B2
+base_importance: 0.75
+prerequisites:
+- safety-hanging-piece
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: removing_defender
+  engine:
+    min_gain: 0.1
+slots:
+  defender: feature.data.defender
+  defender_piece: feature.data.defender_piece
+  target: feature.data.target
+  target_piece: feature.data.target_piece
+templates:
+  missed:
+    1: One enemy piece was doing all the guarding. Can you use that?
+    2: Look at the {defender_piece} on {defender}. What does it protect?
+    3: '{move_san} takes the {defender_piece} that guarded the {target_piece} on {target}, and the {target_piece}
+      falls next.'
+  allowed:
+    1: Which of your pieces depends on a single defender?
+    2: Your {target_piece} on {target} is guarded only by the {defender_piece} on {defender}.
+    3: After your move, {move_san} removes the guard of your {target_piece} on {target}.
+  played:
+    0: Good. You removed the {defender_piece} that guarded the {target_piece} on {target}.
+  available:
+    1: Is one enemy piece guarding something important on its own?
+    2: Look at the {defender_piece} on {defender}.
+    3: '{move_san} removes the guard of the {target_piece} on {target}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-remove-defender.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,23 @@
+id: endgame-kr-vs-k
+title: King and rook vs king
+category: endgame
+bands:
+- B0
+- B1
+base_importance: 0.6
+trigger:
+  roles:
+  - plan
+  predicate: kr_vs_k
+templates:
+  plan:
+    1: You have king and rook against a lone king. This is a win.
+    2: Cut off the king on {enemy_king} with your rook, then walk your king toward it and shrink the box.
+drill:
+  kind: endgame_technique
+  max_solution_plies: 32
+tests: tests/positions/concepts/endgame-kr-vs-k.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

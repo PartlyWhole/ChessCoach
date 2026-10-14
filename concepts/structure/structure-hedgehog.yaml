@@ -1,0 +1,26 @@
+id: structure-hedgehog
+title: Hedgehog
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - hedgehog
+templates:
+  plan:
+    1: The game has a Hedgehog structure.
+    2: '{plan}'
+plans:
+  owner:
+  - Use your space to restrict your opponent, and watch for the ...b5 and ...d5 breaks.
+  opponent:
+  - Wait behind your pawns on the sixth rank, then break with ...b5 or ...d5 at the right moment.
+tests: tests/positions/concepts/structure-hedgehog.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

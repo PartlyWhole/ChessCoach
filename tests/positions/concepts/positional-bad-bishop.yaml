@@ -1,0 +1,29 @@
+concept: positional-bad-bishop
+engine: {name: "Stockfish 19", depth: 16}
+# Role: plan only. bad_bishop owned by the player to move: >= 2 of the owner's c/d/e/f pawns on
+# the bishop's colour, each blocked by an enemy pawn directly in front.
+cases:
+  - id: plan-french-advance-black-c8-bishop
+    fen: "rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/2P5/PP3PPP/RNBQKBNR b KQkq - 0 4"
+    expect: {role: plan, present: true, slots: {square: c8, pawns: "d5 and e6"}}
+    note: "French Advance: d5 and e6 are light and fixed by d4/e5; the c8 bishop is light-squared."
+  - id: plan-french-advance-white-c1-bishop
+    fen: "r1bqkbnr/pp3ppp/2n1p3/2ppP3/3P4/2P5/PP3PPP/RNBQKBNR w KQkq - 1 5"
+    expect: {role: plan, present: true, slots: {square: c1, pawns: "d4 and e5"}}
+    note: "Same chain from White's side: d4 and e5 are dark and fixed, so Bc1 is the bad bishop."
+  - id: plan-kings-indian-g7-bishop
+    fen: "r1bq1rk1/pppnnpbp/3p2p1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 b - - 1 10"
+    expect: {role: plan, present: true, slots: {square: g7, pawns: "e5 and d6"}}
+    note: "King's Indian closed centre: Black's dark pawns d6/e5 are fixed by d5/e4, hemming in Bg7."
+  - id: neg-french-light-bishop-gone
+    fen: "rn1qkbnr/pp3ppp/4p3/2ppP3/3P4/2P5/PP3PPP/RN1QKBNR b KQkq - 0 6"
+    expect: {role: plan, present: false}
+    note: "Near miss: same chain, but Black's light-squared bishop has been traded; Bf8 is on the other colour."
+  - id: neg-only-one-fixed-pawn
+    fen: "rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR b KQkq - 2 4"
+    expect: {role: plan, present: false}
+    note: "Near miss: Queen's Gambit Declined. d5 and e6 are light, but only d5 is fixed (e5 is empty)."
+  - id: neg-only-opponent-has-bad-bishop
+    fen: "r1bqkbnr/pp3ppp/2n1p3/2ppP3/3P4/2P5/PP3PPP/RN1QKBNR w KQkq - 0 5"
+    expect: {role: plan, present: false}
+    note: "Near miss: Black's c8 bishop is bad, but White (to move) has only the light-squared bishop, which is free."

@@ -1,0 +1,29 @@
+# Plan-role tests for structure-carlsbad (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-carlsbad
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: carlsbad-white-owner-to-move
+    fen: "r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Play the minority attack: advance your b-pawn to b5 to create a weak pawn on c6."}}
+    note: "QGD Exchange: White d4 e3 vs Black c6 d5; minority-attack side to move."
+  - id: carlsbad-white-minority-b4
+    fen: "r1bq1rk1/pp1nbppp/2p2n2/3p4/1P1P4/2NBPN2/P1Q2PPP/R1B2RK1 b - - 0 11"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Look for play on the kingside or in the centre, for example with ...f5 or a knight on e4."}}
+    note: "Minority attack under way (b4); Black to move gets the defender's plan."
+  - id: carlsbad-reversed
+    fen: "r1b2rk1/ppq1bppp/2n1pn2/3p4/3P4/2PB1N2/PP1N1PPP/R1BQR1K1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: true, slots: {plan: "Look for play on the kingside or in the centre, for example with ...f5 or a knight on e4."}}
+    note: "Colour-reversed: Black d5 e6 (no c) vs White c3 d4 (no e); White to move is the opponent."
+  - id: carlsbad-near-miss-black-keeps-e6
+    fen: "r1bq1rk1/pp1nbppp/2p1pn2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Black still has e6 (no exchange on d5)."
+  - id: carlsbad-near-miss-c7
+    fen: "r1bq1rk1/ppp1bppp/5n2/3p4/3P4/2NBPN2/PP3PPP/R1BQ1RK1 b - - 0 9"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: exchange happened but Black's c-pawn is still on c7 (no ...c6)."

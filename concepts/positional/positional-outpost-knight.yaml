@@ -1,0 +1,25 @@
+id: positional-outpost-knight
+title: Knight on an outpost
+category: positional
+bands:
+- B2
+- B3
+base_importance: 0.55
+trigger:
+  roles:
+  - played
+  moved_piece:
+  - knight
+  all:
+  - feature: outpost
+    data.occupant: knight
+slots:
+  square: feature.squares[0]
+templates:
+  played:
+    0: Strong square. Your knight on {square} is supported by a pawn, and no enemy pawn can ever chase it away.
+tests: tests/positions/concepts/positional-outpost-knight.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,29 @@
+concept: positional-bishop-pair
+engine: {name: "Stockfish 19", depth: 16}
+# Role: plan only. bishop_pair owned by the player to move: bishops on both colours, opponent
+# without the pair.
+cases:
+  - id: plan-white-after-bxc3
+    fen: "r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/2P2N2/P1PP1PPP/R1BQK2R w KQkq - 1 6"
+    expect: {role: plan, present: true}
+    note: "Black gave up the b4 bishop for the c3 knight; White keeps both bishops."
+  - id: plan-black-after-exchange-ruy
+    fen: "r1bqkb1r/pp1p1ppp/2p2n2/4p3/4P3/3P1N2/PPP2PPP/RNBQK2R b KQkq - 0 5"
+    expect: {role: plan, present: true}
+    note: "White traded the light-squared bishop for a knight; Black to move has the pair."
+  - id: plan-endgame-two-bishops-vs-bishop-knight
+    fen: "4k3/3n1ppp/3b4/8/8/3BB3/5PPP/6K1 w - - 0 1"
+    band: B3
+    expect: {role: plan, present: true}
+  - id: neg-both-sides-have-the-pair
+    fen: "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    expect: {role: plan, present: false}
+    note: "Near miss: White has both bishops, but so does Black."
+  - id: neg-two-dark-squared-bishops
+    fen: "4k3/3n1ppp/8/8/8/4B3/5PPP/2B3K1 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: two bishops after an underpromotion, but both on dark squares."
+  - id: neg-opponent-has-the-pair
+    fen: "r1bqk2r/pppp1ppp/2n2n2/4p3/2B1P3/2P2N2/P1PP1PPP/R1BQK2R b KQkq - 0 5"
+    expect: {role: plan, present: false}
+    note: "Near miss: White has the pair, but Black is to move."

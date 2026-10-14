@@ -1,0 +1,46 @@
+id: tactic-pin-relative
+title: Relative pin
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.65
+trigger:
+  roles:
+  - missed
+  - allowed
+  - played
+  - available
+  all:
+  - feature: pin_relative
+  engine:
+    min_gain: 0.1
+slots:
+  pinned: feature.data.pinned
+  pinned_piece: feature.data.pinned_piece
+  pinner: feature.data.pinner
+  pinner_piece: feature.data.pinner_piece
+  behind_piece: feature.data.behind_piece
+templates:
+  missed:
+    1: Could you pin one of your opponent's pieces?
+    2: Look at the {pinned_piece} on {pinned} and the piece behind it.
+    3: '{move_san} pins the {pinned_piece} on {pinned} to the {behind_piece}.'
+  allowed:
+    1: Check the lines that lead to your king and queen.
+    2: Your {pinned_piece} on {pinned} can be pinned.
+    3: After your move, {move_san} pins your {pinned_piece} on {pinned} to the {behind_piece}.
+  played:
+    0: Nice pin. Your {pinner_piece} pins the {pinned_piece} on {pinned} to the {behind_piece}.
+  available:
+    1: Can you pin one of your opponent's pieces?
+    2: Look at the {pinned_piece} on {pinned}.
+    3: '{move_san} pins the {pinned_piece} on {pinned} to the {behind_piece}.'
+drill:
+  kind: find_move
+  max_solution_plies: 3
+tests: tests/positions/concepts/tactic-pin-relative.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

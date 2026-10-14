@@ -1,0 +1,13 @@
+# Lichess puzzle theme tag → our concept ids (docs/06 §6). Puzzles are re-tagged with our own
+# detectors; a puzzle is kept only when our tags confirm the primary theme.
+# review: draft — a chess expert should confirm this mapping.
+fork: [tactic-double-attack, tactic-fork-knight, tactic-fork-pawn, tactic-fork-queen]
+doubleCheck: [tactic-double-check]
+discoveredAttack: [tactic-discovered-attack, tactic-discovered-check]
+pin: [tactic-pin-absolute, tactic-pin-relative]
+skewer: [tactic-skewer]
+backRankMate: [tactic-back-rank-mate]
+trappedPiece: [tactic-trapped-piece]
+hangingPiece: [safety-hanging-piece]
+capturingDefender: [tactic-remove-defender]
+overloading: [tactic-overloaded-defender]

@@ -1,0 +1,23 @@
+id: positional-bad-bishop
+title: Bad bishop
+category: positional
+bands:
+- B3
+base_importance: 0.45
+trigger:
+  roles:
+  - plan
+  all:
+  - feature: bad_bishop
+slots:
+  square: feature.squares[0]
+  pawns: feature.data.fixed_pawns
+templates:
+  plan:
+    1: Your bishop on {square} is hemmed in by your own fixed pawns on {pawns}.
+    2: Trade it, or bring it outside the pawn chain where it has more scope.
+tests: tests/positions/concepts/positional-bad-bishop.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

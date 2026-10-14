@@ -1,0 +1,69 @@
+# Static: side to move is in check from two pieces. side = the checking side.
+detector: double_check
+cases:
+  - id: rook-and-knight
+    fen: "4k3/ppp2ppp/5N2/8/8/8/PPP2PPP/4R1K1 b - - 1 1"
+    expect:
+      present: true
+      side: white
+    note: "After Nf6++: knight and Re1 both give check."
+  - id: bishop-and-knight
+    fen: "7k/p6p/6N1/8/8/8/1B3PPP/6K1 b - - 1 1"
+    expect:
+      present: true
+      side: white
+    note: "Knight on g6 and Bb2 both check the king on h8."
+  - id: rook-and-bishop
+    fen: "4k3/ppp2ppp/8/1B6/8/8/PPP2PPP/4R1K1 b - - 1 1"
+    expect:
+      present: true
+      side: white
+    note: "Bb5 and Re1 both check the king on e8."
+  - id: queen-and-knight
+    fen: "r4rk1/ppp2p1p/5N2/8/8/6Q1/PPP2P1P/7K b - - 1 1"
+    expect:
+      present: true
+      side: white
+    note: "Knight f6 and Qg1 (open g-file) check the king on g8."
+  - id: pawn-and-rook
+    fen: "8/pp2kppp/3P4/8/8/8/PP3PPP/4R1K1 b - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "After exd6++: the pawn on d6 and Re1 both check the king on e7."
+  - id: black-gives-double-check
+    fen: "4r1k1/5ppp/8/8/8/3n4/PP3PPP/4K3 w - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "White to move is in check from Re8 and the knight on d3: double check by Black."
+  - id: single-check
+    fen: "4k3/pp3ppp/8/1B6/8/8/PPP2PPP/6K1 b - - 1 1"
+    expect:
+      present: false
+    note: "Only Bb5 checks."
+  - id: second-line-blocked
+    fen: "4k3/pppp1ppp/8/1B6/8/8/PPP2PPP/4R1K1 b - - 1 1"
+    expect:
+      present: false
+    note: "Near miss: Re1 checks, but the bishop on b5 is blocked by the d7 pawn."
+  - id: battery-behind-checker
+    fen: "4k3/pp3ppp/8/8/8/8/PP2RPPP/4R1K1 b - - 1 1"
+    expect:
+      present: false
+    note: "Near miss: two rooks on the e-file, but only the front one checks; the rear rook is an x-ray."
+  - id: double-check-available-not-played
+    fen: "4k3/ppp2ppp/8/8/4N3/8/PPP2PPP/4R1K1 w - - 0 1"
+    expect:
+      present: false
+    note: "White could play Nf6++, but nobody is in check now."
+  - id: check-plus-attack-next-to-king
+    fen: "4k3/pp3ppp/8/8/8/5B2/PP3PPP/4R1K1 b - - 1 1"
+    expect:
+      present: false
+    note: "Only Re1 checks; Bf3 is aimed at b7, not at the king."
+  - id: no-check-two-pieces-aimed
+    fen: "4k3/ppppbppp/8/1B6/8/8/PP3PPP/4R1K1 b - - 1 1"
+    expect:
+      present: false
+    note: "Rook and bishop aim at the king but both lines are blocked; no check."

@@ -1,0 +1,35 @@
+concept: tactic-back-rank-mate
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: rook-mates-on-d8-available
+    fen: "6k1/p4ppp/8/8/8/8/Pr3PPP/3R2K1 w - - 0 1"
+    expect: {role: available, slots: {king_square: g8, mate_in: 1}}
+    note: "Kg8 is boxed in by f7/g7/h7 and nothing covers d8: Rd8#."
+  - id: rook-mates-on-d8-missed
+    fen: "6k1/p4ppp/8/8/8/8/Pr3PPP/3R2K1 w - - 0 1"
+    move: a2a3
+    expect: {role: missed, slots: {king_square: g8, mate_in: 1}}
+    note: "a3 misses Rd8#."
+  - id: rook-leaves-back-rank-allowed
+    fen: "1r4k1/p4ppp/8/8/8/8/PP3PPP/3R2K1 b - - 0 1"
+    move: b8b2
+    expect: {role: allowed, slots: {king_square: g8, mate_in: 1}}
+    note: "...Rxb2?? grabs a pawn but abandons the back rank: Rd8#."
+  - id: mate-played-not-missed
+    fen: "6k1/p4ppp/8/8/8/8/Pr3PPP/3R2K1 w - - 0 1"
+    move: d1d8
+    expect: {role: missed, present: false}
+    note: "Near miss: the player delivered Rd8#, so the mate was not missed."
+  - id: mating-move-allows-nothing
+    fen: "6k1/p4ppp/8/8/8/8/Pr3PPP/3R2K1 w - - 0 1"
+    move: d1d8
+    expect: {role: allowed, present: false}
+    note: "After Rd8# the game is over: the mated side has no back-rank mate of its own (no 'mate in 0' claim)."
+  - id: luft-no-mate
+    fen: "6k1/p4pp1/7p/8/8/8/Pr3PPP/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: same position with ...h6 played; Rd8+ Kh7 and there is no mate."
+  - id: back-rank-guarded-by-rook
+    fen: "2r3k1/p4ppp/8/8/8/8/P4PPP/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: the king has no luft, but Rc8 guards the back rank (Rd8+ Rxd8)."

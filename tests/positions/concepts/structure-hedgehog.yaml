@@ -1,0 +1,29 @@
+# Plan-role tests for structure-hedgehog (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-hedgehog
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: hedgehog-sicilian
+    fen: "r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Black a6 b6 d6 e6 vs White c4 e4."
+  - id: hedgehog-sicilian-black-to-move
+    fen: "r4rk1/1bqnbppp/pp1ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 b - - 1 14"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Same Hedgehog, Black to move."
+  - id: hedgehog-english
+    fen: "r2q1rk1/1b1nbppp/pp1ppn2/8/2P1P3/1PN2NP1/P2Q1PBP/R2R2K1 w - - 0 13"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "English Hedgehog with White b3 g3."
+  - id: hedgehog-near-miss-b7
+    fen: "r1b2rk1/1pqnbppp/p2ppn2/8/2PNP3/2NBB3/PP2QPPP/R2R2K1 w - - 0 14"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Black b-pawn on b7, so plain Maroczy Bind."
+  - id: hedgehog-near-miss-e5
+    fen: "r4rk1/1bqnbppp/pp1p1n2/4p3/2P1P3/2NBB3/PP2QPPP/R2R1NK1 w - - 0 15"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Black played ...e5; the e6 pawn of the Hedgehog is gone."

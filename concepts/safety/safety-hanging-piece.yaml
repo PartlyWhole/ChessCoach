@@ -1,0 +1,41 @@
+id: safety-hanging-piece
+title: Hanging piece
+category: safety
+bands:
+- B0
+- B1
+base_importance: 0.9
+trigger:
+  roles:
+  - missed
+  - allowed
+  - available
+  all:
+  - feature: hanging_piece
+  idea_targets_feature: true
+  engine:
+    min_gain: 0.1
+slots:
+  square: feature.squares[0]
+  piece: feature.data.piece
+templates:
+  missed:
+    1: Your opponent left a piece unprotected. Can you find it?
+    2: Look at the {piece} on {square}.
+    3: '{move_san} wins the {piece} on {square}. It was not defended well enough.'
+  allowed:
+    1: Check your pieces. Is one of them unprotected now?
+    2: Your {piece} on {square} is not defended well enough.
+    3: After your move, {move_san} wins your {piece} on {square}.
+  available:
+    1: Is one of your opponent's pieces unprotected?
+    2: Look at the {piece} on {square}.
+    3: '{move_san} wins the {piece} on {square}.'
+drill:
+  kind: find_move
+  max_solution_plies: 1
+tests: tests/positions/concepts/safety-hanging-piece.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

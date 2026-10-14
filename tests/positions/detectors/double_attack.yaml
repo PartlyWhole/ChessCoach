@@ -1,0 +1,128 @@
+detector: double_attack
+cases:
+- id: knight-check-king-rook
+  fen: r3k2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  move: d5c7
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c7
+    data:
+      created_by: d5c7
+  note: Nc7+ hits Ke8 and loose Ra8. A real fork is also a double attack.
+- id: black-knight-check-king-rook
+  fen: r3k2r/ppp2ppp/8/8/3n4/8/PP3PPP/R3K2R b KQkq - 0 1
+  move: d4c2
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - c2
+    data:
+      created_by: d4c2
+  note: '...Nc2+ hits Ke1 and Ra1; side is the mover (black).'
+- id: square-covered-still-double-attack
+  fen: r2qk2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  move: d5c7
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c7
+    data:
+      created_by: d5c7
+  note: 'Nc7+ attacks the king and Ra8 even though Qxc7 refutes it: double_attack needs no engine confirmation (fork file has this as a negative).'
+- id: pawn-fork-refuted-still-double-attack
+  fen: r2q1rk1/ppp2ppp/3n1b2/8/4P3/8/PPP2PPP/R2Q1RK1 w - - 0 1
+  move: e4e5
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e5
+    data:
+      created_by: e4e5
+  note: e5 attacks Nd6 and Bf6 (each SEE > 0 for a pawn attacker); Bxe5 refutes it tactically but the double attack exists.
+- id: fork-allows-mate-still-double-attack
+  fen: 5rk1/6pp/8/6N1/3q4/8/5PPP/6K1 w - - 0 1
+  move: g5e6
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e6
+    data:
+      created_by: g5e6
+  note: Ne6 attacks Qd4 and Rf8; it loses to a back-rank mate, but as a pattern it is a double attack.
+- id: discovered-pair-rook-and-knight
+  fen: r3q1k1/pb3ppp/8/8/4N3/8/PP3PPP/4R1K1 w - - 0 1
+  move: e4c5
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c5
+    data:
+      created_by: e4c5
+      pair: true
+  note: 'Nc5 attacks the loose Bb7 and uncovers Re1 onto Qe8 (R takes Q nets material even though a8 defends e8). Moved piece + uncovered slider: data.pair = true.'
+- id: rook-fork-two-loose-minors
+  fen: 6k1/5ppp/8/8/b6n/8/5PPP/3R2K1 w - - 0 1
+  move: d1d4
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+    data:
+      created_by: d1d4
+  note: Rd4 attacks undefended Ba4 and Nh4.
+- id: second-target-pawn-defended
+  fen: r5k1/pp3ppp/4b3/3N4/8/8/PP3PPP/6K1 w - - 0 1
+  move: d5c7
+  expect:
+    present: false
+    data:
+      created_by: d5c7
+  note: 'Near miss: Nc7 attacks Ra8 (target) and Be6, but Be6 is defended by f7 so it is not a target (SEE 0).'
+- id: check-plus-defended-bishop
+  fen: 4k2r/1p3ppp/b7/3N4/8/8/PP3PPP/4K2R w Kk - 0 1
+  move: d5c7
+  expect:
+    present: false
+    data:
+      created_by: d5c7
+  note: 'Near miss: check plus an attack on Ba6, which b7 defends adequately (N for B nets 0): only one target.'
+- id: both-targets-pawn-defended
+  fen: r2qkb1r/pp3ppp/2n1b3/8/8/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 1
+  move: f3d4
+  expect:
+    present: false
+    data:
+      created_by: f3d4
+  note: 'Nd4 attacks Nc6 and Be6, both pawn-defended equal-value pieces: zero targets.'
+- id: rook-hits-two-pawn-defended-minors
+  fen: 6k1/p4ppp/1n4b1/p6p/8/8/5PPP/3R2K1 w - - 0 1
+  move: d1d6
+  expect:
+    present: false
+    data:
+      created_by: d1d6
+  note: 'Rd6 attacks Nb6 (defended by a7) and Bg6 (defended by f7/h7): rook for minor loses material, so neither is a target.'
+- id: second-target-attacked-by-other-piece
+  fen: 6k1/5ppp/8/n4n2/8/8/5PPP/R4BK1 w - - 0 1
+  move: f1d3
+  expect:
+    present: false
+    data:
+      created_by: f1d3
+  note: Bd3 attacks loose Nf5; the other loose piece Na5 is attacked by Ra1, whose line Bd3 did not uncover. Not a double attack.
+- id: uncovered-target-defended-equal
+  fen: r5k1/pb4pp/5p2/4r3/4N3/8/PP3PPP/4RK2 w - - 0 1
+  move: e4c5
+  expect:
+    present: false
+    data:
+      created_by: e4c5
+  note: 'Near miss for the pair case: Nc5 attacks loose Bb7 and uncovers Re1 onto Re5, but Re5 is defended by f6 (R for R nets 0), so only one target.'

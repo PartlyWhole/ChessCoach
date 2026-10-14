@@ -1,0 +1,32 @@
+concept: tactic-fork-knight
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: nc7-forks-king-and-rook-available
+    fen: "r3k2r/pp3pbp/6p1/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1"
+    expect: {role: available, slots: {square: c7}}
+    note: "Nc7+ forks Ke8 and Ra8; c7 is not covered (Bg7 guards the dark squares only). Engine +5.7 vs +2.0."
+  - id: nc7-forks-king-and-rook-missed
+    fen: "r3k2r/pp3pbp/6p1/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1"
+    move: a2a3
+    expect: {role: missed, slots: {square: c7}}
+    note: "a3 lets Black castle out of it (and ...Bxb2 is possible)."
+  - id: nc7-forks-king-and-rook-played
+    fen: "r3k2r/pp3pbp/6p1/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1"
+    move: d5c7
+    expect: {role: played, slots: {square: c7}}
+    note: "Nc7+ wins the exchange; next best is ~0.2 win probability worse."
+  - id: king-steps-into-fork-allowed
+    fen: "r4k1r/pp3pbp/6p1/3N4/8/8/PPP2PPP/R3K2R b KQ - 0 1"
+    move: f8e8
+    expect: {role: allowed, slots: {square: c7}}
+    note: "...Ke8?? puts the king on the c7 knight-fork square's reach together with Ra8: Nc7+."
+  - id: fork-played-not-missed
+    fen: "r3k2r/pp3pbp/6p1/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1"
+    move: d5c7
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Nc7+."
+  - id: fork-square-covered-by-queen
+    fen: "r2qk2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1"
+    move: d5c7
+    expect: {role: played, present: false}
+    note: "Near miss: Nc7+ hits Ke8 and Ra8 (a double attack) but Qd8xc7 simply takes the knight."

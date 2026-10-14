@@ -1,0 +1,106 @@
+detector: isolated_pawn
+cases:
+- id: white-iqp-d4
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+  note: 'Classic IQP after QGA/Panov: no White c- or e-pawn.'
+- id: black-a6-rook-ending
+  fen: r7/5pkp/p5p1/8/2P5/1P4P1/5PKP/2R5 w - - 0 35
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - a6
+  note: 'Black a-pawn with no b-pawn: edge pawn isolated (only one adjacent file).'
+- id: doubled-isolated-c-pawns
+  fen: 2r3k1/pp3ppp/4pn2/8/2P5/2P5/P2N1PPP/2R3K1 w - - 0 25
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c3
+  note: 'Doubled AND isolated: each c-pawn has no White pawn on b/d.'
+- id: enemy-neighbours-dont-count
+  fen: 3r2k1/p5pp/2n5/2p1p3/3P4/5N2/PP4PP/3R2K1 w - - 0 22
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+  note: Black pawns on c5/e5 are adjacent but not friendly; d4 still isolated.
+- id: black-h5-no-g-pawn
+  fen: 4r1k1/pp3p2/3b4/7p/8/3B2P1/PP3P1P/4R1K1 b - - 0 28
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - h5
+  note: Black h-pawn whose g-pawn is gone.
+- id: white-e4-isolated
+  fen: r1bqr1k1/ppp1bppp/3p1n2/8/2B1P3/2N5/PPP3PP/R1BQR1K1 w - - 0 12
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e4
+  note: White e4 with neither d- nor f-pawn.
+- id: black-iqp-d5
+  fen: r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b - - 0 11
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d5
+  note: Colour-reversed IQP.
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: No isolated pawns in the initial position.
+- id: neighbour-only-far-ahead
+  fen: 5rk1/pp1n1ppp/2p5/3pP3/8/3P4/PP1N2PP/5RK1 w - - 0 20
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d3
+  note: 'Near miss: d3''s only neighbour is e5, far ahead. Not isolated (any adjacent friendly pawn counts).'
+- id: a2-with-b5
+  fen: 5rk1/p1p2ppp/8/1P6/8/8/P4PPP/5RK1 w - - 0 30
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - a2
+  note: 'Near miss: a2''s only neighbour b5 is three ranks ahead.'
+- id: black-h7-with-g4
+  fen: 3r3k/pp3p1p/8/8/6p1/5P2/PP5P/3R2K1 w - - 0 30
+  expect:
+    present: false
+    side: black
+    squares_include:
+    - h7
+  note: 'Near miss: Black h7 has a far-advanced g-pawn on g4.'
+- id: only-black-has-one
+  fen: r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b - - 0 11
+  expect:
+    present: false
+    side: white
+  note: Black has the IQP; every White pawn has a neighbour (a2-b2, e3-f2-g2-h2).
+- id: connected-passers
+  fen: 1r4k1/5ppp/8/2PP4/8/8/6PP/1R4K1 w - - 0 40
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d5
+  note: Connected c5/d5 pawns are not isolated.
+- id: carlsbad-none-isolated
+  fen: r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+  note: 'Carlsbad structure: every pawn on both sides has a friendly neighbour.'

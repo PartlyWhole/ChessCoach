@@ -1,0 +1,32 @@
+concept: tactic-discovered-attack
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: knight-takes-bishop-uncovers-rook-on-queen-available
+    fen: "r2q1rk1/pp3ppp/2b5/8/3N4/8/PPP1QPPP/3R1RK1 w - - 0 1"
+    expect: {role: available, slots: {slider: d1, target: d8, target_piece: queen, moved_piece: knight}}
+    note: "Nxc6 takes the bishop and uncovers Rd1 on Qd8; Black must save the queen and cannot recapture (bxc6 Rxd8)."
+  - id: knight-takes-bishop-uncovers-rook-on-queen-missed
+    fen: "r2q1rk1/pp3ppp/2b5/8/3N4/8/PPP1QPPP/3R1RK1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {slider: d1, target: d8}}
+    note: "h3 lets Black unpin the d-file (...Qb6)."
+  - id: knight-takes-bishop-uncovers-rook-on-queen-played
+    fen: "r2q1rk1/pp3ppp/2b5/8/3N4/8/PPP1QPPP/3R1RK1 w - - 0 1"
+    move: d4c6
+    expect: {role: played, slots: {slider: d1, target: d8, moved_piece: knight}}
+    note: "Nxc6 is the clear best move (engine +6.9 vs +2.6)."
+  - id: bishop-steps-into-discovery-allowed
+    fen: "r2q1rk1/pb3ppp/8/8/3N4/8/PPP1QPPP/3R1RK1 b - - 0 1"
+    move: b7c6
+    expect: {role: allowed, slots: {slider: d1, target: d8}}
+    note: "...Bc6?? puts the bishop where the d4 knight can take it with a discovered attack on Qd8."
+  - id: discovery-already-played-not-missed
+    fen: "r2q1rk1/pp3ppp/2b5/8/3N4/8/PPP1QPPP/3R1RK1 w - - 0 1"
+    move: d4c6
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Nxc6."
+  - id: discovery-that-wins-nothing
+    fen: "r2q1rk1/pp3ppp/2b5/8/3N4/8/PPP1QPPP/3R1RK1 w - - 0 1"
+    move: d4f5
+    expect: {role: played, present: false}
+    note: "Near miss: Nf5 also uncovers Rd1 on Qd8 (a real discovered attack) but the knight threatens nothing decisive; the queen moves and Nxc6 was much better."

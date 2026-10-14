@@ -1,0 +1,28 @@
+id: structure-hanging-pawns
+title: Hanging pawns
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - hanging_pawns
+templates:
+  plan:
+    1: The game has hanging pawns on c and d.
+    2: '{plan}'
+plans:
+  owner:
+  - Keep the pawns side by side. Together they control key central squares.
+  - Advance one of them only when it wins space or opens lines for your pieces.
+  opponent:
+  - Provoke one of the pawns to advance, then blockade the square in front of it.
+  - Attack the pawns with pieces; once one advances, the other can become weak.
+tests: tests/positions/concepts/structure-hanging-pawns.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

@@ -1,0 +1,88 @@
+detector: doubled_pawns
+cases:
+- id: nimzo-c2-c3
+  fen: r1bq1rk1/pp3ppp/2n1pn2/2pp4/3P4/2PBP3/P1P1NPPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c2
+    - c3
+  note: Nimzo-Indian Saemisch-style doubled c-pawns after ...Bxc3 bxc3.
+- id: black-f7-f6
+  fen: r2qr1k1/ppp2p1p/2nb1p2/3p4/3P4/2NBP3/PPP2PPP/R2Q1RK1 w - - 0 12
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - f6
+    - f7
+  note: Black f-pawns doubled after ...gxf6.
+- id: tripled-e-pawns
+  fen: 3r2k1/ppp2ppp/8/8/4P3/4P3/PP2P1PP/3R2K1 w - - 0 30
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e2
+    - e3
+    - e4
+  note: Tripled pawns are >= 2 on one file.
+- id: black-doubled-isolated-a
+  fen: 1r4k1/p4ppp/p7/8/8/8/PP3PPP/1R4K1 w - - 0 30
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - a6
+    - a7
+  note: Doubled and isolated a-pawns.
+- id: far-apart-h2-h5
+  fen: 3r2k1/pp3pp1/8/7P/8/8/PP4PP/3R2K1 w - - 0 30
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - h2
+    - h5
+  note: Not adjacent ranks, still doubled.
+- id: enemy-pawn-between
+  fen: 3r4/pp4k1/7p/8/6P1/6pP/PP4P1/3R3K w - - 0 35
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - g2
+    - g4
+  note: 'White g2 and g4 with a Black pawn on g3 between them: still two White pawns on the g-file.'
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Initial position.
+- id: opposing-pawns-same-file
+  fen: r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+  note: 'Near miss: White d4 and Black d5 share a file but belong to different sides.'
+- id: adjacent-files-same-rank
+  fen: 4r1k1/pp4pp/2pp4/8/8/2PP4/PP4PP/4R1K1 w - - 0 25
+  expect:
+    present: false
+  note: 'Near miss: c3/d3 are side by side, not on one file.'
+- id: only-white-doubled
+  fen: r1bq1rk1/pp3ppp/2n1pn2/2pp4/3P4/2PBP3/P1P1NPPP/R1BQ1RK1 w - - 0 10
+  expect:
+    present: false
+    side: black
+  note: 'Side check: Black pawns are on distinct files.'
+- id: diagonal-chain
+  fen: 4r1k1/pp4pp/3p4/3Pp3/2P5/1P6/P5PP/4R1K1 w - - 0 25
+  expect:
+    present: false
+  note: 'Near miss: a diagonal pawn chain occupies four different files.'
+- id: iqp-no-doubled
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: false
+  note: IQP position, no doubled pawns.

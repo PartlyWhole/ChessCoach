@@ -1,0 +1,32 @@
+concept: endgame-square-of-pawn
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Predicate king_inside_square: pawn ending, player to move, the opponent
+# has a passed pawn and the player's king is inside its square:
+# distance(king, queening square) <= pawn's moves to queen (a pawn on its start rank counts one
+# less, for the double step).
+cases:
+  - id: available-white-king-catches-a-pawn
+    fen: "7k/8/8/p7/3K4/8/8/8 w - - 0 1"
+    expect: {role: available, present: true, slots: {pawn_square: a5, queening_square: a1}}
+    note: "The a5 pawn needs 4 moves; Kd4 is 3 moves from a1."
+  - id: available-black-king-double-step-pawn
+    fen: "8/8/2k5/8/8/8/7P/K7 b - - 0 1"
+    expect: {role: available, present: true, slots: {pawn_square: h2, queening_square: h8}}
+    note: "h2 can double-step, so it needs 5 moves; Kc6 is exactly 5 moves from h8."
+  - id: available-both-sides-have-pawns
+    fen: "8/5k2/8/8/1p6/3K4/6P1/8 w - - 0 1"
+    band: B2
+    expect: {role: available, present: true, slots: {pawn_square: b4, queening_square: b1}}
+    note: "Black's b4 pawn needs 3 moves; Kd3 is 2 moves from b1. White's own g-pawn does not matter."
+  - id: neg-king-far-outside-square
+    fen: "7k/8/8/p7/6K1/8/8/8 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: Kg4 is 6 moves from a1 against the pawn's 4; even with the move the king cannot get into the square."
+  - id: neg-pawn-owner-to-move
+    fen: "7k/8/8/p7/3K4/8/8/8 b - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: same position with Black to move; the player to move owns the pawn, and White has no passed pawn to catch."
+  - id: neg-not-a-pawn-ending
+    fen: "7k/8/8/p7/3K4/8/8/6R1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: White also has a rook, so this is not a pure pawn ending."

@@ -1,0 +1,26 @@
+id: structure-kings-indian-closed
+title: Closed King's Indian
+category: structure
+bands:
+- B3
+- B4
+base_importance: 0.5
+trigger:
+  roles:
+  - plan
+  structure:
+  - kings_indian_closed
+templates:
+  plan:
+    1: The game has a closed King's Indian centre.
+    2: '{plan}'
+plans:
+  owner:
+  - 'Attack on the queenside, where your pawns point: prepare c5 to open lines.'
+  opponent:
+  - 'Attack on the kingside, where your pawns point: prepare ...f5 and push your kingside pawns.'
+tests: tests/positions/concepts/structure-kings-indian-closed.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

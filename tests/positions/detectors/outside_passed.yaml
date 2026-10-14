@@ -1,0 +1,93 @@
+detector: outside_passed
+cases:
+- id: white-a4-vs-kingside
+  fen: 1r4k1/5pp1/7p/8/P7/8/5PPP/R5K1 w - - 0 36
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - a4
+  note: All other pawns on f-h; nearest Black pawn 5 files away.
+- id: black-h5-vs-queenside
+  fen: 7r/p1k5/1p6/7p/2P5/1P6/P7/2K4R b - - 0 36
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - h5
+  note: Black h-passer; all other pawns on a-c, nearest White pawn on c (5 files).
+- id: boundary-three-files
+  fen: 1r4k1/5p2/4p1p1/1P6/8/6P1/5P2/1R4K1 w - - 0 36
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - b5
+  note: 'Boundary: nearest Black pawn on e, exactly 3 files away.'
+- id: black-a5-vs-d-h
+  fen: r5k1/5p1p/6p1/p7/3P4/4P3/6PP/R5K1 b - - 0 36
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - a5
+  note: 'Nearest White pawn on d: 3 files away.'
+- id: white-h4-vs-queenside
+  fen: 3r4/ppk5/2p5/3p4/7P/8/PP4K1/7R w - - 0 36
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - h4
+  note: Own pawns a2/b2 are on the same side as all Black pawns.
+- id: black-b4-rook-ending
+  fen: 1r6/5pkp/6p1/8/1p6/4P1P1/5PKP/1R6 b - - 0 40
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - b4
+  note: 'Nearest White pawn e3: 3 files away.'
+- id: nearest-enemy-two-files
+  fen: 1r4k1/5pp1/2p4p/8/P7/8/5PPP/R5K1 w - - 0 36
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - a4
+  note: 'Near miss: a4 is passed and all pawns are to its right, but Black c6 is only 2 files away.'
+- id: central-passer
+  fen: 3r2k1/p6p/8/3P4/8/8/P6P/3R2K1 w - - 0 40
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - d5
+  note: 'Near miss: passed d5 with pawns on both wings.'
+- id: own-pawn-on-far-side
+  fen: 1r4k1/5ppp/8/8/1P6/8/P4PPP/1R4K1 w - - 0 36
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - b4
+  note: 'Literal spec: White a2 lies on the other side of b4, so not every other pawn is on one side.'
+- id: edge-pawn-not-passed
+  fen: 1r4k1/5pp1/1p5p/8/P7/8/5PPP/R5K1 w - - 0 36
+  expect:
+    present: false
+    side: white
+    squares_include:
+    - a4
+  note: 'Near miss: Black b6 stops a4 from being passed.'
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Initial position.
+- id: only-black-has-one
+  fen: 7r/p1k5/1p6/7p/2P5/1P6/P7/2K4R b - - 0 36
+  expect:
+    present: false
+    side: white
+  note: 'Side check: White queenside pawns are not passed.'

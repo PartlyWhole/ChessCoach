@@ -1,0 +1,27 @@
+concept: endgame-kq-vs-k
+engine: {name: "Stockfish 19", depth: 16}
+# Role: plan only. Predicate kq_vs_k: the player to move has exactly K+Q, the opponent a lone K.
+cases:
+  - id: plan-white-queen-centre-king
+    fen: "8/8/8/4k3/8/8/8/3QK3 w - - 0 1"
+    expect: {role: plan, present: true, slots: {enemy_king: e5}}
+  - id: plan-black-has-the-queen
+    fen: "3qk3/8/8/8/2K5/8/8/8 b - - 0 1"
+    expect: {role: plan, present: true, slots: {enemy_king: c4}}
+    note: "Colour-reversed: Black to move with K+Q."
+  - id: plan-enemy-king-in-corner
+    fen: "7k/8/8/8/8/8/2Q5/6K1 w - - 0 1"
+    band: B1
+    expect: {role: plan, present: true, slots: {enemy_king: h8}}
+  - id: neg-lone-king-to-move
+    fen: "8/8/8/4k3/8/8/8/3QK3 b - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: same material, but the side to move is the one with the bare king."
+  - id: neg-extra-pawn-for-the-queen-side
+    fen: "8/8/8/4k3/8/8/4P3/3QK3 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: K+Q+P vs K is not the K+Q vs K signature."
+  - id: neg-defender-has-a-pawn
+    fen: "8/8/8/4k3/4p3/8/8/3QK3 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: the defender still has a pawn, so this is K+Q vs K+P."

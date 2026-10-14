@@ -1,0 +1,26 @@
+concept: tactic-overloaded-defender
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: queen-guards-d5-and-g4-available
+    fen: "r5k1/pp3ppp/4q3/Q2n4/6b1/6P1/PP3N1P/R1B3K1 w - - 0 1"
+    expect: {role: available, slots: {defender: e6, defender_piece: queen}}
+    note: "Qe6 is the only guard of Nd5 (attacked by Qa5) and Bg4 (attacked by Nf2). Nxg4 Qxg4 Qxd5 wins a piece; the other order (Qxd5?) just trades queen for knight."
+  - id: queen-guards-d5-and-g4-missed
+    fen: "r5k1/pp3ppp/4q3/Q2n4/6b1/6P1/PP3N1P/R1B3K1 w - - 0 1"
+    move: h2h4
+    expect: {role: missed, slots: {defender: e6}}
+    note: "h4 lets Black consolidate."
+  - id: queen-guards-d5-and-g4-missed-bd2
+    fen: "r5k1/pp3ppp/4q3/Q2n4/6b1/6P1/PP3N1P/R1B3K1 w - - 0 1"
+    move: c1d2
+    expect: {role: missed, slots: {defender: e6}}
+    note: "Developing with Bd2 also misses Nxg4 (engine: about -1.5 instead of +3.2)."
+  - id: overload-exploited-not-missed
+    fen: "r5k1/pp3ppp/4q3/Q2n4/6b1/6P1/PP3N1P/R1B3K1 w - - 0 1"
+    move: f2g4
+    expect: {role: missed, present: false}
+    note: "Near miss: the player played Nxg4, which acts on the overloaded queen."
+  - id: overload-exists-but-not-the-best-idea
+    fen: "r5k1/p4ppp/4q3/3n1b2/Q7/1B4N1/PP3PKP/R7 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: Qe6 guards both Nd5 and Bf5 (an overloaded_defender feature), but Black's queen recaptures on f5 and still guards d5 along the rank, and Rd1 (piling on the pinned knight) is just as strong. No single overload exploit stands out."

@@ -1,0 +1,30 @@
+concept: safety-check-captures-threats
+engine: {name: "Stockfish 19", depth: 16}
+# Role: available only. Predicate sharp_position: player to move and sharpness >= 0.8
+# (02 §4: (wp(line1) - wp(line2)) / 0.15, mover POV) — only one move holds or wins.
+cases:
+  - id: available-only-move-wins-loose-knight
+    fen: "6k1/5pp1/b6p/3n4/8/7P/5PP1/3R2K1 w - - 0 1"
+    expect: {role: available, present: true, slots: {best_san: Rxd5}}
+    note: "Rxd5 wins a knight; every other move lets it escape and leaves White a piece down."
+  - id: available-black-only-move-wins-bishop
+    fen: "2r3k1/5pp1/7p/8/2B5/7P/1B3PP1/6K1 b - - 0 1"
+    expect: {role: available, present: true, slots: {best_san: Rxc4}}
+    note: "Black to move: Rxc4 wins a bishop; anything else leaves Black a rook against two bishops."
+  - id: available-mate-in-one-back-rank
+    fen: "6k1/5ppp/8/8/8/7P/r4PP1/4R1K1 w - - 0 1"
+    band: B1
+    expect: {role: available, present: true, slots: {best_san: Re8#}}
+    note: "Re8# is mate (the a2 rook cannot interpose); any other move lets Black make luft, and the rook ending is level."
+  - id: neg-quiet-opening-position
+    fen: "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+    expect: {role: available, present: false}
+    note: "1.e4 e5 2.Nf3: Black has several good moves (Nf6, Nc6, d6)."
+  - id: neg-two-ways-to-win-the-knight
+    fen: "6k1/5pp1/b6p/3n4/2B5/7P/5PP1/3R2K1 w - - 0 1"
+    expect: {role: available, present: false}
+    note: "Near miss: material is there to win, but several moves (Bxa6, Bxd5) win, so no single move is forced."
+  - id: neg-only-one-legal-move
+    fen: "rnbQkbnr/ppp2ppp/8/4p3/4P3/8/PPP2PPP/RNB1KBNR b KQkq - 0 4"
+    expect: {role: available, present: false}
+    note: "Near miss: Kxd8 is forced but it is the only legal move; sharpness is 0 with < 2 legal moves (02 §4), nothing to look for."

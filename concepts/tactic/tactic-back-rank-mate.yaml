@@ -1,0 +1,34 @@
+id: tactic-back-rank-mate
+title: Back-rank mate
+category: tactic
+bands:
+- B1
+- B2
+base_importance: 0.9
+trigger:
+  roles:
+  - missed
+  - allowed
+  - available
+  predicate: back_rank_mate
+templates:
+  missed:
+    1: Your opponent's king had no escape squares. Was there a checkmate?
+    2: Look at the back rank around {king_square}.
+    3: '{move_san} leads to mate in {mate_in}. The king on {king_square} is trapped on its back rank.'
+  allowed:
+    1: Does your king have an escape square?
+    2: Your king on {king_square} is trapped on its back rank.
+    3: After your move, {move_san} leads to mate in {mate_in}.
+  available:
+    1: Does your opponent's king have an escape square?
+    2: Look at the back rank around {king_square}.
+    3: '{move_san} leads to mate in {mate_in}.'
+drill:
+  kind: find_move
+  max_solution_plies: 5
+tests: tests/positions/concepts/tactic-back-rank-mate.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

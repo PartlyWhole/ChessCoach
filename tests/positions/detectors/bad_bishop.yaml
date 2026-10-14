@@ -1,0 +1,52 @@
+detector: bad_bishop
+# 02 §6.2: >= 2 of the owner's c/d/e/f pawns stand on the bishop's colour and are
+# fixed (an enemy pawn directly in front). Feature.side = owner of the bishop.
+cases:
+  - id: french-winawer-c8-bishop
+    fen: "rnbqk2r/pp1n1ppp/4p3/2ppP3/1b1P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 2 6"
+    expect: {present: true, side: black}
+    note: "Classic French bad bishop: d5 and e6 are light, fixed by d4 and e5; the c8 bishop is light-squared."
+  - id: french-white-c1-bishop
+    fen: "rnbqk2r/pp1n1ppp/4p3/2ppP3/1b1P4/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 2 6"
+    expect: {present: true, side: white}
+    note: "The same chain makes White's c1 bishop bad: d4/e5 are dark and fixed by d5/e6."
+  - id: kid-g7-bishop
+    fen: "r1bq1rk1/ppp1npbp/3p1np1/3Pp3/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 w - - 1 9"
+    expect: {present: true, side: black}
+    note: "King's Indian closed centre: d6/e5 are dark and fixed by d5/e4."
+  - id: botvinnik-g2-bishop
+    fen: "r1bq1rk1/pp3pbp/3p1np1/2p1p3/2PnP3/2NP2P1/PP3PBP/R1BQNRK1 w - - 4 10"
+    expect: {present: true, side: white}
+    note: "c4/e4 are light and fixed by c5/e5; Bg2 is light-squared."
+  - id: stonewall-mirror-c1-bishop
+    fen: "rnbq1rk1/pp2b1pp/2p1pn2/3p1p2/2PP1P2/4PN2/PP1NB1PP/R1BQ1RK1 w - - 2 8"
+    expect: {present: true, side: white}
+    note: "Stonewall vs Dutch Stonewall: d4 and f4 are dark and fixed by d5/f5."
+  - id: endgame-bad-vs-bad
+    fen: "8/4k3/3p1b2/2pPp3/2P1P3/3K4/8/5B2 w - - 0 45"
+    expect: {present: true, side: white}
+    note: "Locked chain c4/d5/e4 on light squares, fixed by c5/d6/e5; White's Bf1 is light-squared."
+  - id: stonewall-only-d4-fixed
+    fen: "rn1q1rk1/pb2bppp/1p2p3/2ppN3/3P1P2/2PBP3/PP4PP/RNBQ1RK1 w - - 0 9"
+    expect: {present: false, side: white}
+    note: "Near miss: c3/d4/e3/f4 are all on the c1 bishop's colour, but only d4 is fixed (c4, e4, f5 are empty)."
+  - id: french-light-bishop-traded
+    fen: "rn1qk2r/pp1nbppp/4p3/2ppP3/3P4/2PB1N2/PP1N1PPP/R1BQK2R w KQkq - 3 7"
+    expect: {present: false, side: black}
+    note: "Black's remaining bishop is dark-squared; the fixed d5/e6 pawns are light, so no bad bishop."
+  - id: qgd-only-d5-fixed
+    fen: "r1bq1rk1/pp1nbppp/2p1pn2/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R w KQ - 0 7"
+    expect: {present: false, side: black}
+    note: "Near miss: c6/d5/e6 are light, but only d5 has a White pawn in front of it."
+  - id: fixed-pawns-on-wings-only
+    fen: "5k2/3b4/p4p2/Pp2p3/1P2P3/5N2/5PPP/6K1 w - - 0 35"
+    expect: {present: false, side: black}
+    note: "Near miss: a6/b5 are light and fixed, but only c/d/e/f pawns count; e5/f6 are dark."
+  - id: blockade-by-knight-not-pawn
+    fen: "r1bqk2r/pp1n1ppp/2n1p3/3pP3/1b1N4/2N5/PPP2PPP/R1BQKB1R w KQkq - 2 7"
+    expect: {present: false, side: black}
+    note: "Near miss: d5 is blocked by a knight on d4, not a pawn; only e6 is fixed."
+  - id: starting-position
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    expect: {present: false}
+    note: "No pawn is fixed."

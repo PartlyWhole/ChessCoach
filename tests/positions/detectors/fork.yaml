@@ -1,0 +1,125 @@
+detector: fork
+engine:
+  name: Stockfish 19
+  depth: 16
+cases:
+- id: knight-check-king-rook
+  fen: r3k2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  move: d5c7
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - c7
+    data:
+      piece: knight
+      created_by: d5c7
+  note: 'Nc7+ forks Ke8 and the undefended Ra8; c7 is not covered. Engine: king moves, Nxa8 wins the exchange cleanly.'
+- id: black-knight-check-king-rook
+  fen: r3k2r/ppp2ppp/8/8/3n4/8/PP3PPP/R3K2R b KQkq - 0 1
+  move: d4c2
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - c2
+    data:
+      piece: knight
+      created_by: d4c2
+  note: 'Black''s ...Nc2+ forks Ke1 and Ra1. side is the mover (black). Engine: Ke2 Nxa1, wins rook for knight.'
+- id: pawn-fork-knight-bishop
+  fen: r2qkb1r/ppp2ppp/2n1bn2/4p3/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 0 1
+  move: d4d5
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+    data:
+      piece: pawn
+      created_by: d4d5
+  note: 'd5 attacks Nc6 and Be6 (pawn vs minor: SEE > 0 for each). Engine line wins a minor piece within 4 plies.'
+- id: bishop-check-king-rook
+  fen: r5k1/6pp/8/8/8/5B2/5PPP/6K1 w - - 0 1
+  move: f3d5
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+    data:
+      piece: bishop
+      created_by: f3d5
+  note: Bd5+ checks Kg8 along the a2-g8 diagonal and attacks Ra8 along the long diagonal; after the king moves Bxa8.
+- id: queen-check-king-bishop
+  fen: 4k3/pp3ppp/8/8/7b/8/PP3PPP/3Q2K1 w - - 0 1
+  move: d1a4
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - a4
+    data:
+      piece: queen
+      created_by: d1a4
+  note: 'Qa4+ checks Ke8 and attacks the loose Bh4 along the 4th rank (and the loose a7 pawn). Engine: Ke7 Qxh4+.'
+- id: rook-fork-two-loose-minors
+  fen: 6k1/5ppp/8/8/b6n/8/5PPP/3R2K1 w - - 0 1
+  move: d1d4
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+    data:
+      piece: rook
+      created_by: d1d4
+  note: 'Rd4 attacks both undefended minors (Ba4 and Nh4) along the 4th rank. Engine: ...Nf3+ gxf3, white is a piece up.'
+- id: fork-square-covered-by-queen
+  fen: r2qk2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  move: d5c7
+  expect:
+    present: false
+    data:
+      created_by: d5c7
+  note: 'Near miss: Nc7+ hits Ke8 and Ra8 (a valid double attack) but Qd8 simply captures on c7. Engine shows no gain, so no fork.'
+- id: second-target-pawn-defended
+  fen: r5k1/pp3ppp/4b3/3N4/8/8/PP3PPP/6K1 w - - 0 1
+  move: d5c7
+  expect:
+    present: false
+    data:
+      created_by: d5c7
+  note: 'Near miss: Nc7 attacks Ra8 and Be6, but Be6 is defended by f7 (Nxe6 fxe6 nets 0), so only one target.'
+- id: check-plus-defended-bishop
+  fen: 4k2r/1p3ppp/b7/3N4/8/8/PP3PPP/4K2R w Kk - 0 1
+  move: d5c7
+  expect:
+    present: false
+    data:
+      created_by: d5c7
+  note: 'Near miss: Nc7+ checks the king, but the other attacked piece Ba6 is defended by b7 (SEE 0). King + one non-target is not a fork.'
+- id: both-targets-pawn-defended
+  fen: r2qkb1r/pp3ppp/2n1b3/8/8/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 1
+  move: f3d4
+  expect:
+    present: false
+    data:
+      created_by: f3d4
+  note: Nd4 attacks Nc6 (defended by b7) and Be6 (defended by f7); each exchange nets 0, so there are no targets.
+- id: fork-allows-mate-in-one
+  fen: 5rk1/6pp/8/6N1/3q4/8/5PPP/6K1 w - - 0 1
+  move: g5e6
+  expect:
+    present: false
+    data:
+      created_by: g5e6
+  note: 'Near miss: Ne6 attacks Qd4 and Rf8 (a real double attack) but ignores the back rank: ...Qa1# (or ...Qd1#). The engine line mates, but the mate is by the OPPONENT, so this is not a fork.'
+- id: pawn-fork-bishop-takes-pawn
+  fen: r2q1rk1/ppp2ppp/3n1b2/8/4P3/8/PPP2PPP/R2Q1RK1 w - - 0 1
+  move: e4e5
+  expect:
+    present: false
+    data:
+      created_by: e4e5
+  note: 'Near miss: e5 attacks Nd6 and Bf6, but the pawn is undefended and Bf6xe5 removes it. Engine shows no material gain.'

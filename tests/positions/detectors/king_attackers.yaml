@@ -1,0 +1,55 @@
+detector: king_attackers
+# 02 §6.2: number of enemy pieces (not pawns/king) attacking squares adjacent to
+# the king; emitted when >= 1 (data: count, pieces). Feature.side = the attacking
+# side (the side that can exploit it). Positions are chosen so the counted attacks
+# land on empty adjacent squares (robust whether or not attacks on squares occupied
+# by the defender's own pieces are counted); no position has a king in check.
+cases:
+  - id: bishop-and-knight-on-h7
+    fen: "r1bq1rk1/pppn1pp1/4pn1p/6N1/3P4/3B4/PPP2PPP/R1BQK2R w KQ - 0 9"
+    expect: {present: true, side: white, data: {count: 2}}
+    note: "After ...h6 the h7 square is empty: Bd3 and Ng5 both hit it."
+  - id: queen-bishop-battery-front-piece
+    fen: "r1bq1rk1/pp3pp1/2nbpn1p/3p4/3P4/2NBPN2/PPQ2PPP/R3K2R w KQ - 0 10"
+    expect: {present: true, side: white, data: {count: 1}}
+    note: "Bd3 attacks h7; the queen behind it on c2 is only an x-ray."
+  - id: black-queen-and-knight-on-h2
+    fen: "r4rk1/pb3ppp/1p1qp3/8/3P2n1/2P2N1P/P1Q2PP1/R1B2RK1 b - - 0 15"
+    expect: {present: true, side: black, data: {count: 2}}
+    note: "After h3 the h2 square is empty: Qd6 (via the b8-h2 diagonal) and Ng4 both attack it."
+  - id: black-queen-alone-on-h2
+    fen: "r4rk1/pb3ppp/1p1qp3/8/3P4/2P2N1P/P1Q2PP1/R1B2RK1 b - - 0 15"
+    expect: {present: true, side: black, data: {count: 1}}
+    note: "Only Qd6 reaches the empty h2 square."
+  - id: rook-on-open-f-file-white
+    fen: "r1bq1rk1/ppp3pp/2n1p3/3p4/3P4/2P5/PP2B1PP/R1BQ1RK1 w - - 0 12"
+    expect: {present: true, side: white, data: {count: 1}}
+    note: "With both f-pawns gone, Rf1 attacks f7 next to the g8 king."
+  - id: rook-on-open-f-file-black
+    fen: "r1bq1rk1/ppp3pp/2n1p3/3p4/3P4/2P5/PP2B1PP/R1BQ1RK1 w - - 0 12"
+    expect: {present: true, side: black, data: {count: 1}}
+    note: "Symmetric: Rf8 attacks f2 next to the g1 king."
+  - id: battery-rear-piece-not-counted
+    fen: "r1bq1rk1/pp3pp1/2nbpn1p/3p4/3P4/2NBPN2/PPQ2PPP/R3K2R w KQ - 0 10"
+    expect: {present: false, side: white, data: {count: 2}}
+    note: "Near miss: Qc2 lines up behind Bd3 toward h7 but does not attack through its own bishop."
+  - id: bishop-blocked-by-own-knight
+    fen: "r1bq1rk1/pppn1pp1/4pn1p/8/3PN3/3B4/PPP2PPP/R1BQK2R w KQ - 0 9"
+    expect: {present: false, side: white}
+    note: "Near miss: Bd3 aims at h7 but Ne4 blocks the diagonal; nothing else reaches the king zone."
+  - id: pawn-storm-only
+    fen: "r1bq1rk1/ppp2p1p/2n1p1P1/8/3P4/2N5/PPP2P1P/R1BQKBNR w KQ - 0 10"
+    expect: {present: false, side: white}
+    note: "Near miss: the g6 pawn attacks f7/h7 but pawns do not count."
+  - id: king-and-pawn-endgame
+    fen: "6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 30"
+    expect: {present: false}
+    note: "Only kings and pawns: kings are excluded."
+  - id: bishop-knight-wrong-side
+    fen: "r1bq1rk1/pppn1pp1/4pn1p/6N1/3P4/3B4/PPP2PPP/R1BQK2R w KQ - 0 9"
+    expect: {present: false, side: black}
+    note: "Side convention: the attackers are White's; Black has no piece near White's king."
+  - id: count-is-two-not-three
+    fen: "r4rk1/pb3ppp/1p1qp3/8/3P2n1/2P2N1P/P1Q2PP1/R1B2RK1 b - - 0 15"
+    expect: {present: false, side: black, data: {count: 3}}
+    note: "Near miss: Bb7 aims at g2 but Nf3 blocks the diagonal; only Qd6 and Ng4 count."

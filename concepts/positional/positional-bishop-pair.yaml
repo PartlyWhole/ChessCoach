@@ -1,0 +1,21 @@
+id: positional-bishop-pair
+title: Bishop pair
+category: positional
+bands:
+- B2
+- B3
+base_importance: 0.4
+trigger:
+  roles:
+  - plan
+  all:
+  - feature: bishop_pair
+templates:
+  plan:
+    1: You have the two bishops and your opponent does not.
+    2: Open the position. Bishops get stronger as lines open.
+tests: tests/positions/concepts/positional-bishop-pair.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

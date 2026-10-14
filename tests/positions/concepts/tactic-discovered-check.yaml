@@ -1,0 +1,32 @@
+concept: tactic-discovered-check
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: knight-uncovers-bishop-check-available
+    fen: "r2q1r1k/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 w - - 0 1"
+    expect: {role: available, slots: {slider: b2, slider_piece: bishop, moved_piece: knight}}
+    note: "Ne6+ uncovers Bb2 on Kh8 and the knight attacks Qd8 and Rf8; after the check is met, Nxd8. Nc6 is blocked by White's own pawn, so no other knight move wins the queen."
+  - id: knight-uncovers-bishop-check-missed
+    fen: "r2q1r1k/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {slider: b2}}
+    note: "h3 lets Black break the diagonal (...f6 / ...Qb6); loss ~0.16."
+  - id: knight-uncovers-bishop-check-played
+    fen: "r2q1r1k/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 w - - 0 1"
+    move: d4e6
+    expect: {role: played, slots: {slider: b2, moved_piece: knight}}
+    note: "Ne6+ is the best move by ~0.12 win probability over cxb7."
+  - id: king-walks-onto-diagonal-allowed
+    fen: "r2q1rk1/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 b - - 0 1"
+    move: g8h8
+    expect: {role: allowed, slots: {slider: b2}}
+    note: "...Kh8?? steps onto the long diagonal behind the d4 knight: Ne6+."
+  - id: discovered-check-played-not-missed
+    fen: "r2q1r1k/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 w - - 0 1"
+    move: d4e6
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Ne6+."
+  - id: discovered-check-that-wins-nothing
+    fen: "r2q1r1k/pp3p1p/2P3p1/8/3N4/8/PB3PPP/4R1K1 w - - 0 1"
+    move: d4f5
+    expect: {role: played, present: false}
+    note: "Near miss: Nf5+ is also a discovered check, but the knight attacks nothing; Ne6+ was far better."

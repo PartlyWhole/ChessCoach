@@ -1,0 +1,20 @@
+id: opening-castle-early
+title: Castle early
+category: opening
+bands:
+- B0
+- B1
+base_importance: 0.45
+trigger:
+  roles:
+  - available
+  predicate: can_castle_now
+templates:
+  available:
+    1: Have you thought about your king's safety?
+    2: You can castle right now. Your king is still on {king_square}.
+tests: tests/positions/concepts/opening-castle-early.yaml
+review:
+  status: draft
+  drafted_by: AI-assisted draft; needs chess-expert approval (AGENTS rule 2)
+  date: '2026-10-13'

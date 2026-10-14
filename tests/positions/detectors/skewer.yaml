@@ -1,0 +1,85 @@
+detector: skewer
+cases:
+- id: rook-skewers-king-to-rook
+  fen: 8/r3k2R/8/8/8/8/6K1/8 b - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e7
+  note: Rh7+ checks Ke7 along the 7th rank; once the king steps away, Rxa7.
+- id: bishop-skewers-king-to-rook
+  fen: 6r1/8/4k3/8/2B5/8/7K/8 b - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e6
+  note: Bc4+ checks Ke6 with Rg8 behind on the same diagonal (f7 empty).
+- id: bishop-skewers-queen-to-rook
+  fen: 6rk/6pp/8/3q4/8/1B6/P1P2PPP/6K1 w - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: Bb3 attacks Qd5 with Rg8 behind. Qxb3 is possible but loses the queen to axb3/cxb3 (SEE < 0), so the skewer stands; Bxg8 after the queen moves nets +2 even after Kxg8.
+- id: rook-skewers-queen-to-bishop
+  fen: 3b2k1/5ppp/8/3q4/8/8/5PPP/2QR2K1 w - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: Rd1 attacks Qd5 with the loose Bd8 behind. Qxd1 is answered by Qxd1 (SEE < 0 for black).
+- id: black-bishop-skewers-queen-to-rook
+  fen: 1r2k2r/pb3ppp/8/3Q4/8/8/PPP2P1P/4K2R b Kk - 0 1
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d5
+  note: '...Bb7 attacks Qd5 with Rh1 behind on the long diagonal; Qxb7 Rxb7 loses the queen. side = black.'
+- id: queen-skewers-king-to-loose-rook
+  fen: 3r4/4k3/8/8/7Q/8/5PPP/6K1 b - - 0 1
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - e7
+  note: Qh4+ checks Ke7 with the undefended Rd8 behind.
+- id: queen-can-take-loose-rook
+  fen: 3b2k1/5ppp/8/3q4/8/8/5PPP/3R2K1 w - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Rd1 attacks Qd5 with Bd8 behind, but the rook is undefended and Qxd1 wins it (SEE >= 0 for the front piece).'
+- id: back-rook-defended
+  fen: r2r4/4k3/8/8/7Q/8/5PPP/6K1 b - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Qh4+ with Rd8 behind the king, but Ra8 defends d8 (Qxd8 Rxd8 loses the queen for a rook): no gain.'
+- id: back-knight-pawn-defended
+  fen: 8/1p6/2n5/8/4k3/8/6B1/6K1 b - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Bg2+ with Nc6 behind the king, but b7 defends c6 (Bxc6 bxc6 nets 0).'
+- id: king-captures-checking-rook
+  fen: 8/r3kR2/8/8/8/8/6K1/8 b - - 0 1
+  expect:
+    present: false
+  note: 'Near miss: Rf7+ with Ra7 behind, but the rook is undefended next to the king: Kxf7 (SEE >= 0).'
+- id: behind-is-own-piece
+  fen: 8/B3k2R/8/8/8/8/6K1/8 b - - 0 1
+  expect:
+    present: false
+  note: Rh7+ checks Ke7, but the piece behind on a7 is White's own bishop.
+- id: two-pieces-on-line
+  fen: 8/r1n1k2R/8/8/8/8/6K1/8 b - - 0 1
+  expect:
+    present: false
+  note: 'Rh7+ checks Ke7; the first piece behind the king is the defended Nc7 (Ra7), not the rook: Rxc7 Rxc7 loses material.'
+- id: pin-geometry-not-skewer
+  fen: rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b KQkq - 3 4
+  expect:
+    present: false
+  note: 'Bg5-Nf6-Qd8: the back piece is HIGHER value, so it is a pin, not a skewer.'

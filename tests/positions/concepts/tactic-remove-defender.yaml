@@ -1,0 +1,32 @@
+concept: tactic-remove-defender
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: nxf6-removes-guard-of-pinned-knight-available
+    fen: "r5k1/pp4pp/5n2/3np3/6N1/1B2P3/PP3PPP/6K1 w - - 0 1"
+    expect: {role: available, slots: {defender: f6, target: d5, target_piece: knight}}
+    note: "Nd5 is pinned to Kg8 by Bb3 and guarded only by Nf6. Nxf6+ gxf6 Bxd5+ wins a piece back (Black is up a rook before it). e3 is occupied, so Ne3 cannot pile on instead; engine -3.0 vs -6.0 for Nxe5."
+  - id: nxf6-removes-guard-of-pinned-knight-missed
+    fen: "r5k1/pp4pp/5n2/3np3/6N1/1B2P3/PP3PPP/6K1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {defender: f6, target: d5}}
+    note: "h3 lets Black play ...Kh8 or ...Nxg4, ending the pin."
+  - id: nxf6-removes-guard-of-pinned-knight-played
+    fen: "r5k1/pp4pp/5n2/3np3/6N1/1B2P3/PP3PPP/6K1 w - - 0 1"
+    move: g4f6
+    expect: {role: played, slots: {defender: f6, target: d5}}
+    note: "Nxf6+ is the best move; Bxd5 follows."
+  - id: king-steps-into-pin-allowed
+    fen: "7k/pp4pp/5n2/3np3/6N1/1B6/PP3PPP/6K1 b - - 0 1"
+    move: h8g8
+    expect: {role: allowed, slots: {defender: f6, target: d5}}
+    note: "...Kg8?? pins its own Nd5 (b3-g8) whose only guard is Nf6: Nxf6+ gxf6 Bxd5+. ...Nxg4 was correct."
+  - id: remove-defender-played-not-missed
+    fen: "r5k1/pp4pp/5n2/3np3/6N1/1B2P3/PP3PPP/6K1 w - - 0 1"
+    move: g4f6
+    expect: {role: missed, present: false}
+    note: "Near miss: the player played Nxf6+."
+  - id: target-has-second-guard
+    fen: "r5k1/pp4pp/2p2n2/3np3/6N1/1B2P3/PP3PPP/6K1 w - - 0 1"
+    move: g4f6
+    expect: {role: played, present: false}
+    note: "Near miss: same capture, but c6 also guards d5, so Nf6 was not the sole defender and nothing is won."

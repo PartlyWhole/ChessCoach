@@ -1,0 +1,29 @@
+concept: positional-weak-square
+engine: {name: "Stockfish 19", depth: 16}
+# Role: plan only. weak_square owned by the opponent (side: other): a square on the opponent's
+# 3rd/4th rank that no opponent pawn can ever defend, attacked now by one of our pieces.
+cases:
+  - id: plan-white-sees-d5-hole
+    fen: "2r3k1/1p2bppp/p2p4/4p3/4P3/2N5/PP3PPP/3R2K1 w - - 0 20"
+    expect: {role: plan, present: true, slots: {square: d5}}
+    note: "Black has no c-pawn and e5 has passed d5, so no black pawn can ever cover d5; Nc3 and Rd1 hit it."
+  - id: plan-black-sees-d4-hole
+    fen: "r1bq1rk1/pp3pbp/2np1np1/2p1p3/2P1P3/2NP4/PP2BPPP/R1BQ1RK1 b - - 3 9"
+    expect: {role: plan, present: true, slots: {square: d4}}
+    note: "Botvinnik-type structure: White's c4/e4 have passed d4; Nc6 eyes the hole."
+  - id: plan-white-after-sveshnikov-type-e5
+    fen: "r1bqkb1r/pp3ppp/2n2n2/1Np1p3/4P3/8/PPP2PPP/RNBQKB1R w KQkq - 0 7"
+    expect: {role: plan, present: true, slots: {square: d5}}
+    note: "Black's c5/e5 leave d5 (and d6) without pawn cover; the queen and Nb5 attack them."
+  - id: neg-hole-not-attacked
+    fen: "2r3k1/1p2bppp/p2p4/4p3/4P3/8/PP3PPP/4R1K1 w - - 0 20"
+    expect: {role: plan, present: false}
+    note: "Near miss: d5 is a hole, but no white piece attacks it yet."
+  - id: neg-own-weakness-only
+    fen: "2r3k1/1p2bppp/p2p4/4p3/4P3/2N5/PP3PPP/3R2K1 b - - 0 20"
+    expect: {role: plan, present: false}
+    note: "Near miss: same position with Black to move: d5 is Black's own weakness, and White has none."
+  - id: neg-c7-pawn-can-cover
+    fen: "r5k1/1pp1bppp/p2p4/4p3/4P3/2N5/PP3PPP/3R2K1 w - - 0 20"
+    expect: {role: plan, present: false}
+    note: "Near miss: Nc3 and Rd1 hit d5, but ...c6 can still cover it."

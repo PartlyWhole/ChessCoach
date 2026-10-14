@@ -1,0 +1,32 @@
+concept: tactic-skewer
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: rook-skewers-king-to-rook-available
+    fen: "8/4k2r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 w - - 0 1"
+    expect: {role: available, slots: {front: e7, behind: h7, front_piece: king, behind_piece: rook}}
+    note: "Ra7+ checks Ke7 along the 7th; no black piece can interpose and no king move protects h7, so Rxh7 follows."
+  - id: rook-skewers-king-to-rook-missed
+    fen: "8/4k2r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 w - - 0 1"
+    move: h2h3
+    expect: {role: missed, slots: {front: e7, behind: h7}}
+    note: "h3 lets Black untangle; loss ~0.18 win probability."
+  - id: rook-skewers-king-to-rook-played
+    fen: "8/4k2r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 w - - 0 1"
+    move: a1a7
+    expect: {role: played, slots: {front: e7, behind: h7}}
+    note: "Ra7+ is clearly best (engine +8.1 vs +4.0 for Ra6)."
+  - id: king-steps-onto-rook-line-allowed
+    fen: "5k2/7r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 b - - 0 1"
+    move: f8e7
+    expect: {role: allowed, slots: {front: e7, behind: h7}}
+    note: "...Ke7?? puts the king on the 7th rank in front of its own rook; Ra7+ skewers."
+  - id: skewer-already-played-not-missed
+    fen: "8/4k2r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 w - - 0 1"
+    move: a1a7
+    expect: {role: missed, present: false}
+    note: "Near miss: the player found Ra7+."
+  - id: back-rook-defended-no-skewer
+    fen: "5n2/4k2r/1p4p1/4p2n/8/2N5/1P3PPP/R5K1 w - - 0 1"
+    move: a1a7
+    expect: {role: played, present: false}
+    note: "Near miss: same line-up, but Nf8 defends h7, so after the king steps away Rxh7 Nxh7 loses the rook. No skewer is claimed."

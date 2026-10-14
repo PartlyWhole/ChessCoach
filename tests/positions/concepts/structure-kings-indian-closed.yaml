@@ -1,0 +1,29 @@
+# Plan-role tests for structure-kings-indian-closed (docs/08 §1). Classifier: chesscoach/analysis/structure.py (02 §6.3).
+concept: structure-kings-indian-closed
+engine: {name: "Stockfish 19", depth: 16}
+cases:
+  - id: kid-mar-del-plata
+    fen: "r1bqnrk1/pppn1pbp/3p2p1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 w - - 0 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Mar del Plata skeleton: White c4 d5 e4 vs Black d6 e5."
+  - id: kid-mar-del-plata-black-to-move
+    fen: "r1bqnrk1/pppn1pbp/3p2p1/3Pp3/2P1P3/2N5/PP2BPPP/R1BQNRK1 b - - 1 10"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Same structure, Black to move."
+  - id: kid-bayonet
+    fen: "r1bq1rk1/pppnnpbp/3p2p1/3Pp3/1PP1P3/2N2N2/P3BPPP/R1BQ1RK1 b - - 0 9"
+    band: B3
+    expect: {role: plan, present: true}
+    note: "Bayonet Attack (b4) with the same locked centre."
+  - id: kid-near-miss-white-c2
+    fen: "r1bq1rk1/pppnbppp/3p1n2/3Pp3/4P3/2N2N2/PPP1BPPP/R1BQ1RK1 w - - 0 9"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: locked d/e centre but White c-pawn on c2."
+  - id: kid-near-miss-benoni
+    fen: "rnbq1rk1/pp3pbp/3p1np1/2pP4/2P1P3/2N2N2/PP2BPPP/R1BQ1RK1 b - - 0 9"
+    band: B3
+    expect: {role: plan, present: false}
+    note: "Near miss: Modern Benoni; Black has no e-pawn (c5 d6 vs c4 d5 e4)."

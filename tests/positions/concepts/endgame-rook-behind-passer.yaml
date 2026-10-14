@@ -1,0 +1,35 @@
+concept: endgame-rook-behind-passer
+engine: {name: "Stockfish 19", depth: 16}
+# Roles: played, plan. Predicate rook_behind_passer: endgame phase; a rook of the player on the
+# file of a passed pawn (either colour), behind it relative to the pawn's direction, nothing in
+# between. For played, the rook must be the piece just moved.
+cases:
+  - id: plan-white-rook-behind-own-a-pawn
+    fen: "8/r4pk1/6p1/P7/8/6P1/5PK1/R7 w - - 0 1"
+    expect: {role: plan, present: true, slots: {rook_square: a1, pawn_square: a5}}
+    note: "Classic: Ra1 behind the a5 passer, Black's rook in front on a7."
+  - id: plan-black-rook-behind-enemy-pawn
+    fen: "8/5pk1/6p1/PR6/8/6P1/5PK1/r7 b - - 0 1"
+    expect: {role: plan, present: true, slots: {rook_square: a1, pawn_square: a5}}
+    note: "Black to move: the rook on a1 is behind White's passed a-pawn (Tarrasch's rule works against enemy passers too)."
+  - id: played-white-rook-gets-behind
+    fen: "8/r4pk1/6p1/P7/8/6P1/5PK1/1R6 w - - 0 1"
+    move: "b1a1"
+    expect: {role: played, present: true, slots: {rook_square: a1, pawn_square: a5}}
+  - id: played-black-rook-gets-behind-enemy-pawn
+    fen: "8/5pk1/6p1/PR6/8/6P1/5PK1/2r5 b - - 0 1"
+    move: "c1a1"
+    expect: {role: played, present: true, slots: {rook_square: a1, pawn_square: a5}}
+  - id: neg-plan-rook-in-front-of-own-pawn
+    fen: "R7/5pk1/6p1/P7/8/6P1/r4PK1/8 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: White's rook is on the a-file but in front of its pawn (Black's rook is the one behind it)."
+  - id: neg-plan-king-between-rook-and-pawn
+    fen: "8/r4pk1/6p1/P7/8/K5P1/5P2/R7 w - - 0 1"
+    expect: {role: plan, present: false}
+    note: "Near miss: Ra1 is behind the pawn, but the king on a3 blocks the file."
+  - id: neg-played-king-move-rook-already-behind
+    fen: "8/r4pk1/6p1/P7/8/6P1/5PK1/R7 w - - 0 1"
+    move: "g2f3"
+    expect: {role: played, present: false}
+    note: "Near miss: the rook was already behind the pawn; the move played was a king move, so nothing to praise."

@@ -1,0 +1,54 @@
+detector: king_safety_shield
+# 02 §6.2: king on its back rank on files a-c or f-h. For each shield file
+# (king file +-1) the pawn is missing if not on the 2nd/3rd rank, advanced if on
+# the 3rd. Emitted when either count > 0; data {missing, advanced}. side = owner.
+# Kings on the a/h files are avoided (clipping of the 3 shield files is unspecified).
+cases:
+  - id: qgd-black-h6
+    fen: "r1bq1rk1/pp2bpp1/2n1pn1p/3p4/2PP4/2N1PN1P/PP3PP1/R2QKB1R w KQ - 0 9"
+    expect: {present: true, side: black, data: {missing: 0, advanced: 1}}
+    note: "Castled Black king on g8 after ...h6: one advanced shield pawn."
+  - id: qgd-white-h3
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN1P/PP3PP1/R2Q1RK1 b - - 0 9"
+    expect: {present: true, side: white, data: {missing: 0, advanced: 1}}
+    note: "White king g1 with f2/g2 intact and h3 played."
+  - id: h-pawns-traded
+    fen: "r2q1rk1/pp2bpp1/2n1pn2/3p4/3P4/2NBP3/PP3PP1/R2Q1RK1 w - - 0 14"
+    expect: {present: true, side: white, data: {missing: 1, advanced: 0}}
+    note: "No White h-pawn: one missing shield pawn in front of the g1 king."
+  - id: long-castled-black-d-pawn-gone
+    fen: "2kr1b1r/ppp2ppp/2n1bn2/4p3/4P3/2N2N2/PPP2PPP/R1B1KB1R w KQ - 0 8"
+    expect: {present: true, side: black, data: {missing: 1, advanced: 0}}
+    note: "Black king c8: b7/c7 intact, no d-pawn on the d-file."
+  - id: dragon-fianchetto
+    fen: "r1bq1rk1/pp2ppbp/2np1np1/8/2PNP3/2N1B3/PP2BPPP/R2Q1RK1 w - - 2 9"
+    expect: {present: true, side: black, data: {missing: 0, advanced: 1}}
+    note: "Fianchetto: g6 counts as advanced (3rd rank from Black's side)."
+  - id: dragon-f5-counts-missing
+    fen: "r1bq1rk1/pp2p1bp/2np1np1/5p2/2PNP3/2N1B3/PP2BPPP/R2Q1RK1 w - - 0 10"
+    expect: {present: true, side: black, data: {missing: 1, advanced: 1}}
+    note: "f5 is beyond the 3rd rank, so it counts as missing; g6 is advanced."
+  - id: intact-castled-shield
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N2N2/PP2BPPP/R2Q1RK1 b - - 0 9"
+    expect: {present: false}
+    note: "Both kings castled behind f/g/h pawns on the 2nd rank."
+  - id: king-on-e-file-excluded
+    fen: "rnbqkb1r/pppp1ppp/5n2/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 2 3"
+    expect: {present: false}
+    note: "Near miss: the e-pawns stand on the 4th/5th rank, but kings on the d/e files are outside the definition."
+  - id: king-off-back-rank
+    fen: "8/5pk1/6p1/8/8/6P1/5PK1/8 w - - 0 40"
+    expect: {present: false}
+    note: "Near miss: g3/g6 are advanced and h-pawns gone, but the kings are on g2/g7, not the back rank."
+  - id: long-castled-intact
+    fen: "1k1r3r/ppp2ppp/2n5/8/8/2N5/PPP2PPP/1K1R3R w - - 0 20"
+    expect: {present: false}
+    note: "Kings on b1/b8 with a/b/c pawns on their 2nd rank."
+  - id: berlin-king-d8-excluded
+    fen: "r1bk1b1r/ppp2ppp/2p5/4Pn2/8/5N2/PPP2PPP/RNB2RK1 w - - 0 9"
+    expect: {present: false, side: black}
+    note: "Near miss: Black's king on d8 has no d/e pawns around it, but the d-file is excluded."
+  - id: advanced-not-missing
+    fen: "r1bq1rk1/pp2bppp/2n1pn2/3p4/2PP4/2N1PN1P/PP3PP1/R2Q1RK1 b - - 0 9"
+    expect: {present: false, side: white, data: {missing: 1}}
+    note: "h3 is advanced, not missing: missing must be 0."

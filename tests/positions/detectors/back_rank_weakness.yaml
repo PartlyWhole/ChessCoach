@@ -1,0 +1,72 @@
+# Static (docs/02 §6.1): king on its back rank, every 2nd-rank escape square
+# blocked by its own pieces or attacked, and an enemy rook/queen can reach the
+# back rank in one move along a file or rank. side = the side that can exploit
+# it (the enemy of the boxed-in king).
+detector: back_rank_weakness
+cases:
+  - id: rook-open-file-vs-castled-king
+    fen: "6k1/pp3ppp/8/8/8/7P/PP3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "Black king boxed in by f7/g7/h7; Rd1 can reach d8. White has luft on h2."
+  - id: queen-open-file-vs-white-king
+    fen: "6k1/pp3pp1/7p/4q3/8/8/PP3PPP/6K1 b - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "White king boxed in by f2/g2/h2; the black queen can drop to e1 down the open e-file."
+  - id: escape-square-attacked-by-bishop
+    fen: "6k1/pp3pp1/8/8/8/3B3P/PP3PP1/2R3K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "h7 is empty but covered by Bd3; f7/g7 are own pawns; Rc1 can reach c8."
+  - id: corner-king-rook-on-a-file
+    fen: "7k/1p4pp/8/8/8/7P/1P3PP1/R5K1 w - - 0 1"
+    expect:
+      present: true
+      side: white
+    note: "King h8 with g7/h7 pawns; Ra1 reaches a8 along the open a-file."
+  - id: uncastled-king-boxed-by-pawns
+    fen: "1r4k1/5ppp/8/8/8/8/3PPP2/4K3 w - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "King e1 with d2/e2/f2 pawns; ...Rb1 reaches the back rank. The definition does not require a castled king."
+  - id: mixed-block-and-knight-cover
+    fen: "3r2k1/5pp1/7p/8/6n1/8/5PP1/6K1 w - - 0 1"
+    expect:
+      present: true
+      side: black
+    note: "f2/g2 are own pawns and h2 is covered by the knight on g4; Rd8 can reach d1."
+  - id: luft-on-h7
+    fen: "6k1/pp3pp1/7p/8/8/7P/PP3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: Rd1 can reach d8 but h7 is a free, unattacked escape square (luft)."
+  - id: file-blocked-cannot-reach
+    fen: "6k1/pp3ppp/3p4/8/8/7P/PP3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: king boxed in, but Rd1's only file is blocked by d6 and no other rook/queen can reach the 8th rank."
+  - id: king-off-back-rank
+    fen: "8/pp3ppk/7p/8/8/7P/PP3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: false
+    note: "King on h7 is not on its back rank."
+  - id: queen-reaches-back-rank-only-diagonally
+    fen: "6k1/5ppp/8/q7/8/8/P4PPP/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: White king boxed in, but the black queen reaches the 1st rank only diagonally (a5-e1); the a-file is blocked by a2. Spec counts only file/rank arrival."
+  - id: boxed-in-but-only-minor-pieces
+    fen: "6k1/pp1b1ppp/8/8/8/2n4P/PP3PP1/6K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Black king boxed in but White has no rook or queen; White king has luft. No back-rank weakness."
+  - id: one-2nd-rank-square-free
+    fen: "6k1/pp3p1p/6p1/8/8/7P/PP3PP1/3R2K1 w - - 0 1"
+    expect:
+      present: false
+    note: "Near miss: g7 is empty and unattacked after ...g6."

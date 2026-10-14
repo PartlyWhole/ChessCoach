@@ -1,0 +1,82 @@
+detector: isolated_queen_pawn
+cases:
+- id: white-iqp-d4
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+  note: Textbook White IQP.
+- id: black-iqp-d5
+  fen: r1bq1rk1/pp3ppp/2nb1n2/3p4/8/2N1PN2/PP2BPPP/R1BQ1RK1 b - - 0 11
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d5
+  note: Black IQP.
+- id: white-d5-advanced-iqp
+  fen: 3r2k1/pp3ppp/5n2/3P4/8/2N5/PP3PPP/3R2K1 w - - 0 24
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d5
+  note: Isolated d-pawn advanced to d5 is still an IQP.
+- id: white-d3-iqp
+  fen: 4r1k1/ppp2ppp/5n2/8/8/3P1N2/PP4PP/4R1K1 w - - 0 22
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d3
+  note: Any isolated d-file pawn qualifies, not only d4.
+- id: black-d6-iqp
+  fen: 3qr1k1/pp4pp/3p1n2/8/8/5N2/PPP2PPP/3QR1K1 b - - 0 20
+  expect:
+    present: true
+    side: black
+    squares_include:
+    - d6
+  note: Black isolated d6 (no c/e pawns).
+- id: iqp-flanked-by-enemy-pawns
+  fen: 3r2k1/p5pp/2n5/2p1p3/3P4/5N2/PP4PP/3R2K1 w - - 0 22
+  expect:
+    present: true
+    side: white
+    squares_include:
+    - d4
+  note: Enemy pawns on c5/e5 do not stop it being isolated.
+- id: isolated-c-pawn-not-d
+  fen: 2r3k1/pp3ppp/4pn2/8/2P5/4P3/P2N1PPP/2R3K1 w - - 0 25
+  expect:
+    present: false
+  note: 'Near miss: White c4 is isolated but it is the c-file. White e3 has f2; no d-pawns on board.'
+- id: d4-supported-by-e3
+  fen: r1bq1rk1/pp1nbppp/2p2n2/3p4/3P4/2NBPN2/PPQ2PPP/R1B2RK1 w - - 0 10
+  expect:
+    present: false
+  note: 'Near miss: d4 has e3 (and Black d5 has c6).'
+- id: d4-neighbour-far-ahead
+  fen: 5rk1/pp3ppp/2P1pn2/8/3P4/5N2/PP4PP/5RK1 w - - 0 26
+  expect:
+    present: false
+    side: white
+  note: 'Near miss: d4''s only neighbour is a far-advanced c6 pawn.'
+- id: only-white-has-iqp
+  fen: r1bq1rk1/pp2bppp/2n1pn2/8/3P4/2NB1N2/PP3PPP/R1BQ1RK1 w - - 0 11
+  expect:
+    present: false
+    side: black
+  note: 'Side check: Black has no isolated d-pawn.'
+- id: isolated-e-pawn
+  fen: r1bqr1k1/ppp1bppp/3p1n2/8/2B1P3/2N5/PPP3PP/R1BQR1K1 w - - 0 12
+  expect:
+    present: false
+  note: 'Near miss: isolated pawn on the e-file, not the d-file.'
+- id: start-position
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  expect:
+    present: false
+  note: Initial position.
