@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play a Friend</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="p2p.css">
+</head>
+<body>
+  <header>
+    <h1>Play a friend <span class="tag">peer-to-peer</span></h1>
+    <p class="sub">Start a game, send the link, play. Moves sync through an
+      <a href="https://automerge.org">Automerge</a> document; there is no game server and no account.</p>
+  </header>
+
+  <main>
+    <section class="board-col">
+      <div id="board" class="board" aria-label="Chess board"></div>
+      <div class="board-actions">
+        <button id="draw" disabled>Offer draw</button>
+        <button id="resign" disabled>Resign</button>
+        <button id="flip">Flip board</button>
+        <button id="rematch" hidden>Rematch</button>
+      </div>
+      <p id="status" class="status" role="status">Loading…</p>
+    </section>
+
+    <section class="side-col">
+      <form id="lobby" class="card" hidden>
+        <h2>New game</h2>
+        <label>Your name <input id="name" maxlength="24" autocomplete="nickname" placeholder="Anonymous"></label>
+        <label>Play as
+          <select id="color">
+            <option value="random">Random</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+          </select>
+        </label>
+        <button id="create" class="primary" type="submit">Create game</button>
+        <p class="note">You get a link to send to your opponent. Anyone with the link can watch the game.</p>
+      </form>
+
+      <div id="game" class="card" hidden>
+        <h2>Players</h2>
+        <ul class="players">
+          <li id="seat-black"></li>
+          <li id="seat-white"></li>
+        </ul>
+        <div id="join" class="join" hidden>
+          <label>Your name <input id="join-name" maxlength="24" autocomplete="nickname" placeholder="Anonymous"></label>
+          <button id="join-btn" class="primary"></button>
+        </div>
+        <div class="share">
+          <input id="link" readonly aria-label="Game link">
+          <button id="copy">Copy link</button>
+        </div>
+        <h2 class="moves-h">Moves</h2>
+        <ol id="moves" class="moves"></ol>
+        <div class="board-actions">
+          <button id="pgn">Copy PGN</button>
+          <a class="button" href="./">New game</a>
+        </div>
+      </div>
+
+      <p class="foot"><span id="net">Connecting to relay…</span><br>
+        Sync relay: the public Automerge test server <code>sync.automerge.org</code>. It keeps a copy
+        of the game and offers no privacy or uptime guarantees; don't put anything secret in your name.
+      </p>
+      <p class="foot"><a href="../">ChessCoach</a> · GPL-3.0 ·
+        <a href="https://github.com/PartlyWhole/ChessCoach">source</a> ·
+        <a href="../THIRD_PARTY.md">third-party licenses</a></p>
+    </section>
+  </main>
+
+  <dialog id="promo" aria-label="Promote to">
+    <div class="promo"></div>
+  </dialog>
+
+  <script type="module" src="p2p.js"></script>
+</body>
+</html>

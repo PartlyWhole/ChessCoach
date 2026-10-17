@@ -40,6 +40,11 @@ uv pip install --python .venv/bin/python -e '.[webbuild]'
 .venv/bin/python tools/build_web.py             # → _site/
 ```
 
+The build also produces `p2p/`, a "play a friend" page: create a game, send the link, and the
+moves sync peer to peer through an Automerge document on the public Automerge relay
+([ADR 0003](docs/decisions/0003-p2p-play-automerge.md)). Its game logic tests run with
+`(cd web && npm test)`.
+
 Serve `_site/` with any static server. `.github/workflows/pages.yml` builds and deploys it on
 pushes to `main` once GitHub Pages is set to "GitHub Actions" in the repo settings.
 

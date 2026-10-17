@@ -1,0 +1,32 @@
+/* Additions to ../style.css for the peer-to-peer page. */
+.sq.check { box-shadow: inset 0 0 0 3px rgba(200, 40, 40, .85); background-image: radial-gradient(rgba(220, 50, 50, .55), transparent 70%); }
+.sq .coord.file { left: auto; right: 3px; }
+button.primary, .button.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; }
+#create { width: 100%; margin-top: 6px; }
+.button { display: inline-block; font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+  border-radius: 6px; padding: 7px 14px; text-decoration: none; }
+input:not([type]), input[type=text] { font: inherit; padding: 4px 6px; border-radius: 5px; border: 1px solid var(--line);
+  background: var(--bg); color: var(--fg); min-width: 0; max-width: 60%; }
+.players { list-style: none; margin: 0 0 10px; padding: 0; }
+.players li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; border: 1px solid transparent; }
+.players li.turn { border-color: var(--accent); }
+.players .pc { font-size: 22px; line-height: 1; }
+.players .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); margin-left: auto; }
+.players .dot.on { background: var(--accent); }
+.muted { color: var(--muted); }
+.join { border-top: 1px solid var(--line); padding-top: 8px; margin-bottom: 10px; }
+.join button { width: 100%; margin-top: 4px; }
+.share { display: flex; gap: 8px; margin: 10px 0 4px; }
+.share input { flex: 1; max-width: none; font-size: .85rem; }
+.moves-h { margin-top: 14px; }
+.moves { margin: 0; padding-left: 2.2em; max-height: 240px; overflow-y: auto; font-variant-numeric: tabular-nums;
+  columns: 2; column-gap: 20px; }
+.moves li { white-space: pre; break-inside: avoid; }
+.moves li.result { list-style: none; font-weight: 600; }
+#net.ok { color: var(--accent); }
+#net.warn { color: var(--warn); }
+.foot code { font-size: .8rem; }
+dialog { border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--fg); padding: 12px; }
+dialog::backdrop { background: rgba(0, 0, 0, .35); }
+.promo { display: flex; gap: 8px; }
+.promo button { font-size: 44px; line-height: 1; width: 64px; height: 64px; padding: 0; background: var(--light); }

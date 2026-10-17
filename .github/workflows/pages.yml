@@ -1,4 +1,5 @@
-# Builds the browser proof of concept (ADR 0002) and deploys it to GitHub Pages.
+# Builds the browser proof of concept (ADR 0002) and the peer-to-peer page (ADR 0003) and deploys
+# them to GitHub Pages.
 name: pages
 
 on:
@@ -43,6 +44,8 @@ jobs:
       - name: Export Maia-2 to fp16 ONNX
         run: test -f models/maia2_rapid.fp16.onnx || python tools/export_maia_onnx.py
       - run: npm ci
+        working-directory: web
+      - run: npm test
         working-directory: web
       - run: python tools/build_web.py
       - uses: actions/upload-pages-artifact@v3

@@ -61,7 +61,7 @@ any change in `docs/decisions/` as a short ADR.
 
 ## Out of scope (for now)
 
-- Online multiplayer, anti-cheat, tournaments.
+- Online multiplayer beyond the peer-to-peer page in `web/p2p/` (ADR 0003), anti-cheat, tournaments.
 - Variants other than standard chess.
 - Any feature that requires an LLM.
 

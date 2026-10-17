@@ -23,6 +23,18 @@ Browser build (ADR 0002), shipped in the GitHub Pages site:
 | coi-serviceworker | 0.1.7 | Adds COOP/COEP headers on GitHub Pages | MIT | Service worker |
 | Maia-2 rapid weights (fp16 ONNX export) | maia2 0.11 | Human-like move model | MIT | Static asset, exported in CI |
 
-Build-only: onnx (Apache-2.0), onnxconverter-common (MIT).
+Peer-to-peer page (ADR 0003), bundled into `p2p/p2p.js` by esbuild; notices ship in `p2p/LICENSES.txt`:
+
+| Component | Version | Use | License | How used |
+|-----------|---------|-----|---------|----------|
+| @automerge/vanillajs (automerge-repo + websocket, broadcastchannel, indexeddb adapters) | 2.5.6 | Sync the game document between peers | MIT | Bundled |
+| @automerge/automerge | 3.5.0 | CRDT core | MIT | Bundled JS + `automerge.wasm` static asset |
+| chess.js | 1.4.0 | Move legality, SAN, game-end detection | BSD-2-Clause | Bundled |
+| Transitive: @noble/hashes, base-x, bs58, bs58check, cbor-x, debug, eventemitter3, isomorphic-ws, ms, uuid, xstate | see `web/package-lock.json` | automerge-repo internals | MIT | Bundled |
+| Transitive: fast-sha256 | 1.3.0 | automerge-repo internals | Unlicense | Bundled |
+
+Service (not a dependency): the public Automerge sync relay `wss://sync.automerge.org`.
+
+Build-only: onnx (Apache-2.0), onnxconverter-common (MIT), esbuild 0.28.2 (MIT).
 
 Glicko-2 is implemented in-repo from Glickman's public paper (no dependency).

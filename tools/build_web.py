@@ -6,7 +6,8 @@
 
 Layout: index.html, app.js, workers, coi-serviceworker, pyodide/ (core), wheels/ (python-chess
 built from source + PyYAML from the Pyodide CDN, sha256-checked), app.zip (chesscoach + concepts
-+ templates), engine/ (Stockfish 19 lite single-threaded), ort/ (onnxruntime-web), maia/ (model).
++ templates), engine/ (Stockfish 19 lite single-threaded), ort/ (onnxruntime-web), maia/ (model),
+p2p/ (peer-to-peer play over Automerge, ADR 0003: page + esbuild bundle + automerge.wasm).
 """
 from __future__ import annotations
 
@@ -66,6 +67,17 @@ def app_zip(dest: Path) -> None:
                     z.write(p, p.relative_to(ROOT))
 
 
+def build_p2p(dest: Path) -> None:
+    for f in ("index.html", "p2p.css"):
+        copy(WEB / "p2p" / f, dest / f)
+    copy(NM / "@automerge" / "automerge" / "dist" / "automerge.wasm", dest / "automerge.wasm")
+    subprocess.run([str(NM / ".bin" / "esbuild"), str(WEB / "p2p" / "main.mjs"), "--bundle", "--format=esm",
+                    "--target=es2022", "--minify", "--legal-comments=external", f"--outfile={dest / 'p2p.js'}",
+                    "--log-level=warning"], check=True)
+    # Bundled packages' license notices (chess.js is BSD-2-Clause, which requires them).
+    (dest / "p2p.js.LEGAL.txt").rename(dest / "LICENSES.txt")
+
+
 def main() -> None:
     if not NM.exists():
         raise SystemExit("run `npm ci` in web/ first")
@@ -87,6 +99,7 @@ def main() -> None:
     wheels = [fetch_pyodide_wheel("pyyaml", OUT / "wheels"), build_chess_wheel(OUT / "wheels")]
     (OUT / "wheels" / "index.json").write_text(json.dumps(wheels))
     app_zip(OUT / "app.zip")
+    build_p2p(OUT / "p2p")
     for f in ("LICENSE", "THIRD_PARTY.md"):
         copy(ROOT / f, OUT / f)
     (OUT / ".nojekyll").write_text("")
