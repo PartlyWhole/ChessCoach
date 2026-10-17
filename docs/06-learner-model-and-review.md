@@ -113,7 +113,9 @@ the worst weakness metric, excluding concepts mentioned in the last 2 games.
 
 ## 4. Post-game review
 
-Builder runs after each game at `engine.depth_review` (01).
+Builder runs after each game at `engine.depth_review` (01). The browser build runs the same
+builder at `engine.depth_review_web` for the peer-to-peer page's analysis, for both players and
+without saving cards (ADR 0003).
 
 1. Re-analyse all positions at review depth; recompute `MoveAssessment` and hits.
 2. Select **2–3 critical moments**: rank plies by `loss × importance of best hit`, keep the top 3 with at least 4 plies between them. Always include the single largest swing.

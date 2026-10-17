@@ -94,3 +94,25 @@ def test_webapp_game_flow(native):
     st = json.loads(app.move("e2e4"))
     assert st["bot_move"] and st["turn"] == "white" and st["assessment"]["move_class"]
     assert json.loads(WebApp(rpc).new_game(show_drafts=False))["concepts_loaded"] == 0   # rule 2 gate
+
+
+def test_webapp_review(native):
+    """Post-game review for both sides of a finished game (p2p page, ADR 0003)."""
+    app = WebApp(make_rpc(native))
+    moves = ["f2f3", "e7e5", "g2g4", "d8h4"]                     # fool's mate
+    r = json.loads(app.review(json.dumps(moves), depth=10))
+    assert [p["san"] for p in r["plies"]] == ["f3", "e5", "g4", "Qh4#"]
+    assert [p["mover"] for p in r["plies"]] == ["white", "black", "white", "black"]
+    g4 = r["plies"][2]
+    assert g4["move_class"] == "blunder" and g4["best_san"] and g4["best_san"] != "g4"
+    assert g4["best_line_san"][0] == g4["best_san"]
+    assert r["plies"][3]["move_class"] in ("best", "forced")
+    assert r["plies"][3]["wp_white_after"] == 0.0                  # mated: White POV
+    assert 0.4 < r["wp_white_start"] < 0.6
+    w, b = r["sides"]["white"], r["sides"]["black"]
+    assert w["counts"]["blunder"] == 1 and b["counts"]["blunder"] == 0
+    assert b["accuracy"] > w["accuracy"]
+    assert [m["ply"] for m in w["moments"]] == [2]
+    # Rule 2: without the developer preview no unreviewed text reaches the page.
+    assert w["moments"][0]["summary"] == "" and w["moments"][0]["concept_id"] is None
+    assert r["depth"] == 10 and r["engine"]

@@ -4,8 +4,9 @@
     python tools/export_maia_onnx.py         # once: models/maia2_rapid.fp16.onnx
     python tools/build_web.py
 
-Layout: index.html, app.js, workers, coi-serviceworker, pyodide/ (core), wheels/ (python-chess
-built from source + PyYAML from the Pyodide CDN, sha256-checked), app.zip (chesscoach + concepts
+Layout: index.html, app.js, runtime.js, workers, coi-serviceworker, pyodide/ (core), wheels/
+(python-chess and fsrs built from source + PyYAML and typing-extensions from the Pyodide CDN,
+sha256-checked), app.zip (chesscoach + concepts
 + templates), engine/ (Stockfish 19 lite single-threaded), ort/ (onnxruntime-web), maia/ (model),
 p2p/ (peer-to-peer play over Automerge, ADR 0003: page + esbuild bundle + automerge.wasm).
 """
@@ -34,12 +35,13 @@ def copy(src: Path, dst: Path) -> None:
     shutil.copy2(src, dst)
 
 
-def build_chess_wheel(dest: Path) -> str:
-    import chess
+def build_wheel(dist: str, dest: Path) -> str:
+    """Pure-Python wheel built from the sdist of the version installed here."""
+    from importlib.metadata import version
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-binary", ":all:", "-q",
-                        f"chess=={chess.__version__}", "-w", tmp], check=True)
-        whl = next(Path(tmp).glob("chess-*.whl"))
+                        f"{dist}=={version(dist)}", "-w", tmp], check=True)
+        whl = next(Path(tmp).glob("*.whl"))
         copy(whl, dest / whl.name)
         return whl.name
 
@@ -86,7 +88,7 @@ def main() -> None:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
-    for f in ("index.html", "app.js", "py-worker.js", "maia-worker.js", "style.css"):
+    for f in ("index.html", "app.js", "runtime.js", "py-worker.js", "maia-worker.js", "style.css"):
         copy(WEB / f, OUT / f)
     copy(NM / "coi-serviceworker" / "coi-serviceworker.min.js", OUT / "coi-serviceworker.min.js")
     for f in ("pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"):
@@ -96,7 +98,9 @@ def main() -> None:
     for f in ("ort.wasm.min.js", "ort-wasm-simd-threaded.mjs", "ort-wasm-simd-threaded.wasm"):
         copy(NM / "onnxruntime-web" / "dist" / f, OUT / "ort" / f)
     copy(MODEL, OUT / "maia" / MODEL.name)
-    wheels = [fetch_pyodide_wheel("pyyaml", OUT / "wheels"), build_chess_wheel(OUT / "wheels")]
+    # fsrs (+ typing-extensions): chesscoach.learner.review imports the SRS module (p2p review, ADR 0003).
+    wheels = [fetch_pyodide_wheel("pyyaml", OUT / "wheels"), fetch_pyodide_wheel("typing-extensions", OUT / "wheels"),
+              build_wheel("chess", OUT / "wheels"), build_wheel("fsrs", OUT / "wheels")]
     (OUT / "wheels" / "index.json").write_text(json.dumps(wheels))
     app_zip(OUT / "app.zip")
     build_p2p(OUT / "p2p")

@@ -42,8 +42,9 @@ uv pip install --python .venv/bin/python -e '.[webbuild]'
 
 The build also produces `p2p/`, a "play a friend" page: create a game, send the link, and the
 moves sync peer to peer through an Automerge document on the public Automerge relay
-([ADR 0003](docs/decisions/0003-p2p-play-automerge.md)). Its game logic tests run with
-`(cd web && npm test)`.
+([ADR 0003](docs/decisions/0003-p2p-play-automerge.md)). After the game, either player can run
+a post-game analysis in the browser: the same review builder as the native app (L5), on
+Stockfish lite WASM. Its JavaScript tests run with `(cd web && npm test)`.
 
 Serve `_site/` with any static server. `.github/workflows/pages.yml` builds and deploys it on
 pushes to `main` once GitHub Pages is set to "GitHub Actions" in the repo settings.

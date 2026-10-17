@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Play a Friend</title>
+  <!-- Post-game analysis runs the coach's Python in a worker that blocks on SharedArrayBuffer, which
+       needs cross-origin isolation; GitHub Pages can't send the headers, so this service worker adds
+       them (ADR 0002). The first visit reloads once; the game itself does not depend on it. -->
+  <script src="../coi-serviceworker.min.js"></script>
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="p2p.css">
 </head>
@@ -60,6 +64,36 @@
         <div class="board-actions">
           <button id="pgn">Copy PGN</button>
           <a class="button" href="./">New game</a>
+        </div>
+      </div>
+
+      <div id="analysis" class="card" hidden>
+        <h2>Post-game analysis</h2>
+        <div id="an-start">
+          <p class="note">Stockfish replays every move in your browser and rates it by how much it changed
+            the mover's winning chances. Takes about a minute; the first run downloads ~15 MB.
+            Available once the game is over.</p>
+          <label class="check">
+            <input id="an-drafts" type="checkbox">
+            <span>Developer preview: show <strong>unreviewed draft</strong> coaching text</span>
+          </label>
+          <button id="an-run" class="primary">Analyse game</button>
+        </div>
+        <p id="an-progress" class="status" hidden></p>
+        <div id="an-result" hidden>
+          <div id="an-acc" class="acc"></div>
+          <svg id="an-graph" class="graph" viewBox="0 0 400 100" preserveAspectRatio="none" role="img"
+               aria-label="White's winning chances over the game"></svg>
+          <div class="nav">
+            <button id="an-first" aria-label="Start">⏮</button>
+            <button id="an-prev" aria-label="Previous move">◀</button>
+            <button id="an-next" aria-label="Next move">▶</button>
+            <button id="an-last" aria-label="End">⏭</button>
+          </div>
+          <div id="an-detail" class="detail"></div>
+          <h3>Key moments</h3>
+          <ol id="an-moments" class="an-moments"></ol>
+          <p id="an-meta" class="note"></p>
         </div>
       </div>
 

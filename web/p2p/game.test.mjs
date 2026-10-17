@@ -31,6 +31,9 @@ test("replay skips foreign, duplicate and illegal entries (concurrent merges)", 
   const g = derive(d);
   assert.deepEqual(g.moves.map((m) => m.uci), ["e2e4", "e7e5"]);
   assert.equal(g.turn, "white");
+  assert.equal(g.fens.length, 3);
+  assert.equal(g.fens[1], "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+  assert.equal(g.fens[2], g.fen);
 });
 
 test("a move by a player who lost a concurrent seat claim is skipped", () => {

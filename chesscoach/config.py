@@ -11,6 +11,7 @@ MAIA_MODEL_DIR = os.environ.get("CHESSCOACH_MAIA_DIR", "models/maia2")
 CONFIG: dict[str, object] = {
     "engine.depth_live": 16,
     "engine.depth_review": 22,
+    "engine.depth_review_web": 14,      # browser review (Stockfish lite WASM, one thread): ADR 0003
     "engine.multipv": 3,
     "engine.threads": 2,
     "engine.hash_mb": 128,

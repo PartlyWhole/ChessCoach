@@ -160,6 +160,7 @@ Keep Stockfish in a pool of long-lived processes. Never spawn one per request.
 |-----|---------|-------|
 | `engine.depth_live` | 16 | per-move live analysis |
 | `engine.depth_review` | 22 | post-game review |
+| `engine.depth_review_web` | 14 | post-game review in the browser (Stockfish lite WASM, one thread; ADR 0003) |
 | `engine.multipv` | 3 | needed for sharpness and "only move" checks |
 | `engine.threads` | 2 | per process |
 | `engine.time_live` | 0.35 s | live searches stop at depth *or* this time, whichever first. Added because depth 16 × MultiPV 3 takes 2–5 s per tactical position on an M1, far over the 1.5 s budget. Review and tests use depth only. |

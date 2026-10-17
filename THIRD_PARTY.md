@@ -18,6 +18,8 @@ Browser build (ADR 0002), shipped in the GitHub Pages site:
 |-----------|---------|-----|---------|----------|
 | Pyodide | 0.27.7 | Python runtime in the browser | MPL-2.0 | Static assets |
 | PyYAML (Pyodide build) | 6.0.2 | Concept files | MIT | Wheel from the Pyodide CDN, sha256-checked |
+| typing-extensions (Pyodide build) | 4.11.0 | Needed by fsrs | PSF-2.0 | Wheel from the Pyodide CDN, sha256-checked |
+| fsrs (py-fsrs) | 6.3.x | Imported by the review builder (p2p analysis, ADR 0003) | MIT | Pure-Python wheel built from the sdist |
 | stockfish.js (`stockfish` npm) | 19.0.1 | Stockfish 19 lite, single-threaded WASM | GPL-3.0 | Web Worker |
 | onnxruntime-web | 1.24.3 | Runs the Maia-2 ONNX model | MIT | Web Worker |
 | coi-serviceworker | 0.1.7 | Adds COOP/COEP headers on GitHub Pages | MIT | Service worker |

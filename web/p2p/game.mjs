@@ -31,6 +31,7 @@ function toMove(uci) {
 export function derive(doc) {
   const chess = new Chess();
   const accepted = [];
+  const fens = [chess.fen()];
   const end = doc.end && (doc.end.by === doc.white || doc.end.by === doc.black) ? doc.end : null;
   const stopAt = end ? end.ply : Infinity;
   for (const m of doc.moves || []) {
@@ -40,6 +41,7 @@ export function derive(doc) {
     let mv;
     try { mv = chess.move(toMove(m.uci)); } catch { continue; }
     accepted.push({ uci: m.uci, san: mv.san, by: m.by });
+    fens.push(chess.fen());
   }
   const turn = chess.turn() === "w" ? "white" : "black";
   const ply = accepted.length;
@@ -56,6 +58,7 @@ export function derive(doc) {
   const drawOffer = !result && offer && offer.ply === ply && seatOf(doc, offer.by) ? seatOf(doc, offer.by) : null;
   return {
     fen: chess.fen(),
+    fens,               // fens[i] = position after i accepted plies
     turn,
     ply,
     moves: accepted,
