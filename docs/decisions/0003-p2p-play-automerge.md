@@ -12,11 +12,25 @@ anti-cheat, and no coaching (it does not touch L1–L5).
 - One game is one Automerge document. Its `automerge:` URL is the page's hash, so the link is the
   invitation. Peers sync through the public Automerge relay `wss://sync.automerge.org`, plus a
   BroadcastChannel between tabs of one browser; IndexedDB keeps a local copy across reloads.
-- The document is an append-only record (seats, names, `moves: [{uci, by}]`, draw offer, end
-  record, rematch link). `web/p2p/game.mjs` derives the game from it deterministically with
-  chess.js: a move counts only if its author holds the side-to-move's seat and it is legal, and
-  an end record (resign or agreed draw) stops the replay at its ply. Concurrent edits therefore
-  converge on the same game on every peer without coordination. Tested in `game.test.mjs`.
+- The document is an append-only record (seats, names, a `moves` event log, draw offer,
+  takeback request, end record, rematch link). `web/p2p/game.mjs` derives the game from it
+  deterministically with chess.js: a move counts only if its author holds the side-to-move's
+  seat, it is legal and its recorded ply matches; an end record (resign or agreed draw) stops the
+  replay at the log length it was made at. Concurrent edits therefore converge on the same game
+  on every peer without coordination. Tested in `game.test.mjs`.
+- Takebacks (added 2026-10-17) need the opponent's consent. A request is `takeback: {by, n}`
+  and lapses when the log grows (a move instead of an answer declines it). Accepting appends
+  `{undo: 1|2, by, req, ply}` to the log, which removes the requester's last move, plus the
+  opponent's reply if one was made. Nothing is deleted from the document, and because undo
+  entries and moves both carry the ply they were made at, an accept racing the requester's own
+  move resolves the same way on every peer (whichever lands first in the merged log wins; the
+  other is skipped). Documents from before takebacks (no ply on moves, `ply` instead of `n` on
+  records) still replay.
+- Move history: every position can be viewed at any time, during play too, with step buttons,
+  the arrow keys, a clicked move or an automatic replay. The page also keeps a list of the games
+  opened in this browser (`localStorage`, max 20) so they can be reopened and replayed.
+- Opening a link right after the game is created can reach the relay before the game does. The
+  page then waits up to 30 s for it (`find` with `unavailable` allowed, then `whenReady`).
 - A player is identified by a random ID in `localStorage`. Online status uses Automerge
   ephemeral heartbeats, which the relay forwards but does not store.
 - Packages: `@automerge/vanillajs` 2.5.6 (latest stable; the npm `latest` tag points at an
@@ -53,5 +67,5 @@ existing board renderer already covers click-to-move).
 - Depth 14 on the lite network has a shorter horizon than native review at depth 22: a deep
   combination can show up one move late on the graph (seen with a mate-in-3 queen sacrifice).
   The panel names the engine and depth and says to treat close calls with care.
-- No clocks or takebacks. If both players click Rematch at once, one rematch document wins and the
+- No clocks. If both players click Rematch at once, one rematch document wins and the
   other is orphaned; the loser's browser may land in the orphan and has to follow the winner's link.

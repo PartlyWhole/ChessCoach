@@ -8,7 +8,7 @@ import * as G from "./game.mjs";
 import * as R from "./review.mjs";
 
 const RELAY = "wss://sync.automerge.org";
-const HEARTBEAT_MS = 4000, ONLINE_MS = 11000;
+const HEARTBEAT_MS = 4000, ONLINE_MS = 11000, FIND_TIMEOUT_MS = 30000;
 const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
 
 const $ = (id) => document.getElementById(id);
@@ -53,9 +53,11 @@ setTimeout(updateNet, 4000);
 let handle = null, cleanup = () => {};
 let doc = null, game = null, selected = null, flipped = null;
 let viewPly = null, review = null, analysing = false;   // viewPly: null = live position
+let replayTimer = null;
 const lastSeen = new Map();
 
 function resetAnalysis() {
+  stopReplay();
   viewPly = null; review = null;
   $("analysis").hidden = true;
 }
@@ -74,14 +76,23 @@ async function openGame(url) {
   handle = null; doc = null; game = null; selected = null; flipped = null;
   resetAnalysis();
   $("lobby").hidden = true;
+  $("recent").hidden = true;
   $("game").hidden = true;
   render();
   setStatus("Looking for the game…");
   let h;
   try {
-    h = await repo.find(url);
+    // A link opened right after the game was created can reach the relay before the game does;
+    // the relay then answers "unavailable". Keep waiting: the handle turns ready when it arrives.
+    h = await repo.find(url, { allowableStates: ["ready", "unavailable"] });
+    if (!h.isReady()) {
+      setStatus("Waiting for the game to reach the relay…");
+      await h.whenReady(["ready"], { signal: AbortSignal.timeout(FIND_TIMEOUT_MS) });
+    }
   } catch {
-    setStatus("Could not find this game. Check the link, or ask your opponent to keep their page open.");
+    if (location.hash.slice(1) === url) {
+      setStatus("Could not find this game. Check the link, or ask your opponent to keep their page open.");
+    }
     return;
   }
   if (location.hash.slice(1) !== url) return; // navigated away while loading
@@ -112,6 +123,8 @@ function showLobby() {
   $("game").hidden = true;
   $("lobby").hidden = false;
   render();
+  renderNav();
+  renderRecent();
   setStatus("Create a game, then send the link to your opponent.");
 }
 
@@ -125,13 +138,16 @@ function route() {
 function update() {
   if (!doc || doc.v !== 1) { setStatus("This link is not a chess game."); return; }
   game = G.derive(doc);
+  if (viewPly !== null && viewPly >= game.moves.length) viewPly = null;   // a takeback removed it
   if (selected && !game.legal.some((m) => m.startsWith(selected))) selected = null;
   render();
   renderPlayers();
   renderMoves();
   renderStatus();
   renderButtons();
+  renderNav();
   renderAnalysis();
+  rememberGame();
 }
 
 function parseFen(fen) {
@@ -214,7 +230,6 @@ function renderPlayers() {
 function renderMoves() {
   const ol = $("moves");
   ol.innerHTML = "";
-  const browsable = !!game.result;
   const current = viewPly ?? game.moves.length;
   const moveSpan = (i) => {
     const s = document.createElement("span");
@@ -222,11 +237,9 @@ function renderMoves() {
     const r = review && review.plies[i];
     s.textContent = game.moves[i].san + (r ? R.CLASS_SYMBOL[r.move_class] || "" : "");
     if (r && R.CLASS_SYMBOL[r.move_class]) s.classList.add(r.move_class);
-    if (browsable) {
-      s.classList.add("go");
-      if (current === i + 1) s.classList.add("cur");
-      s.onclick = () => goTo(i + 1);
-    }
+    s.classList.add("go");
+    if (current === i + 1) s.classList.add("cur");
+    s.onclick = () => { stopReplay(); goTo(i + 1); };
     return s;
   };
   for (let i = 0; i < game.moves.length; i += 2) {
@@ -262,6 +275,8 @@ function renderStatus() {
   if (game.inCheck) msg += " · check";
   if (game.drawOffer && game.drawOffer !== seat) msg += seat ? " · your opponent offers a draw" : ` · ${game.drawOffer} offers a draw`;
   else if (game.drawOffer) msg += " · draw offered";
+  if (game.takeback && game.takeback !== seat) msg += seat ? " · your opponent asks for a takeback" : ` · ${game.takeback} asks for a takeback`;
+  else if (game.takeback) msg += " · takeback requested";
   setStatus(msg);
 }
 
@@ -273,6 +288,11 @@ function renderButtons() {
   $("draw").textContent = incoming ? "Accept draw" : game.drawOffer === seat ? "Draw offered" : "Offer draw";
   $("draw").classList.toggle("primary", !!incoming);
   $("resign").disabled = !playing;
+  const mine = playing && game.takeback === seat;
+  const theirs = playing && game.takeback === G.otherColor(seat);
+  $("takeback").disabled = !playing || theirs || (!mine && !G.takebackPlies(game.ply, seat));
+  $("takeback").textContent = mine ? "Cancel takeback" : "Takeback";
+  $("tb-offer").hidden = !theirs;
   $("rematch").hidden = !(seat && game.result);
   $("rematch").textContent = doc.rematch ? "Join rematch" : "Rematch";
   $("rematch").classList.toggle("primary", !!doc.rematch);
@@ -283,15 +303,109 @@ function renderButtons() {
 // Pyodide + Stockfish WASM, loaded only when asked for, and only for finished games.
 let runtime = null;
 
+// ------------------------------------------------------------------ move history and replay
+// Any position of the game can be viewed at any time, during play too; the board is not
+// playable while viewing an earlier position. Replay steps through the game automatically.
+const REPLAY_MS = 900;
+
 function goTo(ply) {
-  if (!game || !game.result) return;
+  if (!game) return;
   const n = game.moves.length;
   ply = Math.max(0, Math.min(n, ply));
   viewPly = ply === n ? null : ply;
   selected = null;
   render();
   renderMoves();
+  renderNav();
   renderAnalysis();
+  const cur = $("moves").querySelector(".cur");
+  if (cur) cur.scrollIntoView({ block: "nearest" });
+}
+
+function stopReplay() {
+  if (replayTimer) clearInterval(replayTimer);
+  replayTimer = null;
+  renderNav();
+}
+
+function toggleReplay() {
+  if (replayTimer) { stopReplay(); return; }
+  if (!game || !game.moves.length) return;
+  if (viewPly === null) goTo(0);
+  replayTimer = setInterval(() => {
+    goTo((viewPly ?? game.moves.length) + 1);
+    if (viewPly === null) stopReplay();
+  }, REPLAY_MS);
+  renderNav();
+}
+
+function renderNav() {
+  const n = game ? game.moves.length : 0;
+  const cur = viewPly ?? n;
+  $("nav-first").disabled = $("nav-prev").disabled = !game || cur === 0;
+  $("nav-next").disabled = $("nav-last").disabled = !game || cur === n;
+  $("nav-play").disabled = !game || n === 0;
+  $("nav-play").textContent = replayTimer ? "Pause" : "Replay";
+  const v = $("viewing");
+  v.hidden = !game || viewPly === null;
+  if (!v.hidden) {
+    v.innerHTML = "";
+    const back = document.createElement("button");
+    back.className = "link";
+    back.textContent = game.result ? "Final position" : "Back to the game";
+    back.onclick = () => { stopReplay(); goTo(n); };
+    v.append(`Viewing move ${viewPly} of ${n}${!game.result && game.turn === mySeat() ? " · it's your move" : ""} · `, back);
+  }
+}
+
+$("nav-first").onclick = () => { stopReplay(); goTo(0); };
+$("nav-prev").onclick = () => { stopReplay(); goTo((viewPly ?? game.moves.length) - 1); };
+$("nav-next").onclick = () => { stopReplay(); goTo((viewPly ?? game.moves.length) + 1); };
+$("nav-last").onclick = () => { stopReplay(); goTo(game.moves.length); };
+$("nav-play").onclick = toggleReplay;
+document.addEventListener("keydown", (e) => {
+  if (!game || e.target.closest("input, select, textarea, dialog")) return;
+  const cur = viewPly ?? game.moves.length;
+  const to = { ArrowLeft: cur - 1, ArrowRight: cur + 1, Home: 0, End: game.moves.length }[e.key];
+  if (to === undefined) return;
+  stopReplay(); goTo(to); e.preventDefault();
+});
+
+// ------------------------------------------------------------------ recent games (this browser)
+const RECENT_KEY = "p2pchess.games", RECENT_MAX = 20;
+
+function recentGames() {
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+}
+
+function rememberGame() {
+  if (!handle || !doc) return;
+  const name = (c) => (doc[c] && doc.names[doc[c]]) || null;
+  const entry = { url: handle.url, white: name("white"), black: name("black"), seat: mySeat(),
+                  result: game.result ? game.result.score : null, moves: game.moves.length, t: Date.now() };
+  const list = [entry, ...recentGames().filter((g) => g.url !== entry.url)].slice(0, RECENT_MAX);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch { /* full or private */ }
+}
+
+function renderRecent() {
+  const list = recentGames();
+  $("recent").hidden = !list.length;
+  const ul = $("recent-list");
+  ul.innerHTML = "";
+  for (const g of list) {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.href = "#" + g.url;
+    a.textContent = `${g.white || "Open seat"} vs ${g.black || "Open seat"}`;
+    const meta = document.createElement("span");
+    meta.className = "muted";
+    const when = new Date(g.t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const fullMoves = Math.ceil(g.moves / 2);
+    meta.textContent = ` · ${g.result || "in progress"} · ${fullMoves} move${fullMoves === 1 ? "" : "s"}` +
+      `${g.seat ? ` · you played ${g.seat}` : ""} · ${when}`;
+    li.append(a, meta);
+    ul.append(li);
+  }
 }
 
 function loadScript(src) {
@@ -451,8 +565,6 @@ function renderAnalysis() {
       detail.append(t);
     }
   }
-  $("an-first").disabled = $("an-prev").disabled = cur === 0;
-  $("an-next").disabled = $("an-last").disabled = cur === review.plies.length;
 
   const ol = $("an-moments");
   ol.innerHTML = "";
@@ -477,24 +589,19 @@ function renderAnalysis() {
 
 $("an-run").onclick = runAnalysis;
 $("an-drafts").onchange = () => { review = null; update(); };
-$("an-first").onclick = () => goTo(0);
-$("an-prev").onclick = () => goTo((viewPly ?? game.moves.length) - 1);
-$("an-next").onclick = () => goTo((viewPly ?? game.moves.length) + 1);
-$("an-last").onclick = () => goTo(game.moves.length);
 $("an-graph").onclick = (e) => {
   if (!review) return;
   const r = e.currentTarget.getBoundingClientRect();
+  stopReplay();
   goTo(R.plyAtX(review, (e.clientX - r.left) / r.width * 400, 400));
 };
-document.addEventListener("keydown", (e) => {
-  if (!game || !game.result || e.target.closest("input, select, textarea")) return;
-  if (e.key === "ArrowLeft") { goTo((viewPly ?? game.moves.length) - 1); e.preventDefault(); }
-  else if (e.key === "ArrowRight") { goTo((viewPly ?? game.moves.length) + 1); e.preventDefault(); }
-});
 
 // ------------------------------------------------------------------ input
 async function onSquare(sq) {
-  if (viewPly !== null) return;
+  if (viewPly !== null) {   // viewing history: a click on the board returns to the game
+    if (!game.result) { stopReplay(); goTo(game.moves.length); }
+    return;
+  }
   if (!game || game.turn !== mySeat() || !doc.white || !doc.black) return;
   if (selected && game.legal.some((m) => m.startsWith(selected + sq))) {
     const choices = game.legal.filter((m) => m.startsWith(selected + sq));
@@ -544,6 +651,13 @@ $("draw").onclick = () => {
   if (game.drawOffer === G.otherColor(mySeat())) change(G.acceptDraw);
   else change(G.offerDraw);
 };
+
+$("takeback").onclick = () => {
+  if (game.takeback === mySeat()) change(G.cancelTakeback);
+  else change(G.requestTakeback);
+};
+$("tb-accept").onclick = () => change(G.acceptTakeback);
+$("tb-decline").onclick = () => change(G.cancelTakeback);
 
 $("resign").onclick = () => {
   if (confirm("Resign this game?")) change(G.resign);

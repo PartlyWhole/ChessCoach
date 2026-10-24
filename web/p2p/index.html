@@ -21,7 +21,21 @@
   <main>
     <section class="board-col">
       <div id="board" class="board" aria-label="Chess board"></div>
+      <div class="replay" aria-label="Move history">
+        <button id="nav-first" aria-label="Start position">⏮</button>
+        <button id="nav-prev" aria-label="Previous move">◀</button>
+        <button id="nav-play" class="play" aria-label="Replay the game from the start">Replay</button>
+        <button id="nav-next" aria-label="Next move">▶</button>
+        <button id="nav-last" aria-label="Current position">⏭</button>
+      </div>
+      <p id="viewing" class="viewing" hidden></p>
+      <div id="tb-offer" class="offer" hidden>
+        <span>Your opponent asks to take back their last move.</span>
+        <button id="tb-accept" class="primary">Accept</button>
+        <button id="tb-decline">Decline</button>
+      </div>
       <div class="board-actions">
+        <button id="takeback" disabled>Takeback</button>
         <button id="draw" disabled>Offer draw</button>
         <button id="resign" disabled>Resign</button>
         <button id="flip">Flip board</button>
@@ -44,6 +58,12 @@
         <button id="create" class="primary" type="submit">Create game</button>
         <p class="note">You get a link to send to your opponent. Anyone with the link can watch the game.</p>
       </form>
+
+      <div id="recent" class="card" hidden>
+        <h2>Your games</h2>
+        <ul id="recent-list" class="recent"></ul>
+        <p class="note">Kept in this browser only. Open a game to replay it move by move.</p>
+      </div>
 
       <div id="game" class="card" hidden>
         <h2>Players</h2>
@@ -84,12 +104,6 @@
           <div id="an-acc" class="acc"></div>
           <svg id="an-graph" class="graph" viewBox="0 0 400 100" preserveAspectRatio="none" role="img"
                aria-label="White's winning chances over the game"></svg>
-          <div class="nav">
-            <button id="an-first" aria-label="Start">⏮</button>
-            <button id="an-prev" aria-label="Previous move">◀</button>
-            <button id="an-next" aria-label="Next move">▶</button>
-            <button id="an-last" aria-label="End">⏭</button>
-          </div>
           <div id="an-detail" class="detail"></div>
           <h3>Key moments</h3>
           <ol id="an-moments" class="an-moments"></ol>

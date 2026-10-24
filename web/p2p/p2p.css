@@ -31,7 +31,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .promo { display: flex; gap: 8px; }
 .promo button { font-size: 44px; line-height: 1; width: 64px; height: 64px; padding: 0; background: var(--light); }
 
-/* Move list: clickable moves once the game is over; review symbols. */
+/* Move list: clickable moves (history), review symbols. */
 .moves .mv { display: inline-block; min-width: 4.5em; padding: 0 3px; border-radius: 4px; }
 .moves .mv.go { cursor: pointer; }
 .moves .mv.go:hover { background: var(--line); }
@@ -58,8 +58,6 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .g-cur { stroke: var(--fg); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .g-dot { stroke-width: 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .g-dot.mistake { stroke: #d2691e; } .g-dot.blunder { stroke: #d03030; }
-.nav { display: flex; gap: 6px; }
-.nav button { flex: 1; padding: 5px 0; }
 .detail { margin-top: 10px; min-height: 4.5em; }
 .detail > div { margin-top: 3px; }
 .d-head { display: flex; align-items: center; gap: 8px; }
@@ -69,3 +67,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .an-moments li { margin: 4px 0; }
 .an-moments .draft, .an-moments .muted { font-size: .85rem; }
 button.link { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
+
+/* Move history, takeback request, recent games */
+.replay { display: flex; gap: 6px; margin-top: 10px; }
+.replay button { flex: 1; padding: 5px 0; }
+.replay button.play { flex: 2; }
+.viewing { margin: 8px 0 0; font-size: .9rem; color: var(--muted); }
+.offer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px;
+  border: 1px solid var(--accent); border-radius: 6px; }
+.offer span { flex: 1 1 200px; }
+.recent { list-style: none; margin: 0; padding: 0; }
+.recent li { padding: 5px 0; border-top: 1px solid var(--line); font-size: .9rem; }
+.recent li:first-child { border-top: 0; }
