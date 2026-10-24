@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { newGameDoc, derive, claimSeat, playMove, offerDraw, acceptDraw, resign, rematchDoc, pgn,
-  requestTakeback, acceptTakeback, cancelTakeback, takebackPlies } from "./game.mjs";
+  requestTakeback, acceptTakeback, cancelTakeback, takebackPlies, captures, materialBalance } from "./game.mjs";
 
 const seated = () => newGameDoc({ white: "A", black: "B", names: { A: "Ann", B: "Bo" }, now: 0 });
 const play = (d, ...ucis) => ucis.forEach((u, i) => assert.ok(playMove(d, i % 2 ? "B" : "A", u), u));
@@ -203,4 +203,27 @@ test("documents from before takebacks (moves without ply, end with ply) still re
   assert.equal(derive(d).drawOffer, "white");
   d.end = { kind: "resign", by: "B", ply: 1 };
   assert.deepEqual(derive(d).moves.map((m) => m.san), ["e4"]);
+});
+
+test("captures: per side, most valuable first, at any point in the game", () => {
+  const d = seated();
+  // 1. e4 d5 2. exd5 Qxd5 3. Nc3 Qxa2 4. Rxa2
+  play(d, "e2e4", "d7d5", "e4d5", "d8d5", "b1c3", "d5a2", "a1a2");
+  const g = derive(d);
+  assert.deepEqual(captures(g.moves), { white: ["q", "p"], black: ["p", "p"] });
+  assert.deepEqual(captures(g.moves, 4), { white: ["p"], black: ["p"] });
+  assert.deepEqual(captures(g.moves, 0), { white: [], black: [] });
+  assert.equal(materialBalance(g.fen), 8);                 // Q+P taken vs two pawns
+  assert.equal(materialBalance(g.fens[4]), 0);
+});
+
+test("captures: en passant counts as a pawn; promotion shows in the balance", () => {
+  const d = seated();
+  play(d, "e2e4", "a7a6", "e4e5", "d7d5", "e5d6");          // exd6 e.p.
+  assert.deepEqual(captures(derive(d).moves).white, ["p"]);
+  const p = newGameDoc({ white: "A", black: "B" });
+  play(p, "h2h4", "g7g5", "h4g5", "h7h6", "g5h6", "g8f6", "h6h7", "f6g8", "h7g8q");
+  const g = derive(p);
+  assert.deepEqual(captures(g.moves), { white: ["n", "p", "p"], black: [] });
+  assert.equal(materialBalance(g.fen), 3 + 1 + 1 + 9 - 1);  // N, two pawns, new queen minus the pawn that promoted
 });

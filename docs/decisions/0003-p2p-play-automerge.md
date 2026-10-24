@@ -27,7 +27,9 @@ anti-cheat, and no coaching (it does not touch L1–L5).
   other is skipped). Documents from before takebacks (no ply on moves, `ply` instead of `n` on
   records) still replay.
 - Move history: every position can be viewed at any time, during play too, with step buttons,
-  the arrow keys, a clicked move or an automatic replay. The page also keeps a list of the games
+  the arrow keys, a clicked move or an automatic replay. Above and below the board each player's
+  captured pieces and material lead are shown for the viewed position (lead from the board, so
+  promotions count). The page also keeps a list of the games
   opened in this browser (`localStorage`, max 20) so they can be reopened and replayed.
 - Opening a link right after the game is created can reach the relay before the game does. The
   page then waits up to 30 s for it (`find` with `unavailable` allowed, then `whenReady`).

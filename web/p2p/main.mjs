@@ -197,6 +197,43 @@ function render() {
       el.appendChild(d);
     }
   }
+  renderCaptures(fen, flip);
+}
+
+// Above and below the board: the pieces each player has taken (in the viewed position) and their
+// material lead, from the board itself so promotions count.
+function renderCaptures(fen, flip) {
+  const taken = game ? G.captures(game.moves, viewPly ?? game.moves.length) : { white: [], black: [] };
+  const bal = G.materialBalance(fen);
+  const sides = { top: flip ? "white" : "black", bottom: flip ? "black" : "white" };
+  for (const [pos, color] of Object.entries(sides)) {
+    const el = $("caps-" + pos);
+    el.innerHTML = "";
+    const who = document.createElement("span");
+    who.className = "who";
+    const id = doc && doc[color];
+    who.textContent = id ? (doc.names[id] || "Anonymous") + (id === me ? " (you)" : "") : color === "white" ? "White" : "Black";
+    const pcs = document.createElement("span");
+    pcs.className = "pcs";
+    let prev = null;
+    for (const p of taken[color]) {
+      const g = document.createElement("span");
+      g.className = "pc " + (color === "white" ? "b" : "w") + (p === prev ? " same" : "");
+      g.textContent = GLYPH[p];
+      pcs.append(g);
+      prev = p;
+    }
+    el.append(who, pcs);
+    const lead = color === "white" ? bal : -bal;
+    if (lead > 0) {
+      const b = document.createElement("span");
+      b.className = "lead";
+      b.textContent = "+" + lead;
+      el.append(b);
+    }
+    el.setAttribute("aria-label", `${color} has taken ${taken[color].length ? taken[color].join(", ") : "nothing"}` +
+      (lead > 0 ? `, ahead by ${lead}` : ""));
+  }
 }
 
 function online(id) { return id === me || Date.now() - (lastSeen.get(id) || 0) < ONLINE_MS; }
@@ -284,8 +321,9 @@ function renderButtons() {
   const seat = mySeat();
   const playing = seat && !game.result && doc.white && doc.black;
   const incoming = playing && game.drawOffer === G.otherColor(seat);
-  $("draw").disabled = !playing || game.drawOffer === seat;
-  $("draw").textContent = incoming ? "Accept draw" : game.drawOffer === seat ? "Draw offered" : "Offer draw";
+  const offered = playing && game.drawOffer === seat;
+  $("draw").disabled = !playing || offered;
+  $("draw").textContent = incoming ? "Accept draw" : offered ? "Draw offered" : "Offer draw";
   $("draw").classList.toggle("primary", !!incoming);
   $("resign").disabled = !playing;
   const mine = playing && game.takeback === seat;
