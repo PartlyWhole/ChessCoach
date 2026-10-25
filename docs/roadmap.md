@@ -1,6 +1,6 @@
 # Roadmap — end-to-end coach in the browser
 
-Status: in progress (started 2026-10-24). Update this file as milestones land.
+Status: done 2026-10-24 (all milestones below). Remaining items need people, not code: see "Not in done".
 
 ## Definition of done
 

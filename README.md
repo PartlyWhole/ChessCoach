@@ -32,23 +32,43 @@ silent until then.
 
 Everything runs in the browser: Pyodide runs this Python package, Stockfish 19 lite runs as
 WebAssembly and Maia-2 runs as an fp16 ONNX model ([ADR 0002](docs/decisions/0002-browser-build.md)).
+The whole learning loop works there ([ADR 0004](docs/decisions/0004-learning-loop-in-the-browser.md)):
+
+- **Play** (`/`): the Maia sparring bot at your level with live coaching; after the game, a review
+  of both sides whose mistakes have a **"Why?"** view (the line that punishes the move and the best
+  line, stepped through on the board, each move labelled with verified facts).
+- **Progress**: rating (Glicko-2), band, next bot strength, weakness profile, concept mastery.
+  Saved in this browser (IndexedDB).
+- **Drills**: positions from your own mistakes plus Lichess puzzles, scheduled with FSRS.
+- **Play a friend** (`/p2p/`): peer to peer over Automerge, with takebacks, history replay and
+  the same post-game analysis ([ADR 0003](docs/decisions/0003-p2p-play-automerge.md)).
+- **Review** (`/review/`): for chess experts approving coaching text (see below).
 
 ```bash
 uv pip install --python .venv/bin/python -e '.[webbuild]'
 .venv/bin/python tools/export_maia_onnx.py      # once: models/maia2_rapid.fp16.onnx
-(cd web && npm ci)
+.venv/bin/python tools/build_openings.py        # bot opening tree from Lichess games (CC0), ~2 min
+.venv/bin/python tools/build_puzzles.py         # drill puzzles from the Lichess puzzle DB (CC0)
+(cd web && npm ci && npm test)
 .venv/bin/python tools/build_web.py             # → _site/
 ```
 
-The build also produces `p2p/`, a "play a friend" page: create a game, send the link, and the
-moves (and takebacks, when the opponent agrees) sync peer to peer through an Automerge document
-on the public Automerge relay
-([ADR 0003](docs/decisions/0003-p2p-play-automerge.md)). After the game, either player can run
-a post-game analysis in the browser: the same review builder as the native app (L5), on
-Stockfish lite WASM. Its JavaScript tests run with `(cd web && npm test)`.
+The two Lichess downloads (~420 MB) are cached in `models/lichess/`. Serve `_site/` with any
+static server. `.github/workflows/pages.yml` builds and deploys it on pushes to `main` once GitHub
+Pages is set to "GitHub Actions" in the repo settings.
 
-Serve `_site/` with any static server. `.github/workflows/pages.yml` builds and deploys it on
-pushes to `main` once GitHub Pages is set to "GitHub Actions" in the repo settings.
+## Approving coaching text
+
+Per AGENTS rule 2 no AI-drafted sentence ships until a chess expert approves it. The `/review/`
+page shows each concept's text at every hint level on its test positions, lets the expert edit
+and approve (or request changes), and downloads the decisions. Then:
+
+```bash
+.venv/bin/python tools/apply_review.py chesscoach-review-YYYY-MM-DD.json
+```
+
+writes them into `concepts/**.yaml` (re-validated, comments kept); commit as usual. Only
+`approved` concepts load for normal visitors.
 
 ## Tests
 
