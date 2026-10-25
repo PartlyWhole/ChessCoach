@@ -150,3 +150,40 @@ def test_maia_distribution_is_legal_and_skill_aware():
     assert sum(probs.values()) == pytest.approx(1.0, abs=0.01)
     bk = chess.Board("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2")
     assert set(m.move_probs(bk, 1100, 1100)) == {mv.uci() for mv in bk.legal_moves}
+
+
+def test_opening_never_uses_raw_maia(pool):
+    """Maia-2 is untrained before ply 10: out of book there, the bot plays one of the engine's
+    near-best moves; from ply 10 on it samples Maia again."""
+    model = FixedModel({"b1a3": 1.0, "h2h4": 1.0})          # what an untrained head might prefer
+    bot = SparringBot(model, pool, BotConfig(bot_elo=1500, player_elo=1500), random.Random(0))
+    b = chess.Board()
+    mv = bot.choose(b)
+    best = pool.analyse(b, multipv=3, time=0.35)
+    assert mv.source == "engine_opening" and mv.move in {l.moves[0] for l in best.lines}
+    late = chess.Board("r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQ1RK1 w - - 0 7")
+    late_model = FixedModel({"h2h3": 1.0})
+    assert SparringBot(late_model, pool, BotConfig(1500, 1500), random.Random(0)).choose(late).source == "maia"
+
+
+def test_opening_tree_comes_first(pool):
+    from chesscoach.analysis.book import TreeBook
+    tree = TreeBook.from_games([["e2e4", "c7c5"]] * 60)
+    bot = SparringBot(FixedModel({"b1a3": 1.0}), pool, BotConfig(1500, 1500), random.Random(0), opening_tree=tree)
+    assert bot.choose(chess.Board()) .move == "e2e4"
+
+
+def test_band_tree_falls_back_to_all_bands():
+    from chesscoach.analysis.engine import fen4
+    from chesscoach.sparring.openings import band_tree
+    start = fen4(chess.Board())
+    after = chess.Board(); after.push_uci("e2e4")
+    data = {"min_games": 50, "bands": {
+        "all": {start: {"e2e4": 900, "d2d4": 400}, fen4(after): {"e7e5": 500}},
+        "B1": {start: {"e2e4": 30, "f2f3": 25}}}}                    # too thin: 55 games, moves < 50
+    t = band_tree("B1", data)
+    assert t.moves(chess.Board()) == {"e2e4": 900, "d2d4": 400}
+    assert t.moves(after) == {"e7e5": 500}
+    rich = {"min_games": 50, "bands": {"all": data["bands"]["all"], "B2": {start: {"d2d4": 300}}}}
+    assert band_tree("B2", rich).moves(chess.Board()) == {"d2d4": 300}
+    assert band_tree("B2", {}) is None

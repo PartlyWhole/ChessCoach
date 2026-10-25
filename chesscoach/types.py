@@ -140,7 +140,7 @@ class CoachingEvent:
 @dataclass
 class BotMove:
     move: UciMove
-    source: Literal["maia", "steer", "book", "engine_safety"]
+    source: Literal["maia", "steer", "book", "engine_safety", "engine_opening"]
     steer_concept_id: Optional[str] = None
 
 

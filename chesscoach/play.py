@@ -38,8 +38,12 @@ def main() -> None:
     band = band_for(args.rating)
     pool = EnginePool()
     an = Analyzer(pool, live=True)
+    from chesscoach.sparring.openings import band_tree
+    tree = band_tree(band)
+    if tree is None:
+        print("No opening tree (run tools/build_openings.py): the bot plays engine moves until ply 10.")
     bot = SparringBot(load_default(pool), pool, BotConfig(bot_target(args.rating, OFFSET_START), args.rating),
-                      random.Random(), lesson_score=LessonScorer(an, reg, band))
+                      random.Random(), lesson_score=LessonScorer(an, reg, band), opening_tree=tree)
     pol = CoachingPolicy(reg, CoachSettings(mode=args.mode), LearnerView(band=band))
     s = GameSession(an, reg, bot, pol, args.color, band)
     first = s.start()

@@ -8,12 +8,45 @@
 """
 from __future__ import annotations
 
+import json
 import random
+from functools import lru_cache
+from pathlib import Path
 from typing import Optional
 
 import chess
 
-from chesscoach.analysis.book import TreeBook
+from chesscoach.analysis.book import MIN_GAMES, TreeBook
+
+# Built by tools/build_openings.py (Lichess games, CC0). The browser build ships it in app.zip as
+# data/opening_tree.json; a native checkout keeps it in models/.
+_PKG_ROOT = Path(__file__).resolve().parent.parent.parent
+TREE_PATHS = [_PKG_ROOT / "data" / "opening_tree.json", _PKG_ROOT / "models" / "opening_tree.json"]
+
+
+@lru_cache(maxsize=1)
+def _tree_data() -> Optional[dict]:
+    for p in TREE_PATHS:
+        if p.exists():
+            return json.loads(p.read_text())
+    return None
+
+
+def band_tree(band: str, data: Optional[dict] = None) -> Optional[TreeBook]:
+    """The band's opening tree; where no move at a position reaches MIN_GAMES games in the band,
+    the all-band counts for that position are used instead (thin bands such as B0/B1)."""
+    data = data if data is not None else _tree_data()
+    if not data:
+        return None
+    min_games = int(data.get("min_games", MIN_GAMES))
+    own = data["bands"].get(band, {})
+    merged = {}
+    for k, moves in data["bands"].get("all", {}).items():
+        mine = own.get(k)
+        merged[k] = mine if mine and max(mine.values()) >= min_games else moves
+    for k, moves in own.items():
+        merged.setdefault(k, moves)
+    return TreeBook(merged, min_games)
 
 LESSON_LINES_REVIEW = {"status": "draft", "note": "needs chess-expert review (05 §2)"}
 

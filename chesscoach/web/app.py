@@ -25,6 +25,7 @@ from chesscoach.learner.service import LearnerService, card_dict
 from chesscoach.policy.policy import CoachingPolicy, CoachSettings, LearnerView, load_fallback
 from chesscoach.session import GameSession
 from chesscoach.sparring.bot import OFFSET_START, BotConfig, SparringBot, bot_target
+from chesscoach.sparring.openings import band_tree
 from chesscoach.sparring.steering import LessonScorer
 from chesscoach.types import CoachingEvent
 from chesscoach.web.bridge import Rpc, RpcEnginePool, RpcMaiaModel
@@ -99,7 +100,7 @@ class WebApp:
             recent = {c for g in store.games(pid, 3) for c in g["concepts_mentioned"]}
         analyzer = Analyzer(self.pool, live=True)
         bot = SparringBot(self.maia, self.pool, BotConfig(bot_elo, player_elo), self.rng,
-                          lesson_score=LessonScorer(analyzer, reg, band))
+                          lesson_score=LessonScorer(analyzer, reg, band), opening_tree=band_tree(band))
         policy = CoachingPolicy(reg, CoachSettings(mode=mode), LearnerView(band=band, mastery=mastery,
                                                                          recent_concepts=recent),
                                 fallback=self.fallbacks[drafts])

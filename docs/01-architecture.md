@@ -156,7 +156,8 @@ interface CoachingEvent {
 // ---------- L4 ----------
 interface BotMove {
   move: UciMove;
-  source: "maia" | "steer" | "book" | "engine_safety";
+  source: "maia" | "steer" | "book" | "engine_safety" | "engine_opening";
+  // engine_opening: out of book before ply 10, where Maia-2 is untrained (05 §2)
   steer_concept_id?: string;
 }
 ```

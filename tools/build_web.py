@@ -61,12 +61,16 @@ def fetch_pyodide_wheel(name: str, dest: Path) -> str:
     return pkg["file_name"]
 
 
+OPENING_TREE = ROOT / "models" / "opening_tree.json"     # tools/build_openings.py
+
+
 def app_zip(dest: Path) -> None:
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
         for base, pattern in (("chesscoach", "**/*.py"), ("concepts", "**/*.yaml"), ("templates", "**/*.yaml")):
             for p in sorted((ROOT / base).glob(pattern)):
                 if "__pycache__" not in p.parts:
                     z.write(p, p.relative_to(ROOT))
+        z.write(OPENING_TREE, "data/opening_tree.json")
 
 
 def bundle(entry: Path, out: Path) -> None:
@@ -92,6 +96,8 @@ def main() -> None:
         raise SystemExit("run `npm ci` in web/ first")
     if not MODEL.exists():
         raise SystemExit(f"missing {MODEL}: run tools/export_maia_onnx.py")
+    if not OPENING_TREE.exists():
+        raise SystemExit(f"missing {OPENING_TREE}: run tools/build_openings.py")
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()

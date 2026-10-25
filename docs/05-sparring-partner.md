@@ -65,6 +65,12 @@ the last 10 games stays in 40–60%. Store as `bot_offset` in the profile (06).
 - The player can pick an opening for either side (repertoire training).
 - Otherwise, the bot picks openings that lead to the current lesson's structure (table below) or uses Maia freely.
 - For forced openings, play from an opening tree built from Lichess game data filtered to the player's rating band, weighted by frequency — i.e. "the lines humans at this level actually play". Leave the tree when its game count at a node drops below 50.
+- **Maia-2 is not used before ply 10.** Its training data keeps only `move_ply > 10`
+  (`maia2/dataset.py`), so its opening predictions are untrained (measured: after 1.e4 Nc6 2.Nf3
+  it gives …Nb8 60%). Order of sources: repertoire line → lesson line → band opening tree
+  (`tools/build_openings.py`, Lichess games, CC0) → before ply 10, a random move among the
+  engine's MultiPV lines within `steer.max_win_prob_cost` of its best (`source: engine_opening`)
+  → Maia.
 
 | Lesson structure | Bot as White | Bot as Black |
 |------------------|-------------|--------------|

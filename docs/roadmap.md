@@ -55,3 +55,6 @@ explanation audit (08 §4), and the product metrics that need real users (08 §6
   `chesscoach/learner/service.py` (learning loop) and `drill.py`; coach page rebuilt as an ES
   module (`web/coach/`) with Play / Drills / Progress tabs, post-game review with "Why?", shared
   review panel (`web/shared/review-panel.mjs`). Found the Maia-2 opening problem (M7b).
+- 2026-10-24: M7b done. `tools/build_openings.py` (697k games, 96 s, 0.7 MB tree; median 7 plies
+  deep); `band_tree()` with all-band fallback; bot never samples raw Maia before ply 10
+  (`engine_opening`). Verified: 1.e4 e5 2.Nf3 Nf6 / 1.e4 Nc6 2.Nf3 e5 instead of …Na6/…Nb8.

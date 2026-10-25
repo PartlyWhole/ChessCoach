@@ -38,6 +38,12 @@ Peer-to-peer page (ADR 0003), bundled into `p2p/p2p.js` by esbuild; notices ship
 
 Service (not a dependency): the public Automerge sync relay `wss://sync.automerge.org`.
 
-Build-only: onnx (Apache-2.0), onnxconverter-common (MIT), esbuild 0.28.2 (MIT).
+Data built into the site (ADR 0004):
+
+| Data | Source | Use | License |
+|------|--------|-----|---------|
+| Opening tree (`data/opening_tree.json` in app.zip) | Lichess games database, standard rated, 2014-01 (database.lichess.org), sha256-checked; counts only | The bot's opening moves per rating band (05 §2) | CC0-1.0 |
+
+Build-only: onnx (Apache-2.0), onnxconverter-common (MIT), esbuild 0.28.2 (MIT), zstandard 0.23 (BSD-3-Clause).
 
 Glicko-2 is implemented in-repo from Glickman's public paper (no dependency).

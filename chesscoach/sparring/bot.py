@@ -27,6 +27,10 @@ GUARD_TRIES = 3
 GUARD_QUEEN_ELO = 1200
 GUARD_LOSS_ELO = 1600
 GUARD_MAX_LOSS = 0.40
+# Maia-2 is trained only on plies after the 10th (maia2/dataset.py keeps move_ply > 10), so its
+# opening predictions are untrained guesses. Before this ply the bot uses lines and the opening
+# tree, then the engine's near-best moves (05 §2), never raw Maia.
+MAIA_MIN_PLY = 10
 
 
 def sample(probs: dict[str, float], temperature: float, rng: random.Random) -> Optional[str]:
@@ -122,7 +126,26 @@ class SparringBot:
         steered = self._try_steer(board, probs)
         if steered is not None:
             return steered
+        if board.ply() < MAIA_MIN_PLY:
+            early = self._engine_opening(board)
+            if early is not None:
+                return early
         return self._sample_guarded(board, probs)
+
+    def _engine_opening(self, board: chess.Board) -> Optional[BotMove]:
+        """Out of book before Maia's range: a random move among the engine's lines within
+        steer.max_win_prob_cost of its best (human openings are rarely the single best move)."""
+        if self.pool is None:
+            return None
+        me = cname(board.turn)
+        res = self.pool.analyse(board, multipv=int(config.get("engine.multipv")),
+                                time=float(config.get("engine.time_live")))
+        lines = [l for l in res.lines if l.moves]
+        if not lines:
+            return None
+        best = line_wp(lines[0], me)
+        ok = [l.moves[0] for l in lines if best - line_wp(l, me) <= self.cfg.max_cost]
+        return BotMove(move=self.rng.choice(ok), source="engine_opening")
 
     def _line(self, lines, played) -> Optional[str]:
         if not lines:

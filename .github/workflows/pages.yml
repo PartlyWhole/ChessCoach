@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths: ["chesscoach/**", "concepts/**", "templates/**", "web/**", "tools/build_web.py",
-            "tools/export_maia_onnx.py", ".github/workflows/pages.yml"]
+            "tools/export_maia_onnx.py", "tools/build_openings.py", ".github/workflows/pages.yml"]
 
 permissions:
   contents: read
@@ -43,6 +43,13 @@ jobs:
           pip install -e '.[webbuild]'
       - name: Export Maia-2 to fp16 ONNX
         run: test -f models/maia2_rapid.fp16.onnx || python tools/export_maia_onnx.py
+      - name: Cache Lichess database downloads (CC0)
+        uses: actions/cache@v4
+        with:
+          path: models/lichess
+          key: lichess-db-games-2014-01-v1
+      - name: Build the bot's opening tree
+        run: python tools/build_openings.py
       - run: npm ci
         working-directory: web
       - run: npm test
