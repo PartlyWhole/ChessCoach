@@ -15,9 +15,10 @@ export function parseFen(fen) {
 }
 
 // opts: { fen, flip, last: [from, to], selected, targets: [sq], check: "K"|"k"|null,
-//         highlight: [sq], onSquare(sq) }
+//         highlight: [sq], arrows: [[from, to]], onSquare(sq) }
 export function renderBoard(el, opts) {
-  const { fen, flip = false, last = [], selected = null, targets = [], check = null, highlight = [], onSquare } = opts;
+  const { fen, flip = false, last = [], selected = null, targets = [], check = null, highlight = [], arrows = [],
+          onSquare } = opts;
   el.innerHTML = "";
   const pieces = parseFen(fen);
   for (let r = 0; r < 8; r++) {
@@ -44,6 +45,36 @@ export function renderBoard(el, opts) {
       el.appendChild(d);
     }
   }
+  if (arrows.length) el.appendChild(arrowLayer(arrows, flip));
+}
+
+// Arrows over the board (coach highlights, 04 hint ladder level 3). viewBox: one unit per square.
+const SVG = "http://www.w3.org/2000/svg";
+function arrowLayer(arrows, flip) {
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("class", "arrows");
+  svg.setAttribute("viewBox", "0 0 8 8");
+  svg.setAttribute("aria-hidden", "true");
+  const defs = document.createElementNS(SVG, "defs");
+  defs.innerHTML = '<marker id="arrowhead" viewBox="0 0 4 4" refX="2" refY="2" markerWidth="2.2" markerHeight="2.2" ' +
+    'orient="auto"><path d="M0,0 L4,2 L0,4 z" class="arrow-head"/></marker>';
+  svg.append(defs);
+  const xy = (sq) => {
+    const f = "abcdefgh".indexOf(sq[0]), r = Number(sq[1]) - 1;
+    return flip ? [7 - f + 0.5, r + 0.5] : [f + 0.5, 7 - r + 0.5];
+  };
+  for (const [a, b] of arrows) {
+    const [x1, y1] = xy(a), [x2, y2] = xy(b);
+    const len = Math.hypot(x2 - x1, y2 - y1) || 1;
+    const k = (len - 0.35) / len;                      // stop short so the head sits on the square
+    const line = document.createElementNS(SVG, "line");
+    line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+    line.setAttribute("x2", x1 + (x2 - x1) * k); line.setAttribute("y2", y1 + (y2 - y1) * k);
+    line.setAttribute("class", "arrow");
+    line.setAttribute("marker-end", "url(#arrowhead)");
+    svg.append(line);
+  }
+  return svg;
 }
 
 // Strip above/below the board: name, the pieces `color` has taken, and its material lead.

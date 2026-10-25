@@ -27,6 +27,13 @@ let highlight = { squares: [], arrows: [] };
 let viewPly = null;        // null = live position
 let variation = null;      // { ply, which, step } while exploring a "Why?" line
 let review = null, finished = null, finishing = false;
+// Live coaching visibility: per-move ratings (move index → class), ideas noted for the review,
+// the latest coach message and the latest move feedback.
+let liveClass = {}, noted = [], lastEvent = null, lastFeedback = null;
+const optRatings = () => $("opt-ratings").checked;
+const optEval = () => $("opt-eval").checked;
+const CLASS_TEXT = { best: "best", excellent: "excellent", good: "good", inaccuracy: "an inaccuracy",
+                     mistake: "a mistake", blunder: "a blunder", book: "book", forced: "forced" };
 let learner = { has_profile: false };
 
 const drafts = () => $("drafts").checked;
@@ -51,7 +58,7 @@ function render() {
   const flip = flipped ?? playerColor() === "black";
   const line = variationLine();
   const n = rp.moves.length;
-  let fen, lastUci = null, hl = [], movesForCaptures;
+  let fen, lastUci = null, hl = [], movesForCaptures, arrows = [];
   if (line) {
     const fens = L.lineFens(line);
     const k = Math.min(variation.step, line.steps.length);
@@ -70,17 +77,19 @@ function render() {
     lastUci = n ? rp.moves[n - 1].uci : null;
     hl = [...highlight.squares, ...highlight.arrows.flat()];
     movesForCaptures = rp.moves;
+    arrows = highlight.arrows;
   }
   const live = !line && viewPly === null;
   const legal = live && state ? state.legal : [];
   renderBoard($("board"), {
-    fen, flip, highlight: hl,
+    fen, flip, highlight: hl, arrows,
     last: lastUci ? [lastUci.slice(0, 2), lastUci.slice(2, 4)] : [],
     selected: live ? selected : null,
     targets: selected && live ? legal.filter((m) => m.startsWith(selected)).map((m) => m.slice(2, 4)) : [],
     check: live && /[+#]$/.test(n ? rp.moves[n - 1].san : "") ? (fen.split(" ")[1] === "w" ? "K" : "k") : null,
     onSquare,
   });
+  renderEvalBar(flip, live);
   const taken = captures(movesForCaptures);
   const bal = materialBalance(fen);
   const me = playerColor();
@@ -136,8 +145,10 @@ function renderMoves() {
   const span = (i) => {
     const s = document.createElement("span");
     const r = review && review.plies[i];
-    s.className = "mv go" + (cur === i + 1 ? " cur" : "") + (r && R.CLASS_SYMBOL[r.move_class] ? " " + r.move_class : "");
-    s.textContent = rp.moves[i].san + (r ? R.CLASS_SYMBOL[r.move_class] || "" : "");
+    const cls = r ? r.move_class : optRatings() ? liveClass[i] : null;
+    s.className = "mv go" + (cur === i + 1 ? " cur" : "") + (cls ? " " + cls : "");
+    s.textContent = rp.moves[i].san + (cls ? R.CLASS_SYMBOL[cls] || "" : "");
+    if (cls) s.title = cls;
     s.onclick = () => goTo(i + 1);
     return s;
   };
@@ -232,6 +243,80 @@ function coachSay(ev, meta) {
   if (meta) { const m = document.createElement("div"); m.className = "meta"; m.textContent = meta; li.append(m); }
   $("coach").prepend(li);
   highlight = ev.highlight || { squares: [], arrows: [] };
+  lastEvent = ev;
+  renderCoachNow();
+}
+
+// ------------------------------------------------------------------ live coaching panel
+function renderCoachNow() {
+  const box = $("coach-now");
+  box.hidden = !state;
+  if (!state) return;
+  const ev = lastEvent;
+  const kind = $("cn-kind"), ladder = $("cn-ladder"), text = $("cn-text");
+  kind.hidden = !ev;
+  ladder.hidden = !ev || !ev.hint_level;
+  if (ev) {
+    kind.textContent = { interrupt: "Wait!", comment: "Comment", praise: "Nice", hint: "Hint", note: "Note" }[ev.kind] || ev.kind;
+    kind.className = "tag " + ev.kind;
+    ladder.textContent = ev.hint_level ? "●".repeat(ev.hint_level) + "○".repeat(3 - ev.hint_level) : "";
+    ladder.title = ev.hint_level ? `Hint level ${ev.hint_level} of 3` : "";
+    text.textContent = ev.text;
+    text.className = "cn-text";
+  } else {
+    text.className = "cn-text quiet";
+    text.textContent = state.game_over ? "Game over. The review is below."
+      : state.concepts_loaded ? "Watching. The coach speaks when something important happens; ask for a hint any time."
+      : "Watching quietly: no coaching text is approved yet (turn on the developer preview to see drafts). Move ratings and the review still work.";
+  }
+  const mv = $("cn-move");
+  const f = lastFeedback;
+  mv.hidden = !f || !optRatings();
+  if (f && optRatings()) {
+    mv.innerHTML = "";
+    const cls = document.createElement("span");
+    cls.className = "cls " + f.move_class;
+    cls.textContent = CLASS_TEXT[f.move_class] || f.move_class;
+    const pct = (x) => `${Math.round(x * 100)}%`;
+    mv.append(`Your move ${f.san} was `, cls, `. Your winning chances: ${pct(f.win_prob_before)} → ${pct(f.win_prob_after)}.`);
+  }
+  renderTally();
+  renderNoted();
+}
+
+function renderTally() {
+  const t = $("tally");
+  const vals = Object.values(liveClass);
+  t.hidden = !optRatings() || !vals.length;
+  if (t.hidden) return;
+  const order = ["best", "excellent", "good", "book", "forced", "inaccuracy", "mistake", "blunder"];
+  const counts = order.map((k) => [k, vals.filter((v) => v === k).length]).filter(([, n]) => n);
+  t.textContent = "Your moves: " + counts.map(([k, n]) => `${n} ${k}`).join(" · ");
+}
+
+function renderNoted() {
+  const box = $("noted-box");
+  box.hidden = !noted.length;
+  $("noted-count").textContent = noted.length;
+  const ul = $("noted");
+  ul.innerHTML = "";
+  for (const x of noted) {
+    const li = document.createElement("li");
+    li.textContent = `Move ${Math.floor(x.ply / 2) + 1}: ${x.title}`;
+    ul.append(li);
+  }
+}
+
+function renderEvalBar(flip, live) {
+  const bar = $("evalbar");
+  const wp = state && state.eval_white;
+  bar.hidden = !optEval() || wp == null || !live;
+  if (bar.hidden) return;
+  bar.classList.toggle("flip", flip);
+  bar.querySelector(".fill").style.height = `${Math.round(wp * 100)}%`;
+  const lead = wp >= 0.5 ? `White ${Math.round(wp * 100)}%` : `Black ${Math.round((1 - wp) * 100)}%`;
+  bar.querySelector(".lbl").textContent = lead;
+  bar.setAttribute("aria-label", `Engine evaluation: ${lead} winning chances`);
 }
 
 function setState(s) {
@@ -246,8 +331,17 @@ async function act(method, ...args) {
   try {
     const s = await callPy(method, ...args);
     highlight = { squares: [], arrows: [] };
-    if (s.event) coachSay(s.event, s.assessment ? s.assessment.move + ": " + s.assessment.move_class : null);
+    if (s.event) coachSay(s.event, s.assessment ? s.assessment.san + ": " + s.assessment.move_class : null);
     setState(s);
+    const n = s.moves.length;
+    for (const k of Object.keys(liveClass)) if (Number(k) >= n) delete liveClass[k];
+    noted = noted.filter((x) => x.ply < n);
+    if (s.assessment) {
+      const idx = s.bot_move ? n - 2 : n - 1;           // index of the player's move in the game
+      liveClass[idx] = s.assessment.move_class;
+      lastFeedback = { ...s.assessment, ply: idx };
+      for (const q of s.queued || []) noted.push({ ply: idx, title: q.title, concept_id: q.concept_id });
+    }
     if (s.waiting_for_takeback) setStatus("Take back to try again, ask for a hint, or keep your move.");
     else if (s.game_over) setStatus(`Game over: ${s.result}${s.resigned ? " (you resigned)" : ""}`);
     else setStatus(s.bot_san ? "Bot played " + s.bot_san + ". Your move." : "Your move.");
@@ -258,7 +352,7 @@ async function act(method, ...args) {
   } catch (err) {
     setStatus("Error: " + err.message);
   }
-  busy = false; updateButtons(); render(); renderMoves(); renderNav();
+  busy = false; updateButtons(); render(); renderMoves(); renderNav(); renderCoachNow();
   if (state && state.game_over && !finished && !finishing) finishGame();
 }
 
@@ -348,6 +442,8 @@ $("an-graph").onclick = (e) => { if (review) goTo(RP.graphClickPly(e, review)); 
 
 $("again").onclick = () => {
   state = null; rp = { moves: [], fens: [START_FEN] }; review = null; finished = null; viewPly = null; variation = null;
+  liveClass = {}; noted = []; lastEvent = null; lastFeedback = null;
+  renderCoachNow();
   highlight = { squares: [], arrows: [] };
   $("coach").innerHTML = "";
   $("analysis").hidden = true;
@@ -360,6 +456,7 @@ $("setup").onsubmit = async (e) => {
   e.preventDefault();
   $("coach").innerHTML = "";
   selected = null; review = null; finished = null; viewPly = null; variation = null;
+  liveClass = {}; noted = []; lastEvent = null; lastFeedback = null;
   $("analysis").hidden = true;
   await act("new_game", $("color").value, Number($("rating").value), $("mode").value, drafts());
   if (!state) return;
@@ -456,6 +553,8 @@ $("p-reset").onclick = async () => {
   refreshLearner();
 };
 $("drafts").onchange = () => refreshLearner();
+$("opt-ratings").onchange = () => { renderMoves(); renderCoachNow(); };
+$("opt-eval").onchange = () => render();
 
 // ------------------------------------------------------------------ boot
 if (!self.crossOriginIsolated) {

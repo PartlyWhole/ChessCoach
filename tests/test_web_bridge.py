@@ -93,6 +93,8 @@ def test_webapp_game_flow(native):
     assert st["turn"] == "white" and "e2e4" in st["legal"] and st["concepts_loaded"] == 43
     st = json.loads(app.move("e2e4"))
     assert st["bot_move"] and st["turn"] == "white" and st["assessment"]["move_class"]
+    assert st["assessment"]["san"] == "e4" and st["assessment"]["best_san"]
+    assert 0 < st["eval_white"] < 1 and isinstance(st["queued"], list)
     assert json.loads(WebApp(rpc).new_game(show_drafts=False))["concepts_loaded"] == 0   # rule 2 gate
 
 

@@ -28,7 +28,12 @@
   <main id="view-play">
     <section class="board-col">
       <div id="caps-top" class="caps"></div>
-      <div id="board" class="board" aria-label="Chess board"></div>
+      <div class="board-wrap">
+        <div id="evalbar" class="evalbar" hidden role="img" aria-label="Engine evaluation">
+          <div class="fill"></div><span class="lbl"></span>
+        </div>
+        <div id="board" class="board" aria-label="Chess board"></div>
+      </div>
       <div id="caps-bottom" class="caps"></div>
       <div class="replay" aria-label="Move history">
         <button id="nav-first" aria-label="Start position">⏮</button>
@@ -65,6 +70,14 @@
           </select>
         </label>
         <label class="check">
+          <input id="opt-ratings" type="checkbox" checked>
+          <span>Rate each of my moves as I play (best, good, mistake…)</span>
+        </label>
+        <label class="check">
+          <input id="opt-eval" type="checkbox">
+          <span>Show the engine's evaluation bar</span>
+        </label>
+        <label class="check">
           <input id="drafts" type="checkbox">
           <span>Developer preview: show <strong>unreviewed draft</strong> coaching text</span>
         </label>
@@ -73,13 +86,28 @@
         <button id="start" class="primary" type="submit" disabled>Start</button>
       </form>
 
-      <div id="game-card" class="card" hidden>
-        <h2>Game</h2>
+      <div id="coach-now" class="card coach-now" hidden aria-live="polite">
+        <div class="cn-head">
+          <h2>Coach</h2>
+          <span id="cn-kind" class="tag" hidden></span>
+          <span id="cn-ladder" class="ladder" hidden></span>
+        </div>
+        <p id="cn-text" class="cn-text"></p>
+        <p id="cn-move" class="cn-move" hidden></p>
         <p id="lesson-line" class="note" hidden></p>
-        <h3>Coach</h3>
-        <ol id="coach" class="coach"></ol>
+      </div>
+
+      <div id="game-card" class="card" hidden>
         <h3>Moves</h3>
         <ol id="moves" class="moves"></ol>
+        <p id="tally" class="tally" hidden></p>
+        <div id="noted-box" hidden>
+          <h3>Noted for your review <span id="noted-count" class="count"></span></h3>
+          <p class="note">Ideas the coach noticed but kept quiet about, so you can play on. They're explained after the game.</p>
+          <ul id="noted" class="noted"></ul>
+        </div>
+        <h3>Coach messages</h3>
+        <ol id="coach" class="coach"></ol>
       </div>
 
       <div id="analysis" class="card" hidden>

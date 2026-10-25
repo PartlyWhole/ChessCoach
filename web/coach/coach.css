@@ -29,3 +29,26 @@
 #drill-feedback li.ok .k, #drill-feedback li.ok { color: var(--accent); }
 #drill-feedback li.bad { color: var(--warn); }
 #drill-feedback li.meta { color: var(--muted); font-size: .85rem; }
+
+/* Live coaching visibility */
+.board-wrap { display: flex; gap: 6px; align-items: stretch; }
+.board-wrap .board { flex: 1; min-width: 0; }
+.evalbar { position: relative; width: 14px; border-radius: 4px; overflow: hidden; background: #2b2b2b; flex: none; }
+.evalbar .fill { position: absolute; left: 0; right: 0; bottom: 0; background: #f2f2f2; transition: height .3s; }
+.evalbar.flip .fill { top: 0; bottom: auto; }
+.evalbar .lbl { position: absolute; left: 50%; transform: translateX(-50%) rotate(-90deg); top: 50%; font-size: 9px;
+  color: #888; white-space: nowrap; mix-blend-mode: difference; }
+.coach-now { border-color: var(--accent); }
+.cn-head { display: flex; align-items: center; gap: 8px; }
+.cn-head h2 { margin: 0; }
+.cn-head .tag.interrupt { border-color: var(--warn); color: var(--warn); }
+.ladder { margin-left: auto; letter-spacing: 3px; color: var(--accent); font-size: .9rem; }
+.cn-text { font-size: 1.05rem; margin: 8px 0 4px; min-height: 1.5em; }
+.cn-text.quiet { color: var(--muted); font-size: .95rem; }
+.cn-move { margin: 4px 0; font-size: .9rem; }
+.cn-move .cls { font-weight: 600; }
+.cls.best, .cls.excellent, .mv.best, .mv.excellent { color: var(--accent); }
+.cls.good, .cls.book, .cls.forced { color: var(--muted); }
+.tally { font-size: .85rem; color: var(--muted); margin: 6px 0 0; }
+.noted { margin: 0; padding-left: 1.2em; font-size: .9rem; }
+#noted-box h3 .count { font-size: .75rem; background: var(--line); border-radius: 999px; padding: 0 6px; }

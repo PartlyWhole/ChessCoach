@@ -77,6 +77,8 @@ class WebApp:
             "result": self._result(),
             "resigned": self._resigned,
             "last_move": b.move_stack[-1].uci() if b.move_stack else None,
+            # Engine evaluation of the current position, White POV (for the optional eval bar).
+            "eval_white": round(s._before.lines[0].win_prob, 4) if s._before and s._before.lines else None,
             "start_fen": s.start_fen,
             "moves": [m.uci() for m in b.move_stack],
             "concepts_loaded": len(s.registry),
@@ -147,11 +149,20 @@ class WebApp:
         return b.result(claim_draw=True) if b.is_game_over(claim_draw=True) else None
 
     def move(self, uci: str) -> str:
+        board = self.session.board.copy()
         r = self.session.player_move(uci)
         a = r.assessment
+        best = chess.Move.from_uci(a.best_move) if a.best_move else None
+        reg = self.session.registry
         return self._state(
             assessment={"move": a.move, "move_class": a.move_class, "loss": round(a.loss, 3),
-                        "best_move": a.best_move},
+                        "best_move": a.best_move, "san": board.san(chess.Move.from_uci(a.move)),
+                        "best_san": board.san(best) if best and board.is_legal(best) else None,
+                        "win_prob_before": round(a.win_prob_before, 4), "win_prob_after": round(a.win_prob_after, 4)},
+            # Ideas the coach noticed but kept for the review (04 step 5): titles only, no text, so
+            # nothing is given away mid-game; only concepts in the loaded registry (approved/preview).
+            queued=[{"concept_id": q.concept_id, "title": reg.concepts[q.concept_id].title}
+                    for q in r.queued if q.concept_id in reg.concepts],
             event=_event(r.event), bot_move=r.bot_move.move if r.bot_move else None,
             bot_source=r.bot_move.source if r.bot_move else None, bot_san=r.bot_san,
             waiting_for_takeback=r.waiting_for_takeback)
