@@ -40,6 +40,7 @@ explanation audit (08 §4), and the product metrics that need real users (08 §6
 | M4 | **Browser persistence** — the existing SQLite `Store` runs in Pyodide on a file synced to IndexedDB. `WebApp` loads/saves the profile. | L5 + runtime | survives reload; pytest for the API |
 | M5 | **Coach page learning loop** — after a game vs the bot: Glicko update vs bot Elo, band hysteresis, mastery update, review with "Why?", cards saved; next game picks lesson focus from the weakness profile; profile screen. Coach page gets move history and captured pieces like p2p. | L5 + client | end-to-end browser test |
 | M6 | **Drills** — daily queue (due → new → puzzles), drill board with the hint ladder (approved text only, generic UI otherwise), FSRS grading, mastery from drills. | L5 + client | pytest for grading flow + browser |
+| M7b | **Opening tree for the bot** — found in M5 testing: Maia-2 is trained only on plies > 10 (`maia2/dataset.py`), so the bot's opening moves were untrained guesses (…Na6, knight retreats). Build a rating-band opening tree from the Lichess games database (CC0) and use the engine's near-best moves when a game leaves it before ply 10. | L4 + build | bot plays real openings |
 | M7 | **Puzzle bank** *(scope decision)* — build step selects Lichess puzzles (CC0) per mapped concept and band, re-tags them with our detectors, ships a compact JSON. | L5 + build | build + drill uses them |
 | M8 | **Expert approval tool** — `/review/` page: every concept and fallback template rendered on its test positions (board, highlights, filled slots); approve / request changes / edit; exports decisions; `tools/apply_review.py` writes them into the YAML. | tooling | expert can approve a concept end to end |
 | M9 | **Finish** — ADR 0004, docs 01/02/04/06 updates, full pytest + JS suites, deploy, live check. | — | deployed |
@@ -50,3 +51,7 @@ explanation audit (08 §4), and the product metrics that need real users (08 §6
 - 2026-10-24: M1–M3 done. `chesscoach/analysis/lines.py` + `tests/positions/lines/` (14 cases);
   `MoveAssessment.played_line`; review `why` blocks; "Why?" explorer in the p2p analysis panel
   (`web/shared/lines.mjs`, `web/shared/board.mjs`).
+- 2026-10-24: M4–M6 done. Learner store on IndexedDB (Pyodide IDBFS + the `sqlite3` wheel);
+  `chesscoach/learner/service.py` (learning loop) and `drill.py`; coach page rebuilt as an ES
+  module (`web/coach/`) with Play / Drills / Progress tabs, post-game review with "Why?", shared
+  review panel (`web/shared/review-panel.mjs`). Found the Maia-2 opening problem (M7b).

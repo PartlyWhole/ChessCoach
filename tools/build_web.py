@@ -69,15 +69,22 @@ def app_zip(dest: Path) -> None:
                     z.write(p, p.relative_to(ROOT))
 
 
+def bundle(entry: Path, out: Path) -> None:
+    """esbuild an ES module page script; bundled packages' license notices (chess.js is
+    BSD-2-Clause, which requires them) go to <name>.LICENSES.txt next to it."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run([str(NM / ".bin" / "esbuild"), str(entry), "--bundle", "--format=esm", "--target=es2022",
+                    "--minify", "--legal-comments=external", f"--outfile={out}", "--log-level=warning"], check=True)
+    legal = out.with_name(out.name + ".LEGAL.txt")
+    if legal.exists():
+        legal.rename(out.with_name(out.stem + ".LICENSES.txt"))
+
+
 def build_p2p(dest: Path) -> None:
-    for f in ("index.html", "p2p.css"):
-        copy(WEB / "p2p" / f, dest / f)
+    copy(WEB / "p2p" / "index.html", dest / "index.html")
     copy(NM / "@automerge" / "automerge" / "dist" / "automerge.wasm", dest / "automerge.wasm")
-    subprocess.run([str(NM / ".bin" / "esbuild"), str(WEB / "p2p" / "main.mjs"), "--bundle", "--format=esm",
-                    "--target=es2022", "--minify", "--legal-comments=external", f"--outfile={dest / 'p2p.js'}",
-                    "--log-level=warning"], check=True)
-    # Bundled packages' license notices (chess.js is BSD-2-Clause, which requires them).
-    (dest / "p2p.js.LEGAL.txt").rename(dest / "LICENSES.txt")
+    bundle(WEB / "p2p" / "main.mjs", dest / "p2p.js")
+    (dest / "p2p.LICENSES.txt").rename(dest / "LICENSES.txt")
 
 
 def main() -> None:
@@ -88,8 +95,11 @@ def main() -> None:
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
-    for f in ("index.html", "app.js", "runtime.js", "py-worker.js", "maia-worker.js", "style.css"):
+    for f in ("index.html", "runtime.js", "py-worker.js", "maia-worker.js", "style.css"):
         copy(WEB / f, OUT / f)
+    copy(WEB / "shared" / "ui.css", OUT / "shared" / "ui.css")
+    copy(WEB / "coach" / "coach.css", OUT / "coach" / "coach.css")
+    bundle(WEB / "coach" / "main.mjs", OUT / "coach.js")
     copy(NM / "coi-serviceworker" / "coi-serviceworker.min.js", OUT / "coi-serviceworker.min.js")
     for f in ("pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"):
         copy(NM / "pyodide" / f, OUT / "pyodide" / f)
@@ -99,7 +109,9 @@ def main() -> None:
         copy(NM / "onnxruntime-web" / "dist" / f, OUT / "ort" / f)
     copy(MODEL, OUT / "maia" / MODEL.name)
     # fsrs (+ typing-extensions): chesscoach.learner.review imports the SRS module (p2p review, ADR 0003).
+    # sqlite3 is unvendored from Pyodide's stdlib: the learner store needs it (ADR 0004).
     wheels = [fetch_pyodide_wheel("pyyaml", OUT / "wheels"), fetch_pyodide_wheel("typing-extensions", OUT / "wheels"),
+              fetch_pyodide_wheel("sqlite3", OUT / "wheels"),
               build_wheel("chess", OUT / "wheels"), build_wheel("fsrs", OUT / "wheels")]
     (OUT / "wheels" / "index.json").write_text(json.dumps(wheels))
     app_zip(OUT / "app.zip")

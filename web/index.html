@@ -8,21 +8,41 @@
        Python worker can block on SharedArrayBuffer (ADR 0002). First visit reloads once. -->
   <script src="coi-serviceworker.min.js"></script>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shared/ui.css">
+  <link rel="stylesheet" href="coach/coach.css">
 </head>
 <body>
   <header>
-    <h1>ChessCoach <span class="tag">browser proof of concept</span></h1>
-    <p class="sub">A sparring partner that coaches while you play. Everything runs in your browser:
-      Stockfish (WebAssembly), a human-like Maia-2 bot (ONNX) and the coach's Python code (Pyodide).</p>
+    <h1>ChessCoach <span class="tag">runs in your browser</span></h1>
+    <p class="sub">A sparring partner that coaches while you play, reviews your games and turns your
+      mistakes into drills. Stockfish, a human-like Maia-2 bot and the coach's Python code all run on
+      your device; your progress stays in this browser.</p>
+    <nav class="tabs" role="tablist">
+      <button id="tab-play" role="tab" aria-selected="true" data-tab="play">Play</button>
+      <button id="tab-drills" role="tab" aria-selected="false" data-tab="drills">Drills <span id="drill-count" class="count" hidden></span></button>
+      <button id="tab-progress" role="tab" aria-selected="false" data-tab="progress">Progress</button>
+    </nav>
   </header>
 
-  <main>
+  <!-- ============================================================ Play -->
+  <main id="view-play">
     <section class="board-col">
+      <div id="caps-top" class="caps"></div>
       <div id="board" class="board" aria-label="Chess board"></div>
+      <div id="caps-bottom" class="caps"></div>
+      <div class="replay" aria-label="Move history">
+        <button id="nav-first" aria-label="Start position">⏮</button>
+        <button id="nav-prev" aria-label="Previous move">◀</button>
+        <button id="nav-next" aria-label="Next move">▶</button>
+        <button id="nav-last" aria-label="Current position">⏭</button>
+      </div>
+      <p id="viewing" class="viewing" hidden></p>
       <div class="board-actions">
         <button id="hint" disabled>Hint</button>
         <button id="takeback" disabled>Take back</button>
         <button id="resume" disabled>Keep my move</button>
+        <button id="resign" disabled>Resign</button>
+        <button id="flip">Flip board</button>
       </div>
       <p id="status" class="status" role="status">Starting…</p>
     </section>
@@ -30,10 +50,11 @@
     <section class="side-col">
       <form id="setup" class="card">
         <h2>New game</h2>
+        <p id="profile-line" class="note" hidden></p>
         <label>Play as
           <select id="color"><option value="white">White</option><option value="black">Black</option></select>
         </label>
-        <label>Your rating
+        <label id="rating-row">Your rating
           <input id="rating" type="number" min="400" max="2600" step="50" value="1000">
         </label>
         <label>Coaching
@@ -47,22 +68,111 @@
           <input id="drafts" type="checkbox">
           <span>Developer preview: show <strong>unreviewed draft</strong> coaching text</span>
         </label>
-        <p class="note">Coaching text ships only after a chess expert approves it. None is approved yet,
-          so without the preview the coach stays silent.</p>
-        <button id="start" type="submit" disabled>Start</button>
+        <p class="note">Coaching text ships only after a chess expert approves it. Until then the coach
+          stays silent unless you turn on the preview; reviews still show the engine's lines.</p>
+        <button id="start" class="primary" type="submit" disabled>Start</button>
       </form>
 
-      <div class="card">
-        <h2>Coach</h2>
+      <div id="game-card" class="card" hidden>
+        <h2>Game</h2>
+        <p id="lesson-line" class="note" hidden></p>
+        <h3>Coach</h3>
         <ol id="coach" class="coach"></ol>
+        <h3>Moves</h3>
+        <ol id="moves" class="moves"></ol>
       </div>
 
-      <p class="foot"><a href="p2p/">Play a friend (peer-to-peer)</a> · GPL-3.0 · <a href="https://github.com/PartlyWhole/ChessCoach">source</a> ·
+      <div id="analysis" class="card" hidden>
+        <h2>After the game</h2>
+        <div id="an-summary" class="summary"></div>
+        <p id="an-progress" class="status" hidden></p>
+        <div id="an-result" hidden>
+          <div id="an-acc" class="acc"></div>
+          <svg id="an-graph" class="graph" viewBox="0 0 400 100" preserveAspectRatio="none" role="img"
+               aria-label="White's winning chances over the game"></svg>
+          <div id="an-detail" class="detail"></div>
+          <h3>Key moments</h3>
+          <ol id="an-moments" class="an-moments"></ol>
+          <p id="an-meta" class="note"></p>
+        </div>
+        <button id="again" class="primary" type="button">New game</button>
+      </div>
+
+      <p class="foot"><a href="p2p/">Play a friend (peer-to-peer)</a> · GPL-3.0 ·
+        <a href="https://github.com/PartlyWhole/ChessCoach">source</a> ·
         <a href="THIRD_PARTY.md">third-party licenses</a></p>
     </section>
   </main>
 
+  <!-- ============================================================ Drills (M6) -->
+  <main id="view-drills" hidden>
+    <section class="board-col">
+      <div id="drill-board" class="board" aria-label="Drill board"></div>
+      <div class="board-actions">
+        <button id="drill-hint" disabled>Hint</button>
+        <button id="drill-show" disabled>Show solution</button>
+        <button id="drill-next" class="primary" disabled>Next</button>
+      </div>
+      <p id="drill-status" class="status" role="status"></p>
+    </section>
+    <section class="side-col">
+      <div class="card">
+        <h2>Today's drills</h2>
+        <p id="drill-intro" class="note">Positions from your own games where you went wrong, scheduled with
+          spaced repetition, plus puzzles on what you're working on.</p>
+        <ol id="drill-queue" class="drill-queue"></ol>
+      </div>
+      <div id="drill-card" class="card" hidden>
+        <h2 id="drill-title">Find the best move</h2>
+        <p id="drill-source" class="note"></p>
+        <ol id="drill-feedback" class="coach"></ol>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================ Progress -->
+  <main id="view-progress" hidden>
+    <section class="wide-col">
+      <div id="progress-empty" class="card">
+        <h2>Your progress</h2>
+        <p>Play a game to create your profile. Your rating, the concepts you're learning and your drills
+          are kept in this browser only.</p>
+      </div>
+      <div id="progress" hidden>
+        <div class="stats">
+          <div class="stat"><span class="k">Rating</span><strong id="p-rating"></strong><span id="p-rd" class="muted"></span></div>
+          <div class="stat"><span class="k">Band</span><strong id="p-band"></strong></div>
+          <div class="stat"><span class="k">Next bot</span><strong id="p-bot"></strong></div>
+          <div class="stat"><span class="k">Games</span><strong id="p-games"></strong><span id="p-results" class="muted"></span></div>
+          <div class="stat"><span class="k">Drill rating</span><strong id="p-drill"></strong></div>
+          <div class="stat"><span class="k">Cards</span><strong id="p-cards"></strong><span id="p-cards-due" class="muted"></span></div>
+        </div>
+        <div class="card">
+          <h2>What to work on</h2>
+          <p id="p-focus" class="note"></p>
+          <table class="metrics"><tbody id="p-metrics"></tbody></table>
+          <p class="note">Targets are draft values for now, until there are enough players at your level to
+            compare with (docs/06 §3).</p>
+        </div>
+        <div class="card">
+          <h2>Concepts</h2>
+          <p id="p-mastery-counts" class="note"></p>
+          <ul id="p-concepts" class="concepts"></ul>
+        </div>
+        <div class="card">
+          <h2>Your data</h2>
+          <p id="p-persist" class="note"></p>
+          <button id="p-reset" type="button">Reset my progress</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="promo" aria-label="Promote to">
+    <div class="promo"></div>
+  </dialog>
+
   <script src="runtime.js"></script>
-  <script src="app.js"></script>
+  <script type="module" src="coach.js"></script>
 </body>
 </html>

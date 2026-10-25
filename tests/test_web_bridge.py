@@ -122,3 +122,54 @@ def test_webapp_review(native):
     # Rule 2: without the developer preview no unreviewed text reaches the page.
     assert w["moments"][0]["summary"] == "" and w["moments"][0]["concept_id"] is None
     assert r["depth"] == 10 and r["engine"]
+
+
+def test_webapp_learning_loop(native):
+    """Coach page loop (ADR 0004): profile from the first game's rating, resign, review, rating
+    update, and the second game uses the stored profile."""
+    def rpc(kind, payload):
+        if kind == "maia":
+            req = json.loads(payload)
+            return json.dumps({"logits": [0.0] * len(req["legal"])})
+        return make_rpc(native)(kind, payload)
+
+    app = WebApp(rpc, seed=2, store_path=":memory:")
+    assert json.loads(app.learner_state())["has_profile"] is False
+    st = json.loads(app.new_game("white", 1100, "standard", show_drafts=True))
+    assert st["band"] == "B1" and st["bot_elo"] == 1150 and st["moves"] == [st["bot_move"]] * 0
+    for uci in ("e2e4", "d2d4"):
+        if uci in st["legal"]:
+            st = json.loads(app.move(uci))
+    assert len(st["moves"]) == 4 and not st["game_over"]
+    st = json.loads(app.resign())
+    assert st["game_over"] and st["result"] == "0-1" and st["legal"] == []
+    out = json.loads(app.finish_game())
+    assert out["score"] == 0.0 and out["result"] == "0-1"
+    assert out["summary"]["rating_after"] < out["summary"]["rating_before"] == 1100
+    assert len(out["review"]["plies"]) == 4 and set(out["review"]["sides"]) == {"white", "black"}
+    assert json.loads(app.finish_game()) == out                    # idempotent
+    ls = json.loads(app.learner_state(True))
+    assert ls["games"] == 1 and ls["rating"] == out["summary"]["rating_after"]
+    st2 = json.loads(app.new_game("black", 2000, "standard", show_drafts=True))
+    assert st2["band"] == "B1" and st2["bot_elo"] == ls["bot_elo"]   # stored profile, not the new input
+    assert json.loads(app.reset_progress())["has_profile"] is False
+
+
+def test_webapp_drills(native):
+    """Drill API (06 §5): queue from saved cards, solve, grade recorded once, card scheduled."""
+    from chesscoach.learner.srs import ReviewCard
+    app = WebApp(make_rpc(native), store_path=":memory:")
+    app.learner.ensure(1200)
+    c = ReviewCard.new("local", "find_move", "r3k2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1",
+                       ["d5c7", "e8d8", "c7a8"], [], {"game_id": "g", "ply": 20})
+    app.learner.store.save_card(c)
+    q = json.loads(app.drill_queue())
+    assert [x["card_id"] for x in q["cards"]] == [c.card_id] and q["cards"][0]["side"] == "white"
+    st = json.loads(app.drill_start(c.card_id))
+    assert st["player_moves"] == 2 and "d5c7" in st["legal"]
+    st = json.loads(app.drill_move("d5c7"))
+    assert st["result"] == "correct" and st["reply_san"] == "Kd8" and "graded" not in st
+    st = json.loads(app.drill_move("c7a8"))
+    assert st["solved"] and st["graded"]["grade"] in ("Easy", "Good")
+    assert st["graded"]["counts"] == {"total": 1, "new": 0, "due": 0}
+    assert json.loads(app.drill_hint())["graded"] == st["graded"]      # recorded once

@@ -30,14 +30,42 @@ async function boot() {
   progress("Loading coach…");
   const zip = await (await fetch(base + "app.zip")).arrayBuffer();
   py.unpackArchive(zip, "zip", { extractDir: "/app" });
+  // The learner store (ADR 0004): SQLite on a folder that IndexedDB keeps between visits. Private
+  // windows and blocked storage fall back to memory; the page is told which it got.
+  progress("Opening your saved progress…");
+  let storePath = ":memory:";
+  try {
+    py.FS.mkdirTree("/data");
+    py.FS.mount(py.FS.filesystems.IDBFS, {}, "/data");
+    await syncfs(true);
+    persistent = true;
+    storePath = "/data/learner.db";
+  } catch (err) {
+    persistent = false;
+  }
+  py.globals.set("store_path", storePath);
   py.runPython(`
 import sys
 sys.path.insert(0, "/app")
 from js import rpc_sync
 from chesscoach.web.app import WebApp
-app = WebApp(rpc_sync)
+app = WebApp(rpc_sync, store_path=store_path)
 `);
   app = py.globals.get("app");
+}
+
+let persistent = false, syncing = null, syncAgain = false;
+function syncfs(populate) {
+  return new Promise((resolve, reject) => py.FS.syncfs(populate, (e) => (e ? reject(e) : resolve())));
+}
+// Write the database back to IndexedDB after a call; calls that land during a sync queue one more.
+function persist() {
+  if (!persistent) return;
+  if (syncing) { syncAgain = true; return; }
+  syncing = syncfs(false).catch(() => {}).finally(() => {
+    syncing = null;
+    if (syncAgain) { syncAgain = false; persist(); }
+  });
 }
 
 self.onmessage = async (e) => {
@@ -47,7 +75,7 @@ self.onmessage = async (e) => {
     data = new Uint8Array(m.sab, 16);
     try {
       await boot();
-      self.postMessage({ type: "ready" });
+      self.postMessage({ type: "ready", persistent });
     } catch (err) {
       self.postMessage({ type: "fatal", error: String(err) });
     }
@@ -55,6 +83,7 @@ self.onmessage = async (e) => {
     try {
       const out = app[m.method](...m.args);
       self.postMessage({ type: "result", id: m.id, json: out });
+      persist();
     } catch (err) {
       self.postMessage({ type: "result", id: m.id, error: String(err) });
     }

@@ -27,6 +27,7 @@ interface LearnerProfile {
   bot_offset: number;            // see 05
   settings: CoachSettings;       // see 04
   repertoire: { white: string[]; black: string[] };   // opening tree ids
+  band_tracker: { above: number; below: number };      // band hysteresis counters (§1)
 }
 
 interface ConceptMastery {
@@ -63,7 +64,11 @@ interface GameLogMove {
   coach_event: CoachingEvent | null;
   bot_move?: BotMove;
   clock_ms?: number;
+  phase?: "opening" | "middlegame" | "endgame";   // of the position before the move (§3 metrics)
+  sharpness?: number;                             // of that position (§3 "tactics found")
 }
+// `hits` of a player's move also carries the `available` hits of the position before it (role
+// "available"), so "tactics found" can be computed from the log.
 ```
 
 ### Mastery update (after every game and drill)
@@ -113,7 +118,11 @@ the worst weakness metric, excluding concepts mentioned in the last 2 games.
 
 ## 4. Post-game review
 
-Builder runs after each game at `engine.depth_review` (01). The browser build runs the same
+Builder runs after each game at `engine.depth_review` (01). The learning loop around it (profile,
+rating, band, bot offset, mastery, cards, weakness profile, lesson focus, drills) is
+`chesscoach/learner/service.py`; one drill attempt is `chesscoach/learner/drill.py` (alternatives
+accepted only if they are the engine's best move or mate; a solve after a wrong try is graded at
+least Hard). The browser build runs the same
 builder at `engine.depth_review_web` for the peer-to-peer page's analysis, for both players and
 without saving cards (ADR 0003).
 

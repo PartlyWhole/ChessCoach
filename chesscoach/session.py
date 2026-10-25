@@ -121,8 +121,12 @@ class GameSession:
         entry = _Logged(ply, assessment, hits, out.event, available=list(self._available))
         self.log.append(entry)
         if self.store:
-            self.store.log_move(self.game_id, ply, asdict(assessment), [asdict(h) for h in hits],
-                                asdict(out.event) if out.event else None, clock_ms=clock_ms)
+            # Available hits (position before the move, player to move) are logged with their role so
+            # the weakness profile can count tactics found (06 §3).
+            self.store.log_move(self.game_id, ply, asdict(assessment),
+                                [asdict(h) for h in hits] + [asdict(h) for h in self._available],
+                                asdict(out.event) if out.event else None, clock_ms=clock_ms,
+                                phase=pf_b.phase, sharpness=before.sharpness)
         self.bot.observe_player_move(assessment.move_class,
                                      lesson_hit=any(h.concept_id == self.state.lesson_focus for h in hits))
         self._before = after
@@ -174,8 +178,9 @@ class GameSession:
         return self._bot_reply()
 
     # ------------------------------------------------------------------ end of game (L5)
-    def finish(self, mastery: dict[str, ConceptMastery]) -> dict[str, ConceptMastery]:
-        """Mastery update after the game (06 §2). Returns the updated records."""
+    def finish(self, mastery: dict[str, ConceptMastery], result: Optional[float] = None) -> dict[str, ConceptMastery]:
+        """Mastery update after the game (06 §2). Returns the updated records. `result` is the player's
+        score (1 / 0.5 / 0), stored with the game."""
         now = datetime.now(timezone.utc).isoformat()
         hint_levels = {}
         for h in self.state.hints_requested:
@@ -202,6 +207,6 @@ class GameSession:
                     self.store.save_mastery(m)
         if self.store:
             self.store.save_game(self.game_id, self.player_id, self.player_color, self.start_fen,
-                                 [m.uci() for m in self.board.move_stack], None, self.state.lesson_focus,
+                                 [m.uci() for m in self.board.move_stack], result, self.state.lesson_focus,
                                  self.state.concepts_mentioned, now)
         return mastery

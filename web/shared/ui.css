@@ -1,4 +1,4 @@
-/* Additions to ../style.css for the peer-to-peer page. */
+/* Shared UI on top of ../style.css: board extras, move list, review panel, "Why?" lines (p2p and coach pages). */
 [hidden] { display: none !important; }   /* class rules below set display; hidden must still win */
 .sq.check { box-shadow: inset 0 0 0 3px rgba(200, 40, 40, .85); background-image: radial-gradient(rgba(220, 50, 50, .55), transparent 70%); }
 .sq .coord.file { left: auto; right: 3px; }

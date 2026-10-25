@@ -1,4 +1,4 @@
-// Pure helpers for the post-game analysis panel (ADR 0003). The review itself comes from the
+// Pure helpers for the post-game analysis panel (ADR 0003, 0004; p2p and coach pages). The review itself comes from the
 // Python WebApp.review() (classification, accuracy and moments are not recomputed here); these
 // functions only format it. Tested in review.test.mjs.
 

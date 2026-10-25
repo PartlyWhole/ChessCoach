@@ -109,7 +109,7 @@
     py.onmessage = async (e) => {
       const m = e.data;
       if (m.type === "progress") onProgress(m.msg);
-      else if (m.type === "ready") readyResolve();
+      else if (m.type === "ready") readyResolve({ persistent: !!m.persistent });
       else if (m.type === "fatal") readyReject(new Error(m.error));
       else if (m.type === "rpc") {
         try {

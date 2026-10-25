@@ -168,27 +168,8 @@ export function rematchDoc(d) {
   return newGameDoc({ white: d.black, black: d.white, names: d.names });
 }
 
-// Pieces each side has taken in the first `ply` moves (lowercase piece letters, most valuable
-// first), and the material balance on the board in pawns (positive = White ahead; counts
-// promotions, which the captured lists alone would miss).
-export const PIECE_VALUE = { q: 9, r: 5, b: 3, n: 3, p: 1 };
-
-export function captures(moves, ply = moves.length) {
-  const out = { white: [], black: [] };
-  moves.slice(0, ply).forEach((m, i) => { if (m.captured) out[i % 2 ? "black" : "white"].push(m.captured); });
-  const order = "qrbnp";
-  for (const c of ["white", "black"]) out[c].sort((a, b) => order.indexOf(a) - order.indexOf(b));
-  return out;
-}
-
-export function materialBalance(fen) {
-  let bal = 0;
-  for (const ch of fen.split(" ")[0]) {
-    const v = PIECE_VALUE[ch.toLowerCase()];
-    if (v) bal += ch === ch.toUpperCase() ? v : -v;
-  }
-  return bal;
-}
+// Captured pieces and material balance moved to ../shared/replay.mjs (used by the coach page too).
+export { PIECE_VALUE, captures, materialBalance } from "../shared/replay.mjs";
 
 export function pgn(doc, g = derive(doc)) {
   const name = (c) => ((doc[c] && doc.names[doc[c]]) || c).replace(/["\\]/g, "");

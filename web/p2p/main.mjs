@@ -5,7 +5,8 @@ import {
   initializeWasm, isValidAutomergeUrl,
 } from "@automerge/vanillajs/slim";
 import * as G from "./game.mjs";
-import * as R from "./review.mjs";
+import * as R from "../shared/review.mjs";
+import * as RP from "../shared/review-panel.mjs";
 import { GLYPH, START_FEN, renderBoard, renderCaptureStrip } from "../shared/board.mjs";
 import * as L from "../shared/lines.mjs";
 
@@ -156,11 +157,7 @@ function update() {
 
 const PIECE_LETTER = { pawn: "p", knight: "n", bishop: "b", rook: "r", queen: "q", king: "k" };
 
-function variationLine() {
-  if (!variation || !review) return null;
-  const why = review.plies[variation.ply] && review.plies[variation.ply].why;
-  return why ? why[variation.which] : null;
-}
+const variationLine = () => RP.variationLine(review, variation);
 
 function render() {
   const viewing = game && viewPly !== null;
@@ -498,34 +495,6 @@ function showProgress(msg) {
   $("an-progress").textContent = msg || "";
 }
 
-const SVG = "http://www.w3.org/2000/svg";
-function svgEl(name, attrs) {
-  const e = document.createElementNS(SVG, name);
-  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-  return e;
-}
-
-function renderGraph() {
-  const g = $("an-graph"), W = 400, H = 100;
-  g.innerHTML = "";
-  const pts = R.graphPoints(review, W, H);
-  const line = pts.map((p) => p.join(",")).join(" ");
-  g.append(svgEl("rect", { class: "g-bg", x: 0, y: 0, width: W, height: H }));
-  g.append(svgEl("polygon", { class: "g-white", points: `0,${H} ${line} ${W},${H}` }));
-  g.append(svgEl("line", { class: "g-mid", x1: 0, y1: H / 2, x2: W, y2: H / 2 }));
-  g.append(svgEl("polyline", { class: "g-line", points: line }));
-  review.plies.forEach((p, i) => {
-    if (p.move_class === "mistake" || p.move_class === "blunder") {
-      const [x, y] = pts[i + 1];
-      // A zero-length round-capped line: a dot that the stretched viewBox does not distort.
-      g.append(svgEl("line", { class: "g-dot " + p.move_class, x1: x, y1: y, x2: x, y2: y + 0.01 }));
-    }
-  });
-  const cur = viewPly ?? review.plies.length;
-  const x = pts[cur][0];
-  g.append(svgEl("line", { class: "g-cur", x1: x, y1: 0, x2: x, y2: H }));
-}
-
 function renderAnalysis() {
   const done = !!(game && game.result);
   $("analysis").hidden = !done;
@@ -535,83 +504,13 @@ function renderAnalysis() {
   $("an-start").hidden = !!review;
   $("an-result").hidden = !review;
   if (!review) return;
-
-  const acc = $("an-acc");
-  acc.innerHTML = "";
-  for (const c of ["white", "black"]) {
-    const side = review.sides[c];
-    const row = document.createElement("div");
-    row.className = "acc-row";
-    const who = document.createElement("span");
-    who.className = "who";
-    who.textContent = `${c === "white" ? "White" : "Black"} · ${(doc[c] && doc.names[doc[c]]) || "Anonymous"}`;
-    const num = document.createElement("strong");
-    num.textContent = side.accuracy == null ? "–" : `${Math.round(side.accuracy)}%`;
-    num.title = "Accuracy (Lichess formula, from win-probability loss)";
-    const counts = document.createElement("span");
-    counts.className = "counts";
-    counts.textContent = R.BAD.map((k) => R.plural(side.counts[k], k)).join(" · ");
-    row.append(who, num, counts);
-    acc.append(row);
-  }
-
-  renderGraph();
-
-  const detail = $("an-detail");
-  detail.innerHTML = "";
+  const name = (c) => (doc[c] && doc.names[doc[c]]) || "Anonymous";
   const cur = viewPly ?? review.plies.length;
-  if (cur === 0) {
-    detail.textContent = "Starting position.";
-  } else {
-    const f = R.plyFacts(review, cur - 1);
-    const head = document.createElement("div");
-    head.className = "d-head";
-    const lab = document.createElement("strong");
-    lab.textContent = f.label;
-    const cls = document.createElement("span");
-    cls.className = "tag cls " + f.moveClass;
-    cls.textContent = f.moveClass;
-    head.append(lab, cls);
-    const ch = document.createElement("div");
-    ch.textContent = `${f.mover === "white" ? "White" : "Black"}'s winning chances: ${f.chances}`;
-    detail.append(head, ch);
-    const why = review.plies[cur - 1].why;
-    if (why) detail.append(renderWhy(cur - 1, why));
-    else if (f.best) {
-      const b = document.createElement("div");
-      b.textContent = `Engine's best: ${f.best.san}. Line: ${f.best.line}`;
-      detail.append(b);
-    }
-    const m = R.moments(review).find((x) => x.ply === cur - 1 && x.summary);
-    if (m) {
-      const t = document.createElement("div");
-      t.className = "draft";
-      t.textContent = m.summary;
-      const d = document.createElement("span");
-      d.className = "tag";
-      d.textContent = "unreviewed draft";
-      t.prepend(d, " ");
-      detail.append(t);
-    }
-  }
-
-  const ol = $("an-moments");
-  ol.innerHTML = "";
-  const ms = R.moments(review);
-  for (const m of ms) {
-    const li = document.createElement("li");
-    const a = document.createElement("button");
-    a.className = "link";
-    const f = R.plyFacts(review, m.ply);
-    a.textContent = `${f.label} (${m.color}, ${m.move_class})`;
-    a.onclick = () => goTo(m.ply + 1);
-    li.append(a);
-    if (m.summary) { const s = document.createElement("div"); s.className = "draft"; s.textContent = m.summary; li.append(s); }
-    else if (f.best) { const s = document.createElement("div"); s.className = "muted"; s.textContent = `Best was ${f.best.san}.`; li.append(s); }
-    ol.append(li);
-  }
-  if (!ms.length) { const li = document.createElement("li"); li.className = "muted"; li.textContent = "No inaccuracies, mistakes or blunders."; ol.append(li); }
-
+  RP.renderAccuracy($("an-acc"), review, { white: name("white"), black: name("black") });
+  RP.renderGraph($("an-graph"), review, cur);
+  RP.renderDetail($("an-detail"), review, cur,
+                  { variation, open: openVariation, step: stepVariation, exit: exitVariation });
+  RP.renderMoments($("an-moments"), review, goTo);
   $("an-meta").textContent = `${review.engine}, depth ${review.depth}. Its evaluations differ slightly from full ` +
     "Stockfish, so treat close calls with care. The analysis stays in this browser; your opponent runs their own.";
 }
@@ -620,9 +519,8 @@ $("an-run").onclick = runAnalysis;
 $("an-drafts").onchange = () => { review = null; update(); };
 $("an-graph").onclick = (e) => {
   if (!review) return;
-  const r = e.currentTarget.getBoundingClientRect();
   stopReplay();
-  goTo(R.plyAtX(review, (e.clientX - r.left) / r.width * 400, 400));
+  goTo(RP.graphClickPly(e, review));
 };
 
 // ------------------------------------------------------------------ "Why?": engine lines explained
@@ -647,72 +545,6 @@ function exitVariation() {
   const ply = variation.ply;
   variation = null;
   goTo(ply + 1);
-}
-
-function renderWhy(ply, why) {
-  const box = document.createElement("div");
-  box.className = "why";
-  const active = variation && variation.ply === ply ? variation.which : null;
-  const tabs = document.createElement("div");
-  tabs.className = "why-tabs";
-  const p = review.plies[ply];
-  for (const [which, label] of [["played", `After ${p.san}`], ["best", `Best: ${p.best_san || "–"}`]]) {
-    const b = document.createElement("button");
-    b.textContent = label;
-    b.className = which === (active || "played") ? "on" : "";
-    b.setAttribute("aria-pressed", String(which === active));
-    b.onclick = () => openVariation(ply, which, 1);
-    tabs.append(b);
-  }
-  box.append(tabs);
-  const ex = why[active || "played"];
-  const sum = L.lineSummary(ex);
-  const s = document.createElement("p");
-  s.className = "why-sum " + sum.kind;
-  s.textContent = sum.text;
-  box.append(s);
-  const ol = document.createElement("ol");
-  ol.className = "why-line";
-  for (const row of L.lineRows(ex, ply)) {
-    const li = document.createElement("li");
-    li.className = (row.decisive ? "decisive " : "") + (active && variation.step === row.step + 1 ? "cur" : "");
-    const mv = document.createElement("button");
-    mv.className = "link mv-label";
-    mv.textContent = row.label;
-    mv.onclick = () => openVariation(ply, active || "played", row.step + 1);
-    li.append(mv);
-    for (const bdg of row.badges) {
-      const t = document.createElement("span");
-      t.className = "badge " + bdg.kind;
-      t.textContent = bdg.text;
-      li.append(t);
-    }
-    const mat = document.createElement("span");
-    mat.className = "mat";
-    mat.textContent = row.material;
-    mat.title = "Material since the move, for the side that played it";
-    li.append(mat);
-    ol.append(li);
-  }
-  box.append(ol);
-  const nav = document.createElement("div");
-  nav.className = "why-nav";
-  if (active) {
-    const prev = document.createElement("button"); prev.textContent = "◀"; prev.ariaLabel = "Previous move in the line";
-    prev.onclick = () => stepVariation(-1); prev.disabled = variation.step === 0;
-    const next = document.createElement("button"); next.textContent = "▶"; next.ariaLabel = "Next move in the line";
-    next.onclick = () => stepVariation(1); next.disabled = variation.step >= ex.steps.length;
-    const back = document.createElement("button"); back.textContent = "Back to the game"; back.onclick = exitVariation;
-    nav.append(prev, next, back);
-  } else {
-    const show = document.createElement("button");
-    show.className = "primary";
-    show.textContent = "Show on the board";
-    show.onclick = () => openVariation(ply, "played", 1);
-    nav.append(show);
-  }
-  box.append(nav);
-  return box;
 }
 
 // ------------------------------------------------------------------ input

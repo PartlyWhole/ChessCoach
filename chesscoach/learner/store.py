@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS learner_profile (
   band TEXT NOT NULL,
   bot_offset REAL NOT NULL,
   settings TEXT NOT NULL,         -- CoachSettings JSON
-  repertoire TEXT NOT NULL        -- {"white": [...], "black": [...]}
+  repertoire TEXT NOT NULL,       -- {"white": [...], "black": [...]}
+  band_tracker TEXT               -- {"above": n, "below": n}: band hysteresis counters (06 §1)
 );
 CREATE TABLE IF NOT EXISTS concept_mastery (
   player_id TEXT NOT NULL,
@@ -54,6 +55,8 @@ CREATE TABLE IF NOT EXISTS game_log_move (
   coach_event TEXT,
   bot_move TEXT,
   clock_ms INTEGER,
+  phase TEXT,                     -- phase of the position before the move (06 §3 metrics)
+  sharpness REAL,                 -- sharpness of that position (06 §3 "tactics found")
   PRIMARY KEY (game_id, ply)
 );
 CREATE TABLE IF NOT EXISTS game (
@@ -70,27 +73,40 @@ CREATE TABLE IF NOT EXISTS game (
 """
 
 HISTORY_KEEP = 20
+# Columns added after the first schema; databases created earlier get them on open.
+MIGRATIONS = [("learner_profile", "band_tracker", "TEXT"), ("game_log_move", "phase", "TEXT"),
+              ("game_log_move", "sharpness", "REAL")]
 
 
 class Store:
     def __init__(self, path: str = ":memory:"):
         self.db = sqlite3.connect(path)
         self.db.executescript(SCHEMA)
+        for table, col, typ in MIGRATIONS:
+            cols = {r[1] for r in self.db.execute(f"PRAGMA table_info({table})")}
+            if col not in cols:
+                self.db.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+        self.db.commit()
 
     # ---- profile
     def save_profile(self, player_id: str, game_rating: Glicko, drill_rating: Glicko, band: str,
-                     bot_offset: float, settings: dict, repertoire: Optional[dict] = None) -> None:
-        self.db.execute("REPLACE INTO learner_profile VALUES (?,?,?,?,?,?,?)",
+                     bot_offset: float, settings: dict, repertoire: Optional[dict] = None,
+                     band_tracker: Optional[dict] = None) -> None:
+        self.db.execute("REPLACE INTO learner_profile (player_id, game_rating, drill_rating, band, bot_offset, "
+                        "settings, repertoire, band_tracker) VALUES (?,?,?,?,?,?,?,?)",
                         (player_id, json.dumps(asdict(game_rating)), json.dumps(asdict(drill_rating)), band,
-                         bot_offset, json.dumps(settings), json.dumps(repertoire or {"white": [], "black": []})))
+                         bot_offset, json.dumps(settings), json.dumps(repertoire or {"white": [], "black": []}),
+                         json.dumps(band_tracker or {"above": 0, "below": 0})))
         self.db.commit()
 
     def load_profile(self, player_id: str) -> Optional[dict]:
-        r = self.db.execute("SELECT * FROM learner_profile WHERE player_id=?", (player_id,)).fetchone()
+        r = self.db.execute("SELECT player_id, game_rating, drill_rating, band, bot_offset, settings, repertoire, "
+                            "band_tracker FROM learner_profile WHERE player_id=?", (player_id,)).fetchone()
         if r is None:
             return None
         return {"player_id": r[0], "game_rating": Glicko(**json.loads(r[1])), "drill_rating": Glicko(**json.loads(r[2])),
-                "band": r[3], "bot_offset": r[4], "settings": json.loads(r[5]), "repertoire": json.loads(r[6])}
+                "band": r[3], "bot_offset": r[4], "settings": json.loads(r[5]), "repertoire": json.loads(r[6]),
+                "band_tracker": json.loads(r[7]) if r[7] else {"above": 0, "below": 0}}
 
     # ---- mastery
     def save_mastery(self, m: ConceptMastery) -> None:
@@ -122,18 +138,21 @@ class Store:
 
     # ---- game log
     def log_move(self, game_id: str, ply: int, assessment: dict, hits: list, coach_event: Optional[dict],
-                 bot_move: Optional[dict] = None, clock_ms: Optional[int] = None) -> None:
-        self.db.execute("REPLACE INTO game_log_move VALUES (?,?,?,?,?,?,?)",
+                 bot_move: Optional[dict] = None, clock_ms: Optional[int] = None, phase: Optional[str] = None,
+                 sharpness: Optional[float] = None) -> None:
+        self.db.execute("REPLACE INTO game_log_move (game_id, ply, assessment, hits, coach_event, bot_move, clock_ms, "
+                        "phase, sharpness) VALUES (?,?,?,?,?,?,?,?,?)",
                         (game_id, ply, json.dumps(assessment), json.dumps(hits),
                          json.dumps(coach_event) if coach_event else None,
-                         json.dumps(bot_move) if bot_move else None, clock_ms))
+                         json.dumps(bot_move) if bot_move else None, clock_ms, phase, sharpness))
         self.db.commit()
 
     def game_log(self, game_id: str) -> list[dict]:
-        rows = self.db.execute("SELECT * FROM game_log_move WHERE game_id=? ORDER BY ply", (game_id,))
+        rows = self.db.execute("SELECT game_id, ply, assessment, hits, coach_event, bot_move, clock_ms, phase, "
+                               "sharpness FROM game_log_move WHERE game_id=? ORDER BY ply", (game_id,))
         return [{"game_id": r[0], "ply": r[1], "assessment": json.loads(r[2]), "hits": json.loads(r[3]),
                  "coach_event": json.loads(r[4]) if r[4] else None, "bot_move": json.loads(r[5]) if r[5] else None,
-                 "clock_ms": r[6]} for r in rows]
+                 "clock_ms": r[6], "phase": r[7], "sharpness": r[8]} for r in rows]
 
     def save_game(self, game_id: str, player_id: str, color: str, start_fen: str, moves: list[str],
                   result: Optional[float], lesson_focus: Optional[str], concepts_mentioned: list[str],
@@ -142,6 +161,15 @@ class Store:
                         (game_id, player_id, color, start_fen, json.dumps(moves), result, lesson_focus,
                          json.dumps(concepts_mentioned), finished_at))
         self.db.commit()
+
+    def games(self, player_id: str, n: int = 50) -> list[dict]:
+        """Most recent first."""
+        rows = self.db.execute("SELECT game_id, player_color, start_fen, moves, result, lesson_focus, "
+                               "concepts_mentioned, finished_at FROM game WHERE player_id=? ORDER BY rowid DESC "
+                               "LIMIT ?", (player_id, n))
+        return [{"game_id": r[0], "player_color": r[1], "start_fen": r[2], "moves": json.loads(r[3]), "result": r[4],
+                 "lesson_focus": r[5], "concepts_mentioned": json.loads(r[6] or "[]"), "finished_at": r[7]}
+                for r in rows]
 
     def recent_games(self, player_id: str, n: int) -> list[dict]:
         rows = self.db.execute("SELECT game_id, result, concepts_mentioned FROM game WHERE player_id=? "
