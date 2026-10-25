@@ -58,7 +58,8 @@ class WebApp:
         self._queue: dict = {}                  # card_id → ReviewCard for the current drill queue
         self._drill: Optional[DrillAttempt] = None
         self._drill_result: Optional[dict] = None
-        self.puzzles = None                     # PuzzleBank (M7), set by load_puzzles()
+        from chesscoach.learner.puzzles import PuzzleBank
+        self.puzzles = PuzzleBank.load_default()  # drill puzzles (06 §6), None without a built bank
         if store_path is not None:
             from chesscoach.learner.store import Store
             self.learner = LearnerService(Store(store_path), player_id)
@@ -316,3 +317,18 @@ class WebApp:
 
     def drill_show(self) -> str:
         return self._drill_out(self._drill.reveal())
+
+    # ------------------------------------------------------------------ expert review page (AGENTS rule 2)
+    def review_concepts(self) -> str:
+        from chesscoach.concepts.review_tool import concept_list, fallback_detail
+        return json.dumps({"concepts": concept_list(self.registries[True]), "fallback": fallback_detail()})
+
+    def review_concept(self, concept_id: str, templates_json: str = "null") -> str:
+        """The concept's templates and its test positions run through the matcher at browser review
+        depth, with `templates_json` edits applied ({role: {level: text}}) and checked."""
+        from chesscoach.concepts.review_tool import concept_detail
+        reg = self.registries[True]
+        out = concept_detail(reg.get(concept_id), reg, Analyzer(self.pool, live=False), json.loads(templates_json),
+                             depth=int(config.get("engine.depth_review_web")))
+        out["engine"] = f"{self.pool.version}, depth {config.get('engine.depth_review_web')}"
+        return json.dumps(out)

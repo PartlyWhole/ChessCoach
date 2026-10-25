@@ -1,0 +1,35 @@
+/* Expert review page. */
+.reviewer { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+.reviewer label { margin: 0; }
+.reviewer input { max-width: 240px; }
+.review-main { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); }
+@media (max-width: 860px) { .review-main { grid-template-columns: minmax(0, 1fr); } }
+.concept-list ul { list-style: none; margin: 0; padding: 0; max-height: 75vh; overflow-y: auto; }
+.concept-list li { padding: 3px 0; }
+.concept-list .cat { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-top: 10px; }
+.concept-list button { text-align: left; width: 100%; border: 0; background: none; padding: 4px 6px; border-radius: 5px; color: var(--fg); }
+.concept-list button.cur { background: var(--sel); }
+.concept-list .st { float: right; font-size: .7rem; }
+.st.approved, .dec.approved { color: var(--accent); }
+.st.changes_requested, .dec.changes_requested { color: var(--warn); }
+.tpl-role { margin: 10px 0; }
+.tpl-role h3 { font-size: .9rem; margin: 0 0 4px; text-transform: capitalize; }
+.tpl-row { display: grid; grid-template-columns: 2.2em minmax(0, 1fr); gap: 6px; align-items: start; margin: 4px 0; }
+.tpl-row .lv { color: var(--muted); font-size: .8rem; padding-top: 6px; }
+.tpl-row textarea { font: inherit; width: 100%; min-height: 2.4em; resize: vertical; padding: 4px 6px; border-radius: 5px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+.tpl-row textarea.edited { border-color: var(--warn); }
+.errors { color: var(--warn); }
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.case { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.case .board { width: 100%; }
+.case .sq { font-size: clamp(14px, 3vw, 26px); }
+@media (min-width: 861px) { .case .sq { font-size: 26px; } }
+.case h4 { margin: 0 0 6px; font-size: .85rem; }
+.case .exp { font-size: .8rem; color: var(--muted); }
+.case .bad { color: var(--warn); font-weight: 600; }
+.case ol { margin: 6px 0 0; padding-left: 1.6em; font-size: .9rem; }
+.case .note { margin-top: 6px; }
+.decision { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.decision textarea { flex: 1 1 100%; font: inherit; min-height: 3em; padding: 4px 6px; border-radius: 5px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--fg); }

@@ -34,7 +34,9 @@ class FirstLegal:
 
 
 def session(pool, analyzer, script, mode="standard"):
-    bot = SparringBot(FirstLegal(script), pool, BotConfig(900, 900), random.Random(0))
+    # The script stands in for Maia in the opening too, so the engine-opening rule is off here
+    # (it is tested in test_sparring.py).
+    bot = SparringBot(FirstLegal(script), pool, BotConfig(900, 900, engine_opening=False), random.Random(0))
     pol = CoachingPolicy(REG, CoachSettings(mode=mode), LearnerView(band="B1"), fallback=FALLBACK)
     return GameSession(analyzer, REG, bot, pol, player_color="white", band="B1", store=Store())
 

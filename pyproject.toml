@@ -9,7 +9,7 @@ dependencies = ["chess>=1.11,<2", "pyyaml>=6", "fsrs>=6,<7"]
 [project.optional-dependencies]
 maia = ["maia2"]
 webbuild = ["maia2", "onnx>=1.16", "onnxconverter-common>=1.14", "zstandard>=0.23"]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "ruamel.yaml>=0.18"]
 
 [build-system]
 requires = ["setuptools>=68"]

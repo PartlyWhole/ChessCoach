@@ -90,6 +90,7 @@ class BotConfig:
     temperature: float = float(config.get("bot.temperature"))
     max_cost: float = float(config.get("steer.max_win_prob_cost"))
     max_cost_tactic: float = float(config.get("steer.max_win_prob_cost_tactic"))
+    engine_opening: bool = True     # engine moves out of book before MAIA_MIN_PLY (tests of a scripted bot turn it off)
 
 
 class SparringBot:
@@ -126,7 +127,7 @@ class SparringBot:
         steered = self._try_steer(board, probs)
         if steered is not None:
             return steered
-        if board.ply() < MAIA_MIN_PLY:
+        if board.ply() < MAIA_MIN_PLY and self.cfg.engine_opening:
             early = self._engine_opening(board)
             if early is not None:
                 return early

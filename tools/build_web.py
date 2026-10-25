@@ -62,15 +62,19 @@ def fetch_pyodide_wheel(name: str, dest: Path) -> str:
 
 
 OPENING_TREE = ROOT / "models" / "opening_tree.json"     # tools/build_openings.py
+PUZZLE_BANK = ROOT / "models" / "puzzle_bank.json"       # tools/build_puzzles.py
 
 
 def app_zip(dest: Path) -> None:
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
-        for base, pattern in (("chesscoach", "**/*.py"), ("concepts", "**/*.yaml"), ("templates", "**/*.yaml")):
+        # Concept test positions ship for the expert review page (/review/).
+        for base, pattern in (("chesscoach", "**/*.py"), ("concepts", "**/*.yaml"), ("templates", "**/*.yaml"),
+                              ("tests/positions/concepts", "*.yaml")):
             for p in sorted((ROOT / base).glob(pattern)):
                 if "__pycache__" not in p.parts:
                     z.write(p, p.relative_to(ROOT))
         z.write(OPENING_TREE, "data/opening_tree.json")
+        z.write(PUZZLE_BANK, "data/puzzle_bank.json")
 
 
 def bundle(entry: Path, out: Path) -> None:
@@ -98,6 +102,8 @@ def main() -> None:
         raise SystemExit(f"missing {MODEL}: run tools/export_maia_onnx.py")
     if not OPENING_TREE.exists():
         raise SystemExit(f"missing {OPENING_TREE}: run tools/build_openings.py")
+    if not PUZZLE_BANK.exists():
+        raise SystemExit(f"missing {PUZZLE_BANK}: run tools/build_puzzles.py")
     if OUT.exists():
         shutil.rmtree(OUT)
     OUT.mkdir()
@@ -106,6 +112,9 @@ def main() -> None:
     copy(WEB / "shared" / "ui.css", OUT / "shared" / "ui.css")
     copy(WEB / "coach" / "coach.css", OUT / "coach" / "coach.css")
     bundle(WEB / "coach" / "main.mjs", OUT / "coach.js")
+    for f in ("index.html", "review.css"):                  # expert review page (AGENTS rule 2)
+        copy(WEB / "review" / f, OUT / "review" / f)
+    bundle(WEB / "review" / "main.mjs", OUT / "review" / "review.js")
     copy(NM / "coi-serviceworker" / "coi-serviceworker.min.js", OUT / "coi-serviceworker.min.js")
     for f in ("pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"):
         copy(NM / "pyodide" / f, OUT / "pyodide" / f)

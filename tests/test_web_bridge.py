@@ -164,7 +164,8 @@ def test_webapp_drills(native):
                        ["d5c7", "e8d8", "c7a8"], [], {"game_id": "g", "ply": 20})
     app.learner.store.save_card(c)
     q = json.loads(app.drill_queue())
-    assert [x["card_id"] for x in q["cards"]] == [c.card_id] and q["cards"][0]["side"] == "white"
+    assert q["cards"][0]["card_id"] == c.card_id and q["cards"][0]["side"] == "white"
+    assert all(x["source"].get("puzzle_id") for x in q["cards"][1:])     # puzzles fill the rest (06 §5)
     st = json.loads(app.drill_start(c.card_id))
     assert st["player_moves"] == 2 and "d5c7" in st["legal"]
     st = json.loads(app.drill_move("d5c7"))

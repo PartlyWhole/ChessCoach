@@ -7,7 +7,8 @@ on:
   push:
     branches: [main]
     paths: ["chesscoach/**", "concepts/**", "templates/**", "web/**", "tools/build_web.py",
-            "tools/export_maia_onnx.py", "tools/build_openings.py", ".github/workflows/pages.yml"]
+            "tools/export_maia_onnx.py", "tools/build_openings.py",
+            "tools/build_puzzles.py", ".github/workflows/pages.yml"]
 
 permissions:
   contents: read
@@ -50,6 +51,13 @@ jobs:
           key: lichess-db-games-2014-01-v1
       - name: Build the bot's opening tree
         run: python tools/build_openings.py
+      - name: Cache the Lichess puzzle database (replaced monthly)
+        uses: actions/cache@v4
+        with:
+          path: models/lichess/lichess_db_puzzle.csv.zst
+          key: lichess-db-puzzles-v1
+      - name: Build the drill puzzle bank
+        run: python tools/build_puzzles.py
       - run: npm ci
         working-directory: web
       - run: npm test

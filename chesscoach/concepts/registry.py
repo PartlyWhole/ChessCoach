@@ -167,13 +167,17 @@ def _concept_from_dict(d: dict[str, Any], path: Optional[Path] = None) -> Concep
 
 
 class Registry:
-    def __init__(self, concepts: list[Concept]):
+    def __init__(self, concepts: list[Concept], all_ids: Optional[set[str]] = None):
+        """`all_ids`: every concept id on disk, drafts included. A parent or prerequisite that
+        exists but is not approved yet is allowed (experts approve in any order); one that does
+        not exist at all is an error."""
         self.concepts = {c.id: c for c in concepts}
+        known = self.concepts.keys() | (all_ids or set())
         for c in concepts:
-            if c.parent and c.parent not in self.concepts:
+            if c.parent and c.parent not in known:
                 raise ConceptError(f"{c.id}: parent {c.parent} not found")
             for p in c.prerequisites:
-                if p not in self.concepts:
+                if p not in known:
                     raise ConceptError(f"{c.id}: prerequisite {p} not found")
 
     @classmethod
@@ -182,7 +186,7 @@ class Registry:
         if allow_unreviewed is None:
             allow_unreviewed = os.environ.get("CHESSCOACH_ALLOW_UNREVIEWED") == "1"
         known = _known_feature_ids()
-        concepts = []
+        concepts, all_ids = [], set()
         for path in sorted(root.glob("*/*.yaml")):
             c = _concept_from_dict(yaml.safe_load(path.read_text()), path)
             if path.parent.name != c.category:
@@ -193,10 +197,11 @@ class Registry:
                 c.templates = {r: {int(k): v for k, v in lv.items()} for r, lv in tr["templates"].items()}
                 c.plans = tr.get("plans", c.plans)
             validate(c, known)
+            all_ids.add(c.id)
             if not c.approved and not allow_unreviewed:
                 continue
             concepts.append(c)
-        return cls(concepts)
+        return cls(concepts, all_ids)
 
     def get(self, concept_id: str) -> Concept:
         return self.concepts[concept_id]

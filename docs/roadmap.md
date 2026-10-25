@@ -58,3 +58,9 @@ explanation audit (08 §4), and the product metrics that need real users (08 §6
 - 2026-10-24: M7b done. `tools/build_openings.py` (697k games, 96 s, 0.7 MB tree; median 7 plies
   deep); `band_tree()` with all-band fallback; bot never samples raw Maia before ply 10
   (`engine_opening`). Verified: 1.e4 e5 2.Nf3 Nf6 / 1.e4 Nc6 2.Nf3 e5 instead of …Na6/…Nb8.
+- 2026-10-24: M7 done. `tools/build_puzzles.py` (6.2M rows read, 1,766 kept, 9 themes × 5 bands;
+  `overloading` gets none: our detector never confirms Lichess's tag — input for 08 §2);
+  `PuzzleBank.pick()` fills the drill queue by lesson focus and drill rating.
+- 2026-10-24: M8 done. `/review/` page + `chesscoach/concepts/review_tool.py` +
+  `tools/apply_review.py`. Found and fixed: approving a concept before its parent crashed the
+  approved registry; parents/prerequisites may now be drafts.

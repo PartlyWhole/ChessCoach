@@ -43,7 +43,9 @@ Data built into the site (ADR 0004):
 | Data | Source | Use | License |
 |------|--------|-----|---------|
 | Opening tree (`data/opening_tree.json` in app.zip) | Lichess games database, standard rated, 2014-01 (database.lichess.org), sha256-checked; counts only | The bot's opening moves per rating band (05 §2) | CC0-1.0 |
+| Puzzle bank (`data/puzzle_bank.json` in app.zip) | Lichess puzzle database (database.lichess.org, replaced monthly; sha256 and build date recorded in the file); ~1,800 puzzles re-tagged by our detectors | Drill puzzles (06 §6) | CC0-1.0 |
 
 Build-only: onnx (Apache-2.0), onnxconverter-common (MIT), esbuild 0.28.2 (MIT), zstandard 0.23 (BSD-3-Clause).
+Maintainer tooling: ruamel.yaml 0.18 (MIT), used by `tools/apply_review.py` to keep YAML comments.
 
 Glicko-2 is implemented in-repo from Glickman's public paper (no dependency).

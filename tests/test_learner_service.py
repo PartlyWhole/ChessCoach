@@ -168,3 +168,34 @@ def test_store_migrates_an_older_database(tmp_path):
     assert p.game_rating.rating == 1400 and p.tracker.above == 0
     svc.store.log_move("g", 0, asdict(assess(0)), [], None, phase="opening", sharpness=0.4)
     assert svc.store.game_log("g")[0]["phase"] == "opening"
+
+
+def test_puzzle_bank_pick_by_focus_rating_and_exclusions():
+    import random as _r
+    from chesscoach.learner.puzzles import PuzzleBank
+    mk = lambda i, rating, concepts: {"id": f"P{i}", "fen": chess.STARTING_FEN, "solution": ["e2e4"],
+                                      "rating": rating, "themes": [], "concepts": concepts}
+    bank = PuzzleBank([mk(1, 1000, ["tactic-fork-knight"]), mk(2, 1050, ["tactic-pin-absolute"]),
+                       mk(3, 1900, ["tactic-fork-knight"]), mk(4, 1020, ["tactic-fork-knight"])], _r.Random(0))
+    cards = bank.pick(2, "tactic-fork-knight", 1000)
+    assert {c.source["puzzle_id"] for c in cards} == {"P1", "P4"}           # focus + near rating first
+    assert all(c.source["rating"] and c.kind == "find_move" and c.concept_ids for c in cards)
+    assert [c.source["puzzle_id"] for c in bank.pick(3, "tactic-fork-knight", 1000, exclude={"P1"})][-1] == "P3"
+    assert {c.source["puzzle_id"] for c in bank.pick(1, "tactic-skewer", 1040)} <= {"P2", "P4", "P1"}  # unknown focus → any
+    assert len(bank.pick(10, None, 1500)) == 4
+
+
+def test_shipped_puzzle_bank_is_valid():
+    """Every shipped puzzle has a legal solution from its position (built by tools/build_puzzles.py)."""
+    from chesscoach.learner.puzzles import PuzzleBank
+    bank = PuzzleBank.load_default()
+    if bank is None:
+        pytest.skip("no puzzle bank built (tools/build_puzzles.py)")
+    assert len(bank.puzzles) > 1000
+    for p in bank.puzzles[::25]:
+        b = chess.Board(p["fen"])
+        for u in p["solution"]:
+            m = chess.Move.from_uci(u)
+            assert b.is_legal(m), (p["id"], u)
+            b.push(m)
+        assert p["concepts"] and set(p["concepts"]) <= set(REG.concepts)

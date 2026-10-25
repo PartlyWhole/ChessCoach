@@ -232,5 +232,10 @@ are text for the player, not search guidance.
 1. Chess expert drafts the concept YAML and ≥ 5 test positions (3 positive, 2 negative).
 2. Engineer adds any missing detector/predicate with its own tests.
 3. CI runs the concept against its tests and against a 10k-position regression set (08) and reports how often it fires per 100 positions. A concept firing in > 5% of random middlegame positions is almost always too loose.
-4. Second expert reviews text and a sample of 20 real-game hits.
+4. Second expert reviews text and a sample of 20 real-game hits. Tool: the site's `/review/` page
+   shows every concept's text at each hint level on its test positions (as the browser coach
+   renders it), lets the expert edit text (checked against the rules above), approve or request
+   changes, and download the decisions; `python tools/apply_review.py decisions.json` writes them
+   into the YAML (`review: {status, by, date, note}`), re-validates, and the change ships through a
+   normal commit. Approval order does not matter: an approved concept may have a draft parent.
 5. Merge.

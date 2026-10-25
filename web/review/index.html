@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coaching Text Review</title>
+  <!-- The review page runs the coach's matcher in the Python worker (needs cross-origin isolation). -->
+  <script src="../coi-serviceworker.min.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../shared/ui.css">
+  <link rel="stylesheet" href="review.css">
+</head>
+<body>
+  <header>
+    <h1>Coaching text review <span class="tag">for chess experts</span></h1>
+    <p class="sub">ChessCoach shows coaching text only after a chess expert approves it (AGENTS rule 2).
+      For each concept you see its text at every hint level, applied to its test positions exactly as the
+      coach would say it. Approve it, edit it, or ask for changes, then download your decisions and send
+      them to the maintainers (or run <code>tools/apply_review.py</code>).</p>
+    <div class="reviewer">
+      <label>Your name <input id="reviewer" autocomplete="name" placeholder="Required for export"></label>
+      <button id="export" class="primary" disabled>Download decisions</button>
+      <span id="decided" class="muted"></span>
+    </div>
+    <p id="status" class="status" role="status">Starting…</p>
+  </header>
+
+  <main class="review-main">
+    <nav class="card concept-list" aria-label="Concepts">
+      <h2>Concepts</h2>
+      <ul id="list"></ul>
+    </nav>
+
+    <section id="detail" class="detail-col">
+      <div class="card"><p class="muted">Pick a concept on the left.</p></div>
+    </section>
+  </main>
+
+  <script src="../runtime.js"></script>
+  <script type="module" src="review.js"></script>
+</body>
+</html>

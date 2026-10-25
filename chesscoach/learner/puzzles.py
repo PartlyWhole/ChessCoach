@@ -4,6 +4,8 @@ primary theme."""
 from __future__ import annotations
 
 import csv
+import json
+import random
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator, Optional
@@ -98,3 +100,41 @@ def retag(p: Puzzle, theme_map: dict[str, list[str]]) -> Optional[Puzzle]:
 def build_bank(puzzles: Iterable[Puzzle], theme_map: Optional[dict] = None) -> list[Puzzle]:
     theme_map = theme_map or load_theme_map()
     return [q for p in puzzles if (q := retag(p, theme_map)) is not None]
+
+
+# ---------------------------------------------------------------- the shipped bank (06 §5 queue)
+# Built by tools/build_puzzles.py. The browser build ships it in app.zip as data/puzzle_bank.json.
+_PKG_ROOT = Path(__file__).resolve().parent.parent.parent
+BANK_PATHS = [_PKG_ROOT / "data" / "puzzle_bank.json", _PKG_ROOT / "models" / "puzzle_bank.json"]
+RATING_WINDOWS = (150, 300, 600)
+
+
+class PuzzleBank:
+    def __init__(self, puzzles: list[dict], rng: Optional[random.Random] = None):
+        self.puzzles = puzzles
+        self.rng = rng or random.Random()
+
+    @classmethod
+    def load_default(cls) -> Optional["PuzzleBank"]:
+        for p in BANK_PATHS:
+            if p.exists():
+                return cls(json.loads(p.read_text())["puzzles"])
+        return None
+
+    def pick(self, n: int, focus: Optional[str], rating: float, exclude: set = frozenset(),
+             player_id: str = "local") -> list:
+        """06 §5: rating-matched puzzles tagged with the lesson focus (any theme without one),
+        widening the rating window when too few match; as ReviewCards (kind find_move)."""
+        from chesscoach.learner.srs import ReviewCard
+        pool = [p for p in self.puzzles if p["id"] not in exclude and (focus is None or focus in p["concepts"])]
+        if focus is not None and not pool:
+            pool = [p for p in self.puzzles if p["id"] not in exclude]
+        chosen: list[dict] = []
+        for w in RATING_WINDOWS + (None,):
+            near = [p for p in pool if p not in chosen and (w is None or abs(p["rating"] - rating) <= w)]
+            self.rng.shuffle(near)
+            chosen += near[: n - len(chosen)]
+            if len(chosen) >= n:
+                break
+        return [ReviewCard.new(player_id, "find_move", p["fen"], list(p["solution"]), list(p["concepts"]),
+                               {"puzzle_id": p["id"], "rating": p["rating"]}) for p in chosen]
