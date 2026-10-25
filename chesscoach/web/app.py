@@ -15,6 +15,7 @@ import chess
 
 from chesscoach import config
 from chesscoach.analysis.analyzer import Analyzer
+from chesscoach.analysis.lines import explain_line
 from chesscoach.concepts.registry import Registry
 from chesscoach.learner.accuracy import game_accuracy
 from chesscoach.learner.bands import band_for
@@ -127,7 +128,13 @@ class WebApp:
                 best_line.append(b2.san(mv))
                 b2.push(mv)
             wp_after_white = a.win_prob_after if a.mover == "white" else 1 - a.win_prob_after
+            why = None
+            if a.move_class in BAD_CLASSES:
+                n = int(config.get("explain.max_plies"))
+                why = {"played": asdict(explain_line(board, a.played_line[:n], a.mover)),
+                       "best": asdict(explain_line(board, a.best_line[:n], a.mover))}
             plies_out.append({
+                "why": why,
                 "ply": p.ply, "move": p.move, "san": board.san(chess.Move.from_uci(p.move)), "mover": a.mover,
                 "move_class": a.move_class, "loss": round(a.loss, 4),
                 "wp_before": round(a.win_prob_before, 4), "wp_after": round(a.win_prob_after, 4),

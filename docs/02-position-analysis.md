@@ -252,6 +252,25 @@ For ≤ 7 pieces, prefer Syzygy probes over the engine for result and DTZ
 win prob is 1 / 0.5 / 0 (cursed wins and blessed losses count as draws), `cp`
 is ±1000 for wins and 0 for draws. Enable by setting `CHESSCOACH_SYZYGY`.
 
+### 6.6 Line explanations
+
+A move is explained by what happens along the engine's line, not only in the position after it.
+`explain_line(board, moves, perspective)` (`chesscoach/analysis/lines.py`) replays a line (an
+engine PV: `MoveAssessment.best_line`, or `played_line` for the refutation of the move played)
+and returns a `LineExplanation` (01):
+
+- per ply: SAN, capture, promotion, check, mate, material balance since the start of the line
+  (perspective POV), and the tactical features the move creates: the move-based detectors run
+  with the rest of the line as their continuation, plus pins, skewers and traps created on the
+  destination square (same rules as opportunities, §6);
+- outcome: `mate` if the line ends in mate; otherwise the **settled** material change, where a
+  line that ends on a capture is corrected by SEE of the recapture, so the middle of an exchange
+  is never reported as a gain; changes under 1 pawn unit are `none`;
+- `decisive_ply`: the first ply from which the settled change (or the mate) holds to the end.
+
+No engine call is made: the line is the evidence. Tests: `tests/positions/lines/` (engine-free;
+lines are frozen in the YAML).
+
 ## 7. Output contract
 
 `analyze(fen_before, move) -> (EngineResult_before, EngineResult_after,

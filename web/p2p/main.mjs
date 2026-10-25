@@ -6,10 +6,11 @@ import {
 } from "@automerge/vanillajs/slim";
 import * as G from "./game.mjs";
 import * as R from "./review.mjs";
+import { GLYPH, START_FEN, renderBoard, renderCaptureStrip } from "../shared/board.mjs";
+import * as L from "../shared/lines.mjs";
 
 const RELAY = "wss://sync.automerge.org";
 const HEARTBEAT_MS = 4000, ONLINE_MS = 11000, FIND_TIMEOUT_MS = 30000;
-const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
 
 const $ = (id) => document.getElementById(id);
 const setStatus = (msg) => { $("status").textContent = msg; };
@@ -54,11 +55,14 @@ let handle = null, cleanup = () => {};
 let doc = null, game = null, selected = null, flipped = null;
 let viewPly = null, review = null, analysing = false;   // viewPly: null = live position
 let replayTimer = null;
+// Exploring an engine line from the review ("Why?"): which line, the game ply of the move it
+// explains, and how many of its moves are on the board (0 = the position before that move).
+let variation = null;
 const lastSeen = new Map();
 
 function resetAnalysis() {
   stopReplay();
-  viewPly = null; review = null;
+  viewPly = null; review = null; variation = null;
   $("analysis").hidden = true;
 }
 
@@ -150,89 +154,57 @@ function update() {
   rememberGame();
 }
 
-function parseFen(fen) {
-  const board = {};
-  fen.split(" ")[0].split("/").forEach((row, i) => {
-    let f = 0;
-    for (const ch of row) {
-      if (/\d/.test(ch)) { f += Number(ch); continue; }
-      board["abcdefgh"[f] + (8 - i)] = ch; f++;
-    }
-  });
-  return board;
+const PIECE_LETTER = { pawn: "p", knight: "n", bishop: "b", rook: "r", queen: "q", king: "k" };
+
+function variationLine() {
+  if (!variation || !review) return null;
+  const why = review.plies[variation.ply] && review.plies[variation.ply].why;
+  return why ? why[variation.which] : null;
 }
 
 function render() {
-  const el = $("board");
-  el.innerHTML = "";
   const viewing = game && viewPly !== null;
-  const fen = viewing ? game.fens[viewPly] : game ? game.fen : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  const pieces = parseFen(fen);
   const flip = flipped ?? mySeat() === "black";
-  const myTurn = game && game.turn === mySeat();
-  const targets = selected && myTurn ? game.legal.filter((m) => m.startsWith(selected)).map((m) => m.slice(2, 4)) : [];
-  const lastUci = viewing ? (viewPly > 0 ? game.moves[viewPly - 1].uci : null) : game && game.lastMove;
-  const last = lastUci ? [lastUci.slice(0, 2), lastUci.slice(2, 4)] : [];
-  const kingInCheck = !viewing && game && game.inCheck ? (game.turn === "white" ? "K" : "k") : null;
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const file = "abcdefgh"[flip ? 7 - c : c], rank = flip ? r + 1 : 8 - r, sq = file + rank;
-      const d = document.createElement("div");
-      d.className = "sq " + ((r + c) % 2 ? "d" : "l");
-      d.dataset.sq = sq;
-      if (last.includes(sq)) d.classList.add("last");
-      if (sq === selected) d.classList.add("sel");
-      if (targets.includes(sq)) d.classList.add("target");
-      const p = pieces[sq];
-      if (p) {
-        if (p === kingInCheck) d.classList.add("check");
-        const s = document.createElement("span");
-        s.className = "pc " + (p === p.toUpperCase() ? "w" : "b");
-        s.textContent = GLYPH[p.toLowerCase()];
-        d.appendChild(s);
-      }
-      if (c === 0) { const k = document.createElement("span"); k.className = "coord"; k.textContent = rank; d.appendChild(k); }
-      if (r === 7) { const k = document.createElement("span"); k.className = "coord file"; k.textContent = file; d.appendChild(k); }
-      d.onclick = () => onSquare(sq);
-      el.appendChild(d);
-    }
+  const line = variationLine();
+  let fen, lastUci = null, highlight = [], movesForCaptures;
+  if (line) {
+    const fens = L.lineFens(line);
+    const k = Math.min(variation.step, line.steps.length);
+    fen = fens[k];
+    const st = k > 0 ? line.steps[k - 1] : null;
+    lastUci = st ? st.move : (variation.ply > 0 ? game.moves[variation.ply - 1].uci : null);
+    highlight = st ? st.squares : [];
+    movesForCaptures = [...game.moves.slice(0, variation.ply),
+                        ...line.steps.slice(0, k).map((s) => ({ captured: s.captured ? PIECE_LETTER[s.captured] : null }))];
+  } else {
+    fen = viewing ? game.fens[viewPly] : game ? game.fen : START_FEN;
+    lastUci = viewing ? (viewPly > 0 ? game.moves[viewPly - 1].uci : null) : game && game.lastMove;
+    movesForCaptures = game ? game.moves.slice(0, viewPly ?? game.moves.length) : [];
   }
-  renderCaptures(fen, flip);
+  const myTurn = game && game.turn === mySeat();
+  renderBoard($("board"), {
+    fen, flip, highlight,
+    last: lastUci ? [lastUci.slice(0, 2), lastUci.slice(2, 4)] : [],
+    selected: line ? null : selected,
+    targets: !line && selected && myTurn ? game.legal.filter((m) => m.startsWith(selected)).map((m) => m.slice(2, 4)) : [],
+    check: !viewing && !line && game && game.inCheck ? (game.turn === "white" ? "K" : "k") : null,
+    onSquare,
+  });
+  renderCaptures(fen, flip, movesForCaptures);
 }
 
 // Above and below the board: the pieces each player has taken (in the viewed position) and their
 // material lead, from the board itself so promotions count.
-function renderCaptures(fen, flip) {
-  const taken = game ? G.captures(game.moves, viewPly ?? game.moves.length) : { white: [], black: [] };
+function renderCaptures(fen, flip, moves) {
+  const taken = G.captures(moves);
   const bal = G.materialBalance(fen);
   const sides = { top: flip ? "white" : "black", bottom: flip ? "black" : "white" };
   for (const [pos, color] of Object.entries(sides)) {
-    const el = $("caps-" + pos);
-    el.innerHTML = "";
-    const who = document.createElement("span");
-    who.className = "who";
     const id = doc && doc[color];
-    who.textContent = id ? (doc.names[id] || "Anonymous") + (id === me ? " (you)" : "") : color === "white" ? "White" : "Black";
-    const pcs = document.createElement("span");
-    pcs.className = "pcs";
-    let prev = null;
-    for (const p of taken[color]) {
-      const g = document.createElement("span");
-      g.className = "pc " + (color === "white" ? "b" : "w") + (p === prev ? " same" : "");
-      g.textContent = GLYPH[p];
-      pcs.append(g);
-      prev = p;
-    }
-    el.append(who, pcs);
-    const lead = color === "white" ? bal : -bal;
-    if (lead > 0) {
-      const b = document.createElement("span");
-      b.className = "lead";
-      b.textContent = "+" + lead;
-      el.append(b);
-    }
-    el.setAttribute("aria-label", `${color} has taken ${taken[color].length ? taken[color].join(", ") : "nothing"}` +
-      (lead > 0 ? `, ahead by ${lead}` : ""));
+    renderCaptureStrip($("caps-" + pos), {
+      color, taken: taken[color], lead: color === "white" ? bal : -bal,
+      name: id ? (doc.names[id] || "Anonymous") + (id === me ? " (you)" : "") : color === "white" ? "White" : "Black",
+    });
   }
 }
 
@@ -352,6 +324,7 @@ function goTo(ply) {
   ply = Math.max(0, Math.min(n, ply));
   viewPly = ply === n ? null : ply;
   selected = null;
+  variation = null;
   render();
   renderMoves();
   renderNav();
@@ -385,6 +358,17 @@ function renderNav() {
   $("nav-play").disabled = !game || n === 0;
   $("nav-play").textContent = replayTimer ? "Pause" : "Replay";
   const v = $("viewing");
+  if (variationLine()) {
+    v.hidden = false;
+    v.innerHTML = "";
+    const back = document.createElement("button");
+    back.className = "link";
+    back.textContent = "Back to the game";
+    back.onclick = () => exitVariation();
+    const what = variation.which === "played" ? `after ${game.moves[variation.ply].san}` : "the engine's best line";
+    v.append(`Exploring ${what} · move ${variation.step} of ${variationLine().steps.length} · `, back);
+    return;
+  }
   v.hidden = !game || viewPly === null;
   if (!v.hidden) {
     v.innerHTML = "";
@@ -402,7 +386,12 @@ $("nav-next").onclick = () => { stopReplay(); goTo((viewPly ?? game.moves.length
 $("nav-last").onclick = () => { stopReplay(); goTo(game.moves.length); };
 $("nav-play").onclick = toggleReplay;
 document.addEventListener("keydown", (e) => {
-  if (!game || e.target.closest("input, select, textarea, dialog")) return;
+  if (!game || e.target.closest?.("input, select, textarea, dialog")) return;
+  if (variationLine()) {
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+    if (step) { stepVariation(step); e.preventDefault(); return; }
+    if (e.key === "Escape") { exitVariation(); e.preventDefault(); return; }
+  }
   const cur = viewPly ?? game.moves.length;
   const to = { ArrowLeft: cur - 1, ArrowRight: cur + 1, Home: 0, End: game.moves.length }[e.key];
   if (to === undefined) return;
@@ -586,7 +575,9 @@ function renderAnalysis() {
     const ch = document.createElement("div");
     ch.textContent = `${f.mover === "white" ? "White" : "Black"}'s winning chances: ${f.chances}`;
     detail.append(head, ch);
-    if (f.best) {
+    const why = review.plies[cur - 1].why;
+    if (why) detail.append(renderWhy(cur - 1, why));
+    else if (f.best) {
       const b = document.createElement("div");
       b.textContent = `Engine's best: ${f.best.san}. Line: ${f.best.line}`;
       detail.append(b);
@@ -634,8 +625,99 @@ $("an-graph").onclick = (e) => {
   goTo(R.plyAtX(review, (e.clientX - r.left) / r.width * 400, 400));
 };
 
+// ------------------------------------------------------------------ "Why?": engine lines explained
+// The two lines of a reviewed move (docs/02 §6.6): what the opponent does after the move played,
+// and the engine's best line instead. Each move is labelled with computed facts only.
+function openVariation(ply, which, step) {
+  stopReplay();
+  variation = { ply, which, step };
+  viewPly = ply + 1;                      // the move list and analysis stay on the move explained
+  render(); renderMoves(); renderNav(); renderAnalysis();
+}
+
+function stepVariation(d) {
+  const line = variationLine();
+  if (!line) return;
+  variation.step = Math.max(0, Math.min(line.steps.length, variation.step + d));
+  render(); renderNav(); renderAnalysis();
+}
+
+function exitVariation() {
+  if (!variation) return;
+  const ply = variation.ply;
+  variation = null;
+  goTo(ply + 1);
+}
+
+function renderWhy(ply, why) {
+  const box = document.createElement("div");
+  box.className = "why";
+  const active = variation && variation.ply === ply ? variation.which : null;
+  const tabs = document.createElement("div");
+  tabs.className = "why-tabs";
+  const p = review.plies[ply];
+  for (const [which, label] of [["played", `After ${p.san}`], ["best", `Best: ${p.best_san || "–"}`]]) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.className = which === (active || "played") ? "on" : "";
+    b.setAttribute("aria-pressed", String(which === active));
+    b.onclick = () => openVariation(ply, which, 1);
+    tabs.append(b);
+  }
+  box.append(tabs);
+  const ex = why[active || "played"];
+  const sum = L.lineSummary(ex);
+  const s = document.createElement("p");
+  s.className = "why-sum " + sum.kind;
+  s.textContent = sum.text;
+  box.append(s);
+  const ol = document.createElement("ol");
+  ol.className = "why-line";
+  for (const row of L.lineRows(ex, ply)) {
+    const li = document.createElement("li");
+    li.className = (row.decisive ? "decisive " : "") + (active && variation.step === row.step + 1 ? "cur" : "");
+    const mv = document.createElement("button");
+    mv.className = "link mv-label";
+    mv.textContent = row.label;
+    mv.onclick = () => openVariation(ply, active || "played", row.step + 1);
+    li.append(mv);
+    for (const bdg of row.badges) {
+      const t = document.createElement("span");
+      t.className = "badge " + bdg.kind;
+      t.textContent = bdg.text;
+      li.append(t);
+    }
+    const mat = document.createElement("span");
+    mat.className = "mat";
+    mat.textContent = row.material;
+    mat.title = "Material since the move, for the side that played it";
+    li.append(mat);
+    ol.append(li);
+  }
+  box.append(ol);
+  const nav = document.createElement("div");
+  nav.className = "why-nav";
+  if (active) {
+    const prev = document.createElement("button"); prev.textContent = "◀"; prev.ariaLabel = "Previous move in the line";
+    prev.onclick = () => stepVariation(-1); prev.disabled = variation.step === 0;
+    const next = document.createElement("button"); next.textContent = "▶"; next.ariaLabel = "Next move in the line";
+    next.onclick = () => stepVariation(1); next.disabled = variation.step >= ex.steps.length;
+    const back = document.createElement("button"); back.textContent = "Back to the game"; back.onclick = exitVariation;
+    nav.append(prev, next, back);
+  } else {
+    const show = document.createElement("button");
+    show.className = "primary";
+    show.textContent = "Show on the board";
+    show.onclick = () => openVariation(ply, "played", 1);
+    nav.append(show);
+  }
+  box.append(nav);
+  return box;
+}
+
 // ------------------------------------------------------------------ input
 async function onSquare(sq) {
+  if (variationLine()) return;
   if (viewPly !== null) {   // viewing history: a click on the board returns to the game
     if (!game.result) { stopReplay(); goTo(game.moves.length); }
     return;

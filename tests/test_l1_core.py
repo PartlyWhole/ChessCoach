@@ -70,6 +70,15 @@ def test_thresholds_from_same_search():
     assert a.move_class == "mistake"
 
 
+def test_played_line_from_same_search_or_after_search():
+    """played_line = played move + engine continuation (refutation material for docs/02 §6.6)."""
+    m = chess.Move.from_uci("g2g4")
+    before = er([line(["e2e4"], cp=30), line(["g2g4", "d7d5", "f1g2"], cp=-120)])
+    assert classify(START, m, before, er([line(["d7d5"], cp=0)])).played_line == ["g2g4", "d7d5", "f1g2"]
+    a = classify(START, m, er([line(["e2e4"], cp=30)]), er([line(["e7e5", "f1g2"], cp=-90)]))
+    assert a.played_line == ["g2g4", "e7e5", "f1g2"]
+
+
 @pytest.mark.parametrize("cp_after,cls", [(25, "excellent"), (-20, "good"), (-60, "inaccuracy"),
                                           (-110, "mistake"), (-400, "blunder")])
 def test_class_ladder(cp_after, cls):

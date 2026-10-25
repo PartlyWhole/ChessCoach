@@ -52,6 +52,7 @@ class MoveAssessment:
     move_class: MoveClass
     best_move: UciMove
     best_line: list[UciMove]
+    played_line: list[UciMove] = field(default_factory=list)   # played move + engine continuation
 
 
 @dataclass
@@ -79,6 +80,32 @@ class PositionFeatures:
     features: list[Feature]
     threats: list[ThreatInfo]
     structure_id: Optional[str]
+
+
+@dataclass
+class LineStep:
+    ply: int                      # index in the line, 0 = its first move
+    move: UciMove
+    san: str
+    mover: Color
+    captured: Optional[str]       # piece name ("knight"), None if no capture
+    promotion: Optional[str]
+    check: bool
+    mate: bool
+    material: int                 # balance change since the line's start, perspective POV, pawn units
+    feature_ids: list[str]        # tactical features this move creates (02 §6.1 ids)
+    squares: list[Square]         # squares of those features, for highlighting
+
+
+@dataclass
+class LineExplanation:
+    perspective: Color            # whose material the numbers are about
+    start_fen: Fen
+    steps: list[LineStep]
+    material_change: int          # settled change over the line (SEE-corrected), perspective POV
+    outcome: Literal["mate", "material", "none"]
+    decisive_ply: Optional[int]   # first ply from which the outcome holds to the end
+    mate_for: Optional[Color]
 
 
 # ---------- L2 output ----------

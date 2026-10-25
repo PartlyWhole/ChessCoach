@@ -68,4 +68,5 @@ def classify(board_before: chess.Board, move: chess.Move, before: EngineResult,
     return MoveAssessment(
         move=move.uci(), mover=mover, win_prob_before=wp_before, win_prob_after=wp_after,
         loss=loss, move_class=cls, best_move=best_move, best_line=list(best_line.moves),
+        played_line=list(same_search.moves) if same_search else [move.uci()] + list(after.lines[0].moves),
     )

@@ -19,6 +19,7 @@ CONFIG: dict[str, object] = {
     "engine.depth_threat": 12,          # 02 §6.4
     "engine.time_live": 0.35,           # s per live search: depth OR time, whichever first (01 latency)
     "engine.time_threat": 0.15,         # s per live null-move threat search
+    "explain.max_plies": 10,           # plies of an engine line explained (02 §6.6)
     "policy.max_comments_per_10_moves": 3,
     "bot.temperature": 1.0,
     "steer.max_win_prob_cost": 0.05,

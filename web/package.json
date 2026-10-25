@@ -4,7 +4,7 @@
   "description": "Static browser build of ChessCoach (ADR 0002) and peer-to-peer play (ADR 0003). Runtime assets; esbuild bundles only the p2p page.",
   "license": "GPL-3.0-only",
   "scripts": {
-    "test": "node --test p2p/game.test.mjs p2p/review.test.mjs"
+    "test": "node --test p2p/game.test.mjs p2p/review.test.mjs shared/lines.test.mjs"
   },
   "dependencies": {
     "@automerge/vanillajs": "2.5.6",

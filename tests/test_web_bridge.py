@@ -106,6 +106,12 @@ def test_webapp_review(native):
     g4 = r["plies"][2]
     assert g4["move_class"] == "blunder" and g4["best_san"] and g4["best_san"] != "g4"
     assert g4["best_line_san"][0] == g4["best_san"]
+    # Why? (02 §6.6): the punishing line after g4 is ...Qh4 mate; the best line keeps material.
+    why = g4["why"]
+    assert why["played"]["steps"][0]["move"] == "g2g4" and why["played"]["outcome"] == "mate"
+    assert why["played"]["mate_for"] == "black" and why["played"]["decisive_ply"] == 1
+    assert why["best"]["steps"][0]["move"] == g4["best_move"] and why["best"]["outcome"] != "mate"
+    assert r["plies"][1]["why"] is None                            # only for inaccuracy or worse
     assert r["plies"][3]["move_class"] in ("best", "forced")
     assert r["plies"][3]["wp_white_after"] == 0.0                  # mated: White POV
     assert 0.4 < r["wp_white_start"] < 0.6

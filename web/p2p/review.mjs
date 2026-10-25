@@ -55,4 +55,5 @@ export function moments(review) {
     .sort((a, b) => a.ply - b.ply);
 }
 
-export const cacheKey = (docUrl, drafts) => `p2pchess.review.v1.${docUrl}.${drafts ? "drafts" : "approved"}`;
+// v2: reviews carry line explanations ("why").
+export const cacheKey = (docUrl, drafts) => `p2pchess.review.v2.${docUrl}.${drafts ? "drafts" : "approved"}`;

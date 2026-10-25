@@ -1,0 +1,153 @@
+# Line explanations (docs/02 §6.6, docs/08 §1). Engine-free: each case supplies the line, so the
+# expectations do not depend on an engine version. Lines for the fork near-misses were taken from
+# Stockfish 19 at depth 16 on 2026-10-24 (see tests/positions/detectors/fork.yaml for the positions).
+#
+# expect:
+#   outcome: mate | material | none
+#   material_change: settled change, perspective POV (pawn units)
+#   decisive_ply: index in the line, or null
+#   mate_for: colour (mate outcomes)
+#   steps: {ply: {features_include: [...], features_absent: [...], check, mate, captured, promotion, material}}
+function: explain_line
+cases:
+- id: knight-fork-wins-rook
+  fen: r3k2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  line: [d5c7, e8d8, c7a8]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: 5
+    decisive_ply: 2
+    steps:
+      0: {features_include: [fork], check: true, captured: null}
+      2: {captured: rook, material: 5}
+  note: "Nc7+ forks king and a8 rook; the line collects the rook and nothing can recapture on a8."
+- id: scholars-mate-refutation
+  fen: r1bqkbnr/pppp1ppp/2n5/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 3 3
+  line: [g8f6, h5f7]
+  perspective: black
+  expect:
+    outcome: mate
+    mate_for: white
+    decisive_ply: 1
+    steps:
+      1: {mate: true, captured: pawn, material: -1}
+  note: "Explaining Black's ...Nf6?? from Black's side: the refutation is Qxf7 mate."
+- id: line-ends-on-capture-settled-by-see
+  fen: r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3
+  line: [f3e5]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: -2
+    decisive_ply: 0
+    steps:
+      0: {captured: pawn, material: 1}
+  note: "Nxe5 grabs a pawn but the line stops there; SEE settles ...Nxe5, so the claim is -2, not +1."
+- id: promotion
+  fen: 8/4P3/8/8/8/k7/8/K7 w - - 0 1
+  line: [e7e8q]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: 8
+    decisive_ply: 0
+    steps:
+      0: {promotion: queen}
+- id: discovered-check-wins-queen
+  fen: q3k3/8/8/8/4B3/8/8/4R1K1 w - - 0 1
+  line: [e4a8, e8d7]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: 9
+    decisive_ply: 0
+    steps:
+      0: {features_include: [discovered_attack, discovered_check], check: true, captured: queen}
+- id: fork-allows-mate-in-one
+  fen: 5rk1/6pp/8/6N1/3q4/8/5PPP/6K1 w - - 0 1
+  line: [g5e6, d4a1]
+  perspective: white
+  expect:
+    outcome: mate
+    mate_for: black
+    decisive_ply: 1
+    steps:
+      0: {features_absent: [fork]}
+      1: {mate: true}
+  note: "Near miss: Ne6 double-attacks queen and rook, but ...Qa1 is mate. No fork is claimed."
+- id: fork-square-covered-loses-knight
+  fen: r2qk2r/pp3ppp/8/3N4/8/8/PPP2PPP/R3K2R w KQkq - 0 1
+  line: [d5c7, d8c7, e1g1, e8c8]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: -3
+    decisive_ply: 1
+    steps:
+      0: {features_absent: [fork], check: true}
+  note: "Near miss: Nc7+ hits king and rook but ...Qxc7."
+- id: fork-target-defended-loses-knight
+  fen: r5k1/pp3ppp/4b3/3N4/8/8/PP3PPP/6K1 w - - 0 1
+  line: [d5c7, a8c8, h2h4, c8c7]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: -3
+    decisive_ply: 3
+    steps:
+      0: {features_absent: [fork]}
+- id: pawn-fork-answered-by-capture
+  fen: r2q1rk1/ppp2ppp/3n1b2/8/4P3/8/PPP2PPP/R2Q1RK1 w - - 0 1
+  line: [e4e5, f6e5, c2c3, e5f6]
+  perspective: white
+  expect:
+    outcome: material
+    material_change: -1
+    decisive_ply: 1
+    steps:
+      0: {features_absent: [fork]}
+  note: "Near miss: e5 attacks knight and bishop, but the bishop takes the pawn."
+- id: even-exchange
+  fen: r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4
+  line: [b5c6, d7c6]
+  perspective: white
+  expect:
+    outcome: none
+    material_change: 0
+    decisive_ply: null
+- id: capture-that-gets-recaptured
+  fen: rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2
+  line: [e4d5]
+  perspective: white
+  expect:
+    outcome: none
+    material_change: 0
+    decisive_ply: null
+    steps:
+      0: {captured: pawn, material: 1}
+  note: "Near miss: the line stops after exd5; ...Qxd5 restores the balance."
+- id: check-without-gain
+  fen: 4k3/8/8/8/8/8/8/R3K3 w - - 0 1
+  line: [a1a8, e8e7]
+  perspective: white
+  expect:
+    outcome: none
+    decisive_ply: null
+    steps:
+      0: {check: true, mate: false}
+- id: illegal-move-ends-the-line
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  line: [e2e4, e7e5, e1e3, g8f6]
+  perspective: white
+  expect:
+    outcome: none
+    steps_count: 2
+- id: empty-line
+  fen: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+  line: []
+  perspective: white
+  expect:
+    outcome: none
+    material_change: 0
+    steps_count: 0

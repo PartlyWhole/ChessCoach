@@ -90,3 +90,25 @@ button.link { border: 0; background: none; padding: 0; color: var(--accent); tex
 .caps .pcs:empty { display: none; }
 .caps .pc.same { margin-left: -9px; }
 .caps .lead { font-weight: 600; color: var(--muted); }
+
+/* "Why?" line explorer */
+.why { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; }
+.why-tabs { display: flex; gap: 6px; }
+.why-tabs button { flex: 1; padding: 4px 6px; font-size: .9rem; }
+.why-tabs button.on { border-color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); }
+.why-sum { margin: 8px 0 4px; font-weight: 600; }
+.why-sum.loss, .why-sum.mate { color: #d03030; }
+.why-sum.gain { color: var(--accent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .why-sum.loss, :root:not([data-theme="light"]) .why-sum.mate { color: #ff6b6b; } }
+.why-line { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+.why-line li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 3px 4px; border-radius: 4px; }
+.why-line li.cur { background: var(--sel); }
+.why-line li.decisive { box-shadow: inset 3px 0 0 #d2691e; }
+.why-line .mv-label { min-width: 5.5em; text-align: left; text-decoration: none; color: var(--fg); font-weight: 600; }
+.why-line .mat { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: .85rem; }
+.badge { font-size: .75rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; color: var(--muted); }
+.badge.feature { border-color: var(--accent); color: var(--accent); }
+.badge.mate, .badge.capture { color: var(--fg); }
+.why-nav { display: flex; gap: 6px; margin-top: 8px; }
+.why-nav button { padding: 5px 10px; }
+.sq.hl::after { background: var(--hl); }

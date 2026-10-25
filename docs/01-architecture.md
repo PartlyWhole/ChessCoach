@@ -76,6 +76,32 @@ interface MoveAssessment {
   move_class: MoveClass;
   best_move: UciMove;
   best_line: UciMove[];
+  played_line: UciMove[];       // played move + engine continuation (the refutation, 02 §6.6)
+}
+
+// Line explanation (02 §6.6): what happens along an engine line, ply by ply
+interface LineStep {
+  ply: number;                  // index in the line, 0 = its first move
+  move: UciMove;
+  san: string;
+  mover: Color;
+  captured: string | null;      // piece name
+  promotion: string | null;
+  check: boolean;
+  mate: boolean;
+  material: number;             // balance change since the line's start, perspective POV, pawn units
+  feature_ids: string[];        // tactical features this move creates (02 §6.1)
+  squares: Square[];
+}
+
+interface LineExplanation {
+  perspective: Color;
+  start_fen: Fen;
+  steps: LineStep[];
+  material_change: number;      // settled (SEE-corrected) change over the line, perspective POV
+  outcome: "mate" | "material" | "none";
+  decisive_ply: number | null;  // first ply from which the outcome holds to the end
+  mate_for: Color | null;
 }
 
 interface Feature {
@@ -165,6 +191,7 @@ Keep Stockfish in a pool of long-lived processes. Never spawn one per request.
 | `engine.threads` | 2 | per process |
 | `engine.time_live` | 0.35 s | live searches stop at depth *or* this time, whichever first. Added because depth 16 × MultiPV 3 takes 2–5 s per tactical position on an M1, far over the 1.5 s budget. Review and tests use depth only. |
 | `engine.time_threat` | 0.15 s | same cap for the live null-move threat search |
+| `explain.max_plies` | 10 | plies of an engine line that a line explanation covers (02 §6.6) |
 | `policy.max_comments_per_10_moves` | 3 | see 04 |
 | `bot.temperature` | 1.0 | Maia sampling temperature, see 05 |
 | `steer.max_win_prob_cost` | 0.05 | max eval the bot may give up to steer, see 05 |
